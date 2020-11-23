@@ -7,10 +7,12 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
+    <!-- <link rel="icon" href="../../favicon.ico"> -->
 
-    <title>Cover Template for Bootstrap</title>
+    <title>Chrono</title>
 
+
+    <!-- Bootstrap Core JavaScript -->
     <link href="./node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="./node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
 
@@ -60,13 +62,29 @@
 
     </div>
 
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
-    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
-    <script src="../../dist/js/bootstrap.min.js"></script>
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+
+    <script>
+          //use wss for secure connection
+          const ws = new WebSocket("ws://localhost:8082"); //connect to websocket
+          ws.addEventListener("open", () => {
+            console.log("We are connected");               //listen for open event (when connected to server)
+
+            ws.send("Hey, how's it going?");
+          });
+
+          //listen for message from server
+          ws.addEventListener('message', e=> {
+            //log message from server (logs full message)
+            console.log(e);
+          });
+
+         //listen for message from server
+        ws.addEventListener('message', ({ data })=> {
+            //log message from server (logs only data property of message object)
+            console.log(data);
+          });
+    </script>
+
+
   </body>
 </html>
