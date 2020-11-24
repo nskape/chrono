@@ -63,28 +63,5 @@
     </div>
 
 
-    <script>
-          //use wss for secure connection
-          const ws = new WebSocket("ws://localhost:8082"); //connect to websocket
-          ws.addEventListener("open", () => {
-            console.log("We are connected");               //listen for open event (when connected to server)
-
-            ws.send("Hey, how's it going?");
-          });
-
-          //listen for message from server
-          ws.addEventListener('message', e=> {
-            //log message from server (logs full message)
-            console.log(e);
-          });
-
-         //listen for message from server
-        ws.addEventListener('message', ({ data })=> {
-            //log message from server (logs only data property of message object)
-            console.log(data);
-          });
-    </script>
-
-
   </body>
 </html>
