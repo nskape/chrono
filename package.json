@@ -18,7 +18,9 @@
   "homepage": "https://github.com/nskape/chrono#readme",
   "dependencies": {
     "bootstrap": "^4.5.3",
+    "express": "^4.17.1",
     "jquery": "^3.5.1",
-    "popper.js": "^1.16.1"
+    "popper.js": "^1.16.1",
+    "socket.io": "^3.0.3"
   }
 }
