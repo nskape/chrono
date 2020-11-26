@@ -21,6 +21,9 @@
     "express": "^4.17.1",
     "jquery": "^3.5.1",
     "popper.js": "^1.16.1",
-    "socket.io": "^3.0.3"
+    "socket.io": "^3.0.3",
+    "webrtc-adapter": "^7.7.0",
+    "webrtc-server-client-datachannel": "^1.0.5",
+    "wrtc": "^0.4.6"
   }
 }
