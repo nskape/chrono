@@ -7,10 +7,14 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <!-- <link rel="icon" href="../../favicon.ico"> -->
 
     <title>Chrono</title>
 
+    <!-- Load client js file in header -->
+    <script type="text/javascript" src = "../bundle.js"></script>
+
+    <!-- JQuery loaded -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
     <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -46,7 +50,7 @@
             <h1 class="cover-heading">Chrono Test.</h1>
             <p class="lead">Chrono is a network diagnostic tool that returns connection data (Ping/Latency, Jitter, Packet Loss) as a graded result to the user.</p>
             <p class="lead">
-              <a href="#" class="btn btn-lg btn-default">Learn more</a>
+              <a href="#" id="startButton" class="btn btn-lg btn-default">Start Test</a>
             </p>
           </div>
 
@@ -61,8 +65,8 @@
       </div>
 
     </div>
-
-    <script src = "../server.js"></script>
+    <!-- <script src = "../bundle.js"> </script> -->
+    <!-- <script src = "../client.js"></script> -->
 
   </body>
 </html>

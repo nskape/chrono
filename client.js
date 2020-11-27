@@ -1,6 +1,6 @@
 const { RTCClient } = require('webrtc-server-client-datachannel');
 const { rtcConfig } = require('./rtc.config');
-const WebSocket = require('ws');
+//const WebSocket = require('ws');
  
 async function main() {
   try {
@@ -10,24 +10,21 @@ async function main() {
  
     let pc = new RTCClient(ws, rtcConfig.RTCPeerConnectionConf, rtcConfig.datachannels);
     await pc.create();
- 
-    pc.tcp.send("AllReadyFromTCP");
+    
+    // Check
     pc.udp.send("AllReadyFromUDP");
- 
-    pc.tcp.onmessage = (event)=>{
-      console.log("got 'tcp'.", event.data);
-    };
- 
+    
+    // When message received from server
     pc.udp.onmessage = (event)=>{
-      console.log("got 'udp'.", event.data);
+      console.log("Received UDP packet | Data:", event.data);
     };
- 
+    
+    // Send UDP packet to server every 5 seconds
     setInterval(() => {
-        console.log("trying to send hello from tcp");
-        pc.tcp.send("Hello from client TCP");
  
-        console.log("trying to send hello from UDP");
+        console.log("Attempting to send UDP Packet...");
         pc.udp.send("Hello from client UDP");
+        console.log("* Sent UDP packet");
  
     }, 5000);
   } catch (error) {
@@ -42,4 +39,12 @@ async function onOpen(ws) {
   });
 }
  
-main();
+// Listener for bootstrap button
+window.onload=function(){
+  document.getElementById("startButton").addEventListener ("click", runClient, false);
+}
+// Entry point
+function runClient(){
+  main();
+};
+
