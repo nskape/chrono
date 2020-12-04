@@ -4,9 +4,13 @@ const { rtcConfig } = require("./rtc.config");
 
 async function main() {
   try {
+    const old_interval = 1000; // 1 second as a standard interval
+    var old_freq = 10; // amount of packets in one interval
+    var old_duration = 5000; // duration of test (x amount of pings * duration = net pings)  -- this adjusts duration this runs
+
     const interval = 1000; // 1 second as a standard interval
-    var duration = 5000; // duration of test (x amount of pings * duration = net pings)  -- this adjusts duration this runs
-    var freq = 10; // amount of packets in one interval
+    var freq = getFreqValue();
+    var duration = getDurValue();
 
     console.log("opening websocket");
     const ws = new WebSocket("ws://" + "localhost" + ":8080");
@@ -30,6 +34,7 @@ async function main() {
     packetSender = setInterval(() => {
       pc.udp.send("Hello from client UDP"); // send packet
       for (var i = 0; i < freq; i++) {
+        incrementBadge();
         console.log("* Sent UDP packet");
       }
     }, interval);
@@ -59,6 +64,22 @@ window.onload = function () {
 };
 
 // UI for Testing
+
+function getFreqValue() {
+  var out = document.getElementById("freqField").value;
+  return out;
+}
+function getDurValue() {
+  var out = document.getElementById("durField").value;
+  return out;
+}
+
+function incrementBadge() {
+  var count = document.getElementById("countBadge");
+  var number = count.innerHTML;
+  number++;
+  count.innerHTML = number;
+}
 
 // <- Put UI handlers here ->
 

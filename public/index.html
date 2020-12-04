@@ -1,72 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <meta name="description" content="" />
-    <meta name="author" content="" />
 
-    <title>Chrono</title>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+  <meta name="description" content="" />
+  <meta name="author" content="" />
 
-    <!-- Load client js file in header -->
-    <script type="text/javascript" src="../bundle.js"></script>
+  <title>Chrono</title>
 
-    <!-- JQuery loaded -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <!-- Load client js file in header -->
+  <script type="text/javascript" src="../bundle.js"></script>
 
-    <!-- Bootstrap Core JavaScript -->
-    <link
-      href="../node_modules/bootstrap/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <script src="../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+  <!-- JQuery loaded -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 
-    <!-- Custom styles for this template -->
-    <link href="styles.css" rel="stylesheet" />
-  </head>
+  <!-- Bootstrap Core JavaScript -->
+  <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
 
-  <body>
-    <div class="site-wrapper">
-      <div class="site-wrapper-inner">
-        <div class="cover-container">
-          <div class="masthead clearfix">
-            <div class="inner">
-              <h3 class="masthead-brand">Chrono</h3>
-              <nav>
-                <ul class="nav masthead-nav">
-                  <li class="active"><a href="#">Home</a></li>
-                  <li><a href="#">About</a></li>
-                  <li><a href="#">Contact</a></li>
-                </ul>
-              </nav>
+  <!-- Custom styles for this template -->
+  <link href="styles.css" rel="stylesheet" />
+</head>
+
+<body>
+  <div class="site-wrapper">
+    <div class="site-wrapper-inner">
+      <div class="cover-container">
+        <div class="masthead clearfix">
+          <div class="inner">
+            <h3 class="masthead-brand">Chrono</h3>
+            <nav>
+              <ul class="nav masthead-nav">
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Contact</a></li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+
+        <div class="inner cover">
+          <h1 class="cover-heading">Chrono Test.</h1>
+          <p class="lead">
+            Chrono is a network diagnostic tool that returns connection data
+            (Ping/Latency, Jitter, Packet Loss) as a graded result to the
+            user.
+          </p>
+          <p>
+          <h4>
+            Packets Sent
+            <span class="badge badge-dark" id="countBadge">0</span>
+          </h4>
+          </p>
+          <div class="col-md-5 col-centered">
+            <div class="input-group mb-3">
+              <input type="text" id="freqField" class="form-control" placeholder="Frequency" aria-label="Username"
+                aria-describedby="basic-addon1">
+            </div>
+
+            <div class="input-group mb-3">
+              <input type="text" id="durField" class="form-control" placeholder="Duration" aria-label="Username"
+                aria-describedby="basic-addon1">
             </div>
           </div>
+          <p class="lead">
+            <a href="#" id="startButton" class="btn btn-lg btn-default">Start Test</a>
+          </p>
+        </div>
 
-          <div class="inner cover">
-            <h1 class="cover-heading">Chrono Test.</h1>
-            <p class="lead">
-              Chrono is a network diagnostic tool that returns connection data
-              (Ping/Latency, Jitter, Packet Loss) as a graded result to the
-              user.
-            </p>
-            <p class="lead">
-              <a href="#" id="startButton" class="btn btn-lg btn-default"
-                >Start Test</a
-              >
-            </p>
-          </div>
-
-          <div class="mastfoot">
-            <div class="inner">
-              <p>Project by <a href="https://github.com/nskape">@nskape</a>.</p>
-            </div>
+        <div class="mastfoot">
+          <div class="inner">
+            <p>Project by <a href="https://github.com/nskape">@nskape</a>.</p>
           </div>
         </div>
       </div>
     </div>
-    <!-- <script src = "../bundle.js"> </script> -->
-    <!-- <script src = "../client.js"></script> -->
-  </body>
+  </div>
+  <!-- <script src = "../bundle.js"> </script> -->
+  <!-- <script src = "../client.js"></script> -->
+</body>
+
 </html>
