@@ -13,9 +13,6 @@ async function main() {
     var freq = getFreqValue();
     var duration = getDurValue();
 
-    console.log(freq);
-    console.log(duration);
-
     console.log("opening websocket");
     const ws = new WebSocket("ws://" + "localhost" + ":8080");
     await onOpen(ws);
@@ -36,8 +33,8 @@ async function main() {
 
     // Send UDP packet to server within interval
     packetSender = setInterval(() => {
-      pc.udp.send("Hello from client UDP"); // send packet
       for (var i = 0; i < freq; i++) {
+        pc.udp.send("Hello from client UDP"); // send packet
         incrementBadge();
         console.log("* Sent UDP packet");
       }

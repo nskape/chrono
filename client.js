@@ -32,8 +32,8 @@ async function main() {
 
     // Send UDP packet to server within interval
     packetSender = setInterval(() => {
-      pc.udp.send("Hello from client UDP"); // send packet
       for (var i = 0; i < freq; i++) {
+        pc.udp.send("Hello from client UDP"); // send packet
         incrementBadge();
         console.log("* Sent UDP packet");
       }
