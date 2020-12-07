@@ -31,11 +31,20 @@ async function main() {
     // };
 
     // Send UDP packet to server within interval
+
+    packetID = 0;
+
     packetSender = setInterval(() => {
       for (var i = 0; i < freq; i++) {
-        pc.udp.send("Hello from client UDP"); // send packet
+        // JSON packet info
+        let packetData = {
+          id: packetID,
+          sentTime: new Date(),
+        };
+        pc.udp.send(JSON.stringify(packetData)); // send packet
+        packetID++;
         incrementBadge();
-        console.log("* Sent UDP packet");
+        console.log("*-> Sent UDP packet");
       }
     }, interval);
   } catch (error) {
@@ -46,7 +55,7 @@ async function main() {
   // setTimeout(() => { clearInterval(packetSender); alert('stop'); }, duration);
   setTimeout(() => {
     clearInterval(packetSender);
-  }, duration);
+  }, duration * 1000);
 }
 
 async function onOpen(ws) {
