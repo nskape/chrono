@@ -1,7 +1,6 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 const { RTCClient } = require("webrtc-server-client-datachannel");
 const { rtcConfig } = require("./rtc.config");
-//const WebSocket = require('ws');
 
 async function main() {
   try {
@@ -40,13 +39,28 @@ async function main() {
         // JSON packet info
         let packetData = {
           id: packetID,
-          sentTime: new Date(),
+          startTime: new Date(),
         };
         pc.udp.send(JSON.stringify(packetData)); // send packet
         packetID++;
         incrementBadge();
         console.log("*-> Sent UDP packet");
       }
+
+      // Receive relay from server
+      pc.udp.onmessage = (event) => {
+        packetRelayData = JSON.parse(event.data); // receive and parse packet data from server
+        var endDate = new Date().toISOString();
+        packetRelayData.endTime = endDate; // append end trip time to JSON
+
+        // calculate latency and append to JSON
+        packetRelayData.latency = Math.abs(
+          Date.parse(packetRelayData.startTime) -
+            Date.parse(packetRelayData.endTime)
+        );
+        console.log(`* RECEIVED SERVER RELAY | ${packetRelayData}`);
+        console.log(packetRelayData);
+      };
     }, interval);
   } catch (error) {
     console.log(error);

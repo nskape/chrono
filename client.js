@@ -1,6 +1,5 @@
 const { RTCClient } = require("webrtc-server-client-datachannel");
 const { rtcConfig } = require("./rtc.config");
-//const WebSocket = require('ws');
 
 async function main() {
   try {
@@ -39,13 +38,28 @@ async function main() {
         // JSON packet info
         let packetData = {
           id: packetID,
-          sentTime: new Date(),
+          startTime: new Date(),
         };
         pc.udp.send(JSON.stringify(packetData)); // send packet
         packetID++;
         incrementBadge();
         console.log("*-> Sent UDP packet");
       }
+
+      // Receive relay from server (BUG: this append endTime from a packet that came in, does not check id)
+      pc.udp.onmessage = (event) => {
+        packetRelayData = JSON.parse(event.data); // receive and parse packet data from server
+        var endDate = new Date().toISOString();
+        packetRelayData.endTime = endDate; // append end trip time to JSON
+
+        // calculate latency and append to JSON
+        packetRelayData.latency = Math.abs(
+          Date.parse(packetRelayData.startTime) -
+            Date.parse(packetRelayData.endTime)
+        );
+        console.log(`* RECEIVED SERVER RELAY | ${packetRelayData}`);
+        console.log(packetRelayData);
+      };
     }, interval);
   } catch (error) {
     console.log(error);
