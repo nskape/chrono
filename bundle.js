@@ -4,13 +4,9 @@ const { rtcConfig } = require("./rtc.config");
 
 async function main() {
   try {
-    const old_interval = 1000; // 1 second as a standard interval
-    var old_freq = 10; // amount of packets in one interval
-    var old_duration = 5000; // duration of test (x amount of pings * duration = net pings)  -- this adjusts duration this runs
-
-    const interval = 1000; // 1 second as a standard interval
-    var freq = getFreqValue();
-    var duration = getDurValue();
+    const interval = 1; // 1 second as a standard interval (10ms will send 100 packets)
+    var freq = getFreqValue(); // amount of packets in one interval
+    var duration = getDurValue(); // duration of test (x amount of pings * duration = net pings)  -- this adjusts duration this runs in ms
 
     console.log("opening websocket");
     const ws = new WebSocket("ws://" + "localhost" + ":8080");
@@ -35,31 +31,48 @@ async function main() {
     packetID = 0;
 
     packetSender = setInterval(() => {
-      for (var i = 0; i < freq; i++) {
-        // JSON packet info
-        let packetData = {
-          id: packetID,
-          startTime: new Date(),
-        };
-        pc.udp.send(JSON.stringify(packetData)); // send packet
-        packetID++;
-        incrementBadge();
-        console.log("*-> Sent UDP packet");
-      }
+      // for (var i = 0; i < freq; i++) {
+      //   // JSON packet info
+      //   let packetData = {
+      //     id: packetID,
+      //     startTime: performance.now(),
+      //   };
+      //   pc.udp.send(JSON.stringify(packetData)); // send packet
+      //   packetID++;
+      //   incrementBadge();
+      //   console.log("*-> Sent UDP packet");
+      // }
+
+      // <--------------------- No for loop method, accurate results --------------------->
+
+      let packetData = {
+        id: packetID,
+        startTime: performance.now(),
+      };
+      pc.udp.send(JSON.stringify(packetData));
+      packetID++;
+      incrementBadge();
+      //console.log("*-> Sent UDP packet");
+
+      // <--------------------- ------------------------------ --------------------->
 
       // Receive relay from server
+
+      // (BUG: Latency does not work correctly, always larger with later packets
+      // - when run without for loop, latency numbers are accurate just change interval.
+      // The issue is that in for loop the packets are detected one after other so latency is always
+      // increasing as the loop continues).
+
       pc.udp.onmessage = (event) => {
         packetRelayData = JSON.parse(event.data); // receive and parse packet data from server
-        var endDate = new Date().toISOString();
+        var endDate = performance.now();
         packetRelayData.endTime = endDate; // append end trip time to JSON
 
         // calculate latency and append to JSON
         packetRelayData.latency = Math.abs(
-          Date.parse(packetRelayData.startTime) -
-            Date.parse(packetRelayData.endTime)
+          packetRelayData.endTime - packetRelayData.startTime
         );
-        console.log(`* RECEIVED SERVER RELAY | ${packetRelayData}`);
-        console.log(packetRelayData);
+        console.log("* RECEIVED SERVER RELAY | ", packetRelayData);
       };
     }, interval);
   } catch (error) {
