@@ -28,9 +28,9 @@ async function main() {
     // Send UDP packet to server within interval
 
     packetID = 0;
-
     packetSender = setInterval(() => {
-      for (var i = 0; i < freq; i++) {
+      fcheck = 0;
+      innerSender = setInterval(() => {
         // JSON packet info
         let packetData = {
           id: packetID,
@@ -40,20 +40,12 @@ async function main() {
         packetID++;
         incrementBadge();
         console.log("*-> Sent UDP packet");
-      }
-
-      // <--------------------- No for loop method, accurate results --------------------->
-
-      // let packetData = {
-      //   id: packetID,
-      //   startTime: performance.now(),
-      // };
-      // pc.udp.send(JSON.stringify(packetData));
-      // packetID++;
-      // incrementBadge();
-      // //console.log("*-> Sent UDP packet");
-
-      // <-------------------------------------------------------------------------------->
+        fcheck++;
+        if (fcheck >= freq) {
+          clearInterval(innerSender);
+          //clearInterval(packetSender);
+        }
+      }, 10);
     }, interval);
 
     // Receive relay from server (moved oustide setInterval)
