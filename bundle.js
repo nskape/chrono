@@ -9,7 +9,7 @@ async function main() {
     const interval = 1000; // 1 second as a standard interval (10ms will send 100 packets)
     var freq = getFreqValue(); // amount of packets in one interval
     var duration = getDurValue(); // duration of test (x amount of pings * duration = net pings)  -- this adjusts duration this runs in ms
-    //var latencyValues = [];
+    latencyValues = [];
 
     console.log("opening websocket");
     const ws = new WebSocket("ws://" + "localhost" + ":8080");
