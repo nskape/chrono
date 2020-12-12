@@ -32,6 +32,5 @@ new Server({ server }).on("connection", async (ws) => {
     console.log(`* RECEIVED UDP | ${packetRelayData}`);
     pc.udp.send(packetRelayData); //send relay packet
     console.log(packetsReceived);
-    //console.log(`* SENT RELAY`);
   };
 });

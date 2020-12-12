@@ -1,11 +1,14 @@
 const { RTCClient } = require("webrtc-server-client-datachannel");
 const { rtcConfig } = require("./rtc.config");
 
+var latencyValues = []; // global array for now
+
 async function main() {
   try {
     const interval = 1000; // 1 second as a standard interval (10ms will send 100 packets)
     var freq = getFreqValue(); // amount of packets in one interval
     var duration = getDurValue(); // duration of test (x amount of pings * duration = net pings)  -- this adjusts duration this runs in ms
+    //var latencyValues = [];
 
     console.log("opening websocket");
     const ws = new WebSocket("ws://" + "localhost" + ":8080");
@@ -18,30 +21,16 @@ async function main() {
     );
     await pc.create();
 
-    // ############## Generate and send code #############
-    // let packetData = {
-    //   id: packetID,
-    //   startTime: performance.now(),
-    // };
-    // pc.udp.send(JSON.stringify(packetData)); // send packet
-    // packetID++;
-    // incrementBadge();
-    // console.log("*-> Sent UDP packet");
-    // ###################################################
-
     // Send UDP packet to server within interval
 
     packetID = 0; // ID of each packet
-    var counter1 = 0; // outer loop
-    var counter2 = 0; // inner loop
-    var dur_count = 1; // count at 1 because function runs once at first
+    var secondCounter = 1; // count at 1 because function runs once at first
 
-    (function timeout1() {
-      var i = 0;
-      console.log("*-> Sent UDP packet");
-      (function timeout2() {
-        ++i;
-        // ################################################### PACKET LOGIC
+    (function outerSender() {
+      var freqCounter = 0;
+      console.log("*---> SENT UDP PACKETS");
+      (function innerSender() {
+        freqCounter++;
         let packetData = {
           id: packetID,
           startTime: performance.now(),
@@ -49,33 +38,31 @@ async function main() {
         pc.udp.send(JSON.stringify(packetData)); // send packet
         packetID++;
         incrementBadge();
-        // ###################################################
-        if (i < freq) {
-          setTimeout(timeout2, 3);
+        if (freqCounter < freq) {
+          setTimeout(innerSender, 10);
         }
       })();
-
-      if (dur_count < duration) {
-        dur_count++;
-        setTimeout(timeout1, interval);
+      if (secondCounter < duration) {
+        secondCounter++;
+        setTimeout(outerSender, interval);
+      } else {
+        //latencyCalc(latencyValues); // print out latency, always runs last packet after last second (???)
       }
     })();
 
-    // Stop sending UDP packets within duration
-    // setTimeout(() => { clearInterval(packetSender); alert('stop'); }, duration);
+    // Receive relay from server
 
-    // Right now calls the meme every 3 seconds
-
-    // Receive relay from server (moved oustide setInterval)
     pc.udp.onmessage = (event) => {
+      console.log(pc.udp.bufferedAmount); // printing wrtc buffer
       packetRelayData = JSON.parse(event.data); // receive and parse packet data from server
       var endDate = performance.now();
       packetRelayData.endTime = endDate; // append end trip time to JSON
 
       // calculate latency and append to JSON
-      packetRelayData.latency = Math.abs(
-        packetRelayData.endTime - packetRelayData.startTime
+      packetRelayData.latency = Math.round(
+        Math.abs(packetRelayData.endTime - packetRelayData.startTime)
       );
+      latencyValues.push(packetRelayData.latency);
       console.log("* RECEIVED SERVER RELAY | ", packetRelayData);
     };
   } catch (error) {
@@ -84,6 +71,37 @@ async function main() {
 }
 
 // #################### END MAIN ####################
+
+// <- Latency calc ->
+
+function latencyCalc() {
+  arr = latencyValues;
+  var min = arr[0]; // min
+  var max = arr[0]; // max
+  var sum = arr[0]; // sum
+  var avg;
+
+  for (var i = 1; i < arr.length; i++) {
+    if (arr[i] < min) {
+      min = arr[i];
+    }
+    if (arr[i] > max) {
+      max = arr[i];
+    }
+    sum = sum + arr[i];
+  }
+
+  avg = sum / arr.length;
+  console.log("\n\n");
+  console.log("############# LATENCY INFO #############");
+  console.log(`Min: ${min} ms | Max: ${max} ms| Avg: ${avg} ms`);
+  console.log("########################################");
+  return [min, max, avg];
+}
+
+function meme() {
+  console.log("meme");
+}
 
 // <- WS Promise ->
 
@@ -96,15 +114,17 @@ async function onOpen(ws) {
 
 // <- Put UI handlers here ->
 
-// Listener for bootstrap button
+// Listeners for buttons
 window.onload = function () {
   document
     .getElementById("startButton")
     .addEventListener("click", runClient, false);
+  document
+    .getElementById("latencyButton")
+    .addEventListener("click", latencyCalc, false);
 };
 
 // UI for Testing
-
 function getFreqValue() {
   var out = document.getElementById("freqField").value;
   return out;
@@ -120,8 +140,6 @@ function incrementBadge() {
   number++;
   count.innerHTML = number;
 }
-
-// <- Put UI handlers here ->
 
 // Entry point
 function runClient() {
