@@ -19,20 +19,30 @@ async function main() {
     );
     await pc.create();
 
-    // Check
-    // pc.udp.send("AllReadyFromUDP");
-    // When message received from server
-    // pc.udp.onmessage = (event)=>{
-    //   console.log("Received UDP packet | Data:", event.data);
+    // ############## Generate and send code #############
+    // let packetData = {
+    //   id: packetID,
+    //   startTime: performance.now(),
     // };
+    // pc.udp.send(JSON.stringify(packetData)); // send packet
+    // packetID++;
+    // incrementBadge();
+    // console.log("*-> Sent UDP packet");
+    // ###################################################
 
     // Send UDP packet to server within interval
 
-    packetID = 0;
-    packetSender = setInterval(() => {
-      fcheck = 0;
-      innerSender = setInterval(() => {
-        // JSON packet info
+    packetID = 0; // ID of each packet
+    var counter1 = 0; // outer loop
+    var counter2 = 0; // inner loop
+    var dur_count = 1; // count at 1 because function runs once at first
+
+    (function timeout1() {
+      var i = 0;
+      console.log("*-> Sent UDP packet");
+      (function timeout2() {
+        ++i;
+        // ################################################### PACKET LOGIC
         let packetData = {
           id: packetID,
           startTime: performance.now(),
@@ -40,21 +50,24 @@ async function main() {
         pc.udp.send(JSON.stringify(packetData)); // send packet
         packetID++;
         incrementBadge();
-        console.log("*-> Sent UDP packet");
-        fcheck++;
-        if (fcheck >= freq) {
-          clearInterval(innerSender);
-          //clearInterval(packetSender);
+        // ###################################################
+        if (i < freq) {
+          setTimeout(timeout2, 3);
         }
-      }, 10);
-    }, interval);
+      })();
+
+      if (dur_count < duration) {
+        dur_count++;
+        setTimeout(timeout1, interval);
+      }
+    })();
+
+    // Stop sending UDP packets within duration
+    // setTimeout(() => { clearInterval(packetSender); alert('stop'); }, duration);
+
+    // Right now calls the meme every 3 seconds
 
     // Receive relay from server (moved oustide setInterval)
-    // (BUG: Latency does not work correctly, always larger with later packets
-    // - when run without for loop, latency numbers are accurate just change interval.
-    // The issue is that in for loop the packets are detected one after other so latency is always
-    // increasing as the loop continues).
-
     pc.udp.onmessage = (event) => {
       packetRelayData = JSON.parse(event.data); // receive and parse packet data from server
       var endDate = performance.now();
@@ -69,13 +82,11 @@ async function main() {
   } catch (error) {
     console.log(error);
   }
-
-  // Stop sending UDP packets within duration
-  // setTimeout(() => { clearInterval(packetSender); alert('stop'); }, duration);
-  setTimeout(() => {
-    clearInterval(packetSender);
-  }, duration * 1000);
 }
+
+// #################### END MAIN ####################
+
+// <- WS Promise ->
 
 async function onOpen(ws) {
   return new Promise((resolve, reject) => {
@@ -83,6 +94,8 @@ async function onOpen(ws) {
     ws.onclose = () => reject(new Error("WebSocket closed"));
   });
 }
+
+// <- Put UI handlers here ->
 
 // Listener for bootstrap button
 window.onload = function () {
