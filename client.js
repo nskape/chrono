@@ -98,10 +98,6 @@ function latencyCalc() {
   return [min, max, avg];
 }
 
-function meme() {
-  console.log("meme");
-}
-
 // <- WS Promise ->
 
 async function onOpen(ws) {
