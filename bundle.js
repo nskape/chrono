@@ -40,7 +40,7 @@ async function main() {
         packetID++;
         incrementBadge();
         if (freqCounter < freq) {
-          setTimeout(innerSender, 10);
+          setTimeout(innerSender, 1);
         }
       })();
       if (secondCounter < duration) {
@@ -54,7 +54,6 @@ async function main() {
     // Receive relay from server
 
     pc.udp.onmessage = (event) => {
-      console.log(pc.udp.bufferedAmount); // printing wrtc buffer
       packetRelayData = JSON.parse(event.data); // receive and parse packet data from server
       var endDate = performance.now();
       packetRelayData.endTime = endDate; // append end trip time to JSON
@@ -64,7 +63,7 @@ async function main() {
         Math.abs(packetRelayData.endTime - packetRelayData.startTime)
       );
       latencyValues.push(packetRelayData.latency);
-      console.log("* RECEIVED SERVER RELAY | ", packetRelayData);
+      //console.log("* RECEIVED SERVER RELAY | ", packetRelayData);
     };
   } catch (error) {
     console.log(error);
