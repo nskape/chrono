@@ -29,8 +29,9 @@ new Server({ server }).on("connection", async (ws) => {
   pc.udp.onmessage = (event) => {
     packetsReceived++;
     packetRelayData = event.data;
-    console.log(`* RECEIVED UDP | ${packetRelayData}`);
+    // print statements generate lag
+    //console.log(`* RECEIVED UDP | ${packetRelayData}`);
+    //console.log(packetsReceived);
     pc.udp.send(packetRelayData); //send relay packet
-    console.log(packetsReceived);
   };
 });
