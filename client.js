@@ -53,6 +53,7 @@ async function main() {
     // Receive relay from server
 
     pc.udp.onmessage = (event) => {
+      incrementBadge2();
       packetRelayData = JSON.parse(event.data); // receive and parse packet data from server
       var endDate = performance.now();
       packetRelayData.endTime = endDate; // append end trip time to JSON
@@ -91,6 +92,9 @@ function latencyCalc() {
   }
 
   avg = sum / arr.length;
+
+  var foo = `Min: <b>${min} ms </b>| Max: <b>${max} ms</b>| Avg: <b>${avg} ms</b>`;
+  outputLat(foo);
   console.log("\n\n");
   console.log("############# LATENCY INFO #############");
   console.log(`Min: ${min} ms | Max: ${max} ms| Avg: ${avg} ms`);
@@ -134,6 +138,18 @@ function incrementBadge() {
   var number = count.innerHTML;
   number++;
   count.innerHTML = number;
+}
+
+function incrementBadge2() {
+  var count = document.getElementById("recBadge");
+  var number = count.innerHTML;
+  number++;
+  count.innerHTML = number;
+}
+
+function outputLat(x) {
+  var out = document.getElementById("latput");
+  out.innerHTML = x;
 }
 
 // Entry point

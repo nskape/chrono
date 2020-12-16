@@ -54,6 +54,7 @@ async function main() {
     // Receive relay from server
 
     pc.udp.onmessage = (event) => {
+      incrementBadge2();
       packetRelayData = JSON.parse(event.data); // receive and parse packet data from server
       var endDate = performance.now();
       packetRelayData.endTime = endDate; // append end trip time to JSON
@@ -63,7 +64,7 @@ async function main() {
         Math.abs(packetRelayData.endTime - packetRelayData.startTime)
       );
       latencyValues.push(packetRelayData.latency);
-      //console.log("* RECEIVED SERVER RELAY | ", packetRelayData);
+      console.log("* RECEIVED SERVER RELAY | ", packetRelayData);
     };
   } catch (error) {
     console.log(error);
@@ -92,15 +93,14 @@ function latencyCalc() {
   }
 
   avg = sum / arr.length;
+
+  var foo = `Min: <b>${min} ms </b>| Max: <b>${max} ms</b>| Avg: <b>${avg} ms</b>`;
+  outputLat(foo);
   console.log("\n\n");
   console.log("############# LATENCY INFO #############");
   console.log(`Min: ${min} ms | Max: ${max} ms| Avg: ${avg} ms`);
   console.log("########################################");
   return [min, max, avg];
-}
-
-function meme() {
-  console.log("meme");
 }
 
 // <- WS Promise ->
@@ -141,6 +141,18 @@ function incrementBadge() {
   count.innerHTML = number;
 }
 
+function incrementBadge2() {
+  var count = document.getElementById("recBadge");
+  var number = count.innerHTML;
+  number++;
+  count.innerHTML = number;
+}
+
+function outputLat(x) {
+  var out = document.getElementById("latput");
+  out.innerHTML = x;
+}
+
 // Entry point
 function runClient() {
   main();
@@ -171,7 +183,7 @@ async function ClientRecieveOffer(pc, ws) {
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
         await ws.send(JSON.stringify(answer));
-        console.log("send reply");
+        console.log("sendt reply");
     } catch (error) {
         console.error(error.stack || error.message || error);
         ws.close();

@@ -43,35 +43,45 @@
         </div>
 
         <div class="inner cover">
-          <h1 class="cover-heading">Chrono Test.</h1>
-          <p class="lead">
-            Chrono is a network diagnostic tool that returns connection data
-            (Ping/Latency, Jitter, Packet Loss) as a graded result to the
-            user.
-          </p>
+          <div class="p-3">
+            <h1 class="cover-heading">Chrono Test.</h1>
+            <p class="lead">
+              Please input an amount of packets per second (frequency) as well as the length of the test in seconds
+              (duration). The badges below display the packets sent and packets received respectively.
+            </p>
+          </div>
           <p>
-          <h4>
-            Packets Sent
-            <span class="badge badge-dark" id="countBadge">0</span>
-          </h4>
-          </p>
-          <div class="col-md-4 col-centered">
-            <div class="input-group mb-3">
-              <input type="text" id="freqField" class="form-control" placeholder="Frequency" aria-label="Username"
-                aria-describedby="basic-addon1">
-            </div>
-
-            <div class="input-group mb-3">
-              <input type="text" id="durField" class="form-control" placeholder="Duration" aria-label="Username"
-                aria-describedby="basic-addon1">
+          <div class="p-2">
+            <h1>
+              <span class="badge badge-pill badge-light" id="countBadge">0</span>
+              <span class="badge badge-pill badge-success" id="recBadge">0</span>
+            </h1>
+            </p>
+          </div>
+          <div class="col-md-7 col-centered">
+            <div class="alert alert-dark" id="latput" role="alert">
+              Min: __ ms | Max: __ ms| Avg: __ ms
             </div>
           </div>
-          <p class="lead">
-            <a href="#" id="startButton" class="btn btn-lg btn-default">Start Test</a>
-          </p>
-          <p class="lead">
-            <a href="#" id="latencyButton" class="btn btn-sm btn-warning">Latency to Console</a>
-          </p>
+          <div class="p-5">
+            <div class="col-md-4 col-centered">
+              <div class="input-group mb-3">
+                <input type="text" id="freqField" class="form-control" placeholder="Frequency" aria-label="Username"
+                  aria-describedby="basic-addon1">
+              </div>
+
+              <div class="input-group mb-3">
+                <input type="text" id="durField" class="form-control" placeholder="Duration" aria-label="Username"
+                  aria-describedby="basic-addon1">
+              </div>
+            </div>
+            <p class="lead">
+              <a href="#" id="startButton" class="btn btn-lg btn-success">Start Test</a>
+            </p>
+            <p class="lead">
+              <a href="#" id="latencyButton" class="btn btn-sm btn-warning">Print Latency</a>
+            </p>
+          </div>
         </div>
 
         <div class="mastfoot">
