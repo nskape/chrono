@@ -9,6 +9,8 @@ async function main() {
     const interval = 1000; // 1 second as a standard interval (10ms will send 100 packets)
     var freq = getFreqValue(); // amount of packets in one interval
     var duration = getDurValue(); // duration of test (x amount of pings * duration = net pings)  -- this adjusts duration this runs in ms
+    var netPackets = freq * duration - 1; // -1 to count 0
+    var numRecPackets = 0;
     latencyValues = [];
 
     console.log("opening websocket");
@@ -28,8 +30,10 @@ async function main() {
     var secondCounter = 1; // count at 1 because function runs once at first
 
     (function outerSender() {
+      console.log("meme");
       var freqCounter = 0;
       console.log("*---> SENT UDP PACKETS");
+
       (function innerSender() {
         freqCounter++;
         let packetData = {
@@ -43,17 +47,23 @@ async function main() {
           setTimeout(innerSender, 1);
         }
       })();
+
+      console.log(`secondCounter: ${secondCounter}`);
+      console.log(`duration: ${duration}`);
+
       if (secondCounter < duration) {
         secondCounter++;
         setTimeout(outerSender, interval);
-      } else {
-        //latencyCalc(latencyValues); // print out latency, always runs last packet after last second (???)
       }
     })();
 
     // Receive relay from server
-
     pc.udp.onmessage = (event) => {
+      if (numRecPackets === netPackets) {
+        ws.close();
+      }
+      console.log(`numRecPackets: ${numRecPackets} | ** ${netPackets}`);
+      numRecPackets++;
       incrementBadge2();
       packetRelayData = JSON.parse(event.data); // receive and parse packet data from server
       var endDate = performance.now();
@@ -65,6 +75,12 @@ async function main() {
       );
       latencyValues.push(packetRelayData.latency);
       console.log("* RECEIVED SERVER RELAY | ", packetRelayData);
+    };
+
+    // On WS close
+    ws.onclose = function (event) {
+      latencyCalc();
+      console.log("ws closed");
     };
   } catch (error) {
     console.log(error);
@@ -92,7 +108,7 @@ function latencyCalc() {
     sum = sum + arr[i];
   }
 
-  avg = sum / arr.length;
+  avg = Math.round(sum / arr.length);
 
   var foo = `Min: <b>${min} ms </b>| Max: <b>${max} ms</b>| Avg: <b>${avg} ms</b>`;
   outputLat(foo);
@@ -103,7 +119,7 @@ function latencyCalc() {
   return [min, max, avg];
 }
 
-// <- WS Promise ->
+// <- WS ->
 
 async function onOpen(ws) {
   return new Promise((resolve, reject) => {
