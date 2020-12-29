@@ -35,8 +35,8 @@ async function main() {
 
     disableOutput();
 
-    var t0 = setInterval(updateBar1, 500);
-    var t1 = setInterval(updateBar2, 500);
+    var t0 = setInterval(updateBar1, 200);
+    var t1 = setInterval(updateBar2, 200);
 
     (function outerSender() {
       var freqCounter = 0;
@@ -114,7 +114,7 @@ async function main() {
       // ------------------------------------------
       setTimeout(function () {
         updateOutput();
-      }, 3000);
+      }, 1500);
       console.log("ws closed");
     };
   } catch (error) {
@@ -222,7 +222,7 @@ var bar = new ProgressBar.Circle(progbar1, {
   strokeWidth: 4,
   trailWidth: 1,
   easing: "easeInOut",
-  duration: 1000,
+  duration: 200,
   text: {
     autoStyleContainer: false,
   },
@@ -249,7 +249,7 @@ var bar2 = new ProgressBar.Circle(progbar2, {
   strokeWidth: 4,
   trailWidth: 1,
   easing: "easeInOut",
-  duration: 1000,
+  duration: 200,
   text: {
     autoStyleContainer: false,
   },
