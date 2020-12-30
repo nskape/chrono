@@ -128,9 +128,10 @@ window.onload = function () {
   document
     .getElementById("startButton")
     .addEventListener("click", runClient, false);
-  // document
-  //   .getElementById("latencyButton")
-  //   .addEventListener("click", latencyCalc, false);
+
+  document
+    .getElementById("settingsButton")
+    .addEventListener("click", toggleSettings, false);
 };
 
 async function onOpen(ws) {
@@ -179,13 +180,11 @@ function updateOutput() {
   val2.innerHTML = result[1].toFixed(1);
   val3.innerHTML = result[2].toFixed(1);
 }
-
 function disableOutput() {
   document.getElementById("val1").style.color = "#D3D3D3";
   document.getElementById("val2").style.color = "#D3D3D3";
   document.getElementById("val3").style.color = "#D3D3D3";
 }
-
 function getFreqValue() {
   var out = document.getElementById("freqField").value;
   return out;
@@ -194,19 +193,30 @@ function getDurValue() {
   var out = document.getElementById("durField").value;
   return out;
 }
-
 function incrementBadge() {
   var count = document.getElementById("countBadge");
   var number = count.innerHTML;
   number++;
   count.innerHTML = number;
 }
-
 function incrementBadge2() {
   var count = document.getElementById("recBadge");
   var number = count.innerHTML;
   number++;
   count.innerHTML = number;
+}
+
+function toggleSettings() {
+  var x = document.getElementById("settingsBox");
+  if (x.style.display === "none") {
+    console.log(x.style.display);
+    console.log("meme!");
+    x.style.display = "block";
+  } else {
+    console.log(x.style.display);
+    console.log("fuck!");
+    x.style.display = "none";
+  }
 }
 
 // Progress bars
@@ -221,8 +231,8 @@ var bar = new ProgressBar.Circle(progbar1, {
   text: {
     autoStyleContainer: false,
   },
-  from: { color: "#FFEA82", width: 1 },
-  to: { color: "#ED6A5A", width: 4 },
+  from: { color: "#aaa", width: 1 },
+  to: { color: "#333", width: 4 },
   // Set default step function for all animate calls
   step: function (state, circle) {
     circle.path.setAttribute("stroke", state.color);
@@ -248,8 +258,8 @@ var bar2 = new ProgressBar.Circle(progbar2, {
   text: {
     autoStyleContainer: false,
   },
-  from: { color: "#FFEA82", width: 1 },
-  to: { color: "#5cb85c", width: 4 },
+  from: { color: "#aaa", width: 1 },
+  to: { color: "#333", width: 4 },
   // Set default step function for all animate calls
   step: function (state, circle) {
     circle.path.setAttribute("stroke", state.color);
