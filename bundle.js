@@ -35,8 +35,8 @@ async function main() {
 
     disableOutput();
 
-    var t0 = setInterval(updateBar1, 200);
-    var t1 = setInterval(updateBar2, 200);
+    var t0 = setInterval(updateBar1, 100);
+    var t1 = setInterval(updateBar2, 100);
 
     (function outerSender() {
       var freqCounter = 0;
@@ -107,14 +107,14 @@ async function main() {
       }, 2000);
       setTimeout(function () {
         clearInterval(t0);
-      }, 2000);
+      }, 1000);
       setTimeout(function () {
         clearInterval(t1);
-      }, 2000);
+      }, 1000);
       // ------------------------------------------
       setTimeout(function () {
         updateOutput();
-      }, 1500);
+      }, 1200);
       console.log("ws closed");
     };
   } catch (error) {
@@ -161,11 +161,6 @@ function latencyCalc() {
 
   avg = sum / arr.length;
 
-  //var foo = `Min: <b>${min} ms </b>| Max: <b>${max} ms</b>| Avg: <b>${avg} ms</b>`;
-  console.log("\n\n");
-  console.log("############# LATENCY INFO #############");
-  console.log(`Min: ${min} ms | Max: ${max} ms| Avg: ${avg} ms`);
-  console.log("########################################");
   return [min, max, avg];
 }
 
@@ -183,7 +178,6 @@ function updateOutput() {
   val1.innerHTML = result[0].toFixed(1);
   val2.innerHTML = result[1].toFixed(1);
   val3.innerHTML = result[2].toFixed(1);
-  console.log(result[2]);
 }
 
 function disableOutput() {
@@ -215,6 +209,7 @@ function incrementBadge2() {
   count.innerHTML = number;
 }
 
+// Progress bars
 var bar = new ProgressBar.Circle(progbar1, {
   color: "#aaa",
   // This has to be the same size as the maximum width to
@@ -274,15 +269,11 @@ bar.text.style.fontSize = "2rem";
 bar2.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
 bar2.text.style.fontSize = "2rem";
 
-// TODO
-
 function updateBar1() {
-  //console.log(`MEME: ${sentPerc}`);
   bar.animate(sentPerc);
 }
 
 function updateBar2() {
-  //console.log(`MEME2: ${recPerc}`);
   bar2.animate(recPerc);
 }
 
