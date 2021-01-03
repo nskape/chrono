@@ -69,9 +69,9 @@
     </div>
   </section>
 
-  <div class="container text-center">
+  <div class="container text-center" id="resultContainer">
     <div class="row justify-content-center" id="resultRow">
-      <div class=" col-sm-2">
+      <div class="col-xs-4">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
           class="bi bi-arrow-down-square" viewBox="0 0 16 16">
           <path fill-rule="evenodd"
@@ -82,8 +82,7 @@
         <h1 class="display-4" id="val1">0.0</h1>
         </p>
       </div>
-      <div class="col-sm-2">
-
+      <div class="col-xs-4 offset-1">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-circle"
           viewBox="0 0 16 16">
           <path fill-rule="evenodd"
@@ -94,7 +93,7 @@
         <h1 class="display-4" id="val2">0.0</h1>
         </p>
       </div>
-      <div class="col-sm-2">
+      <div class="col-xs-4 offset-1">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-slash-circle"
           viewBox="0 0 16 16">
           <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
@@ -110,12 +109,9 @@
 
   <div class="container-fluid">
     <div class="row justify-content-center" id="barRow">
-      <div class="col-auto">
-        <div id="progbar1"></div>
-      </div>
-      <div class="col-auto">
-        <div id="progbar2"></div>
-      </div>
+      <div id="progbar1"></div>
+
+      <div id="progbar2"></div>
     </div>
   </div>
 
