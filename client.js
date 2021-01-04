@@ -122,10 +122,13 @@ async function main() {
       }, 1200);
 
       setTimeout(function () {
-        fadeOut(document.getElementById("progbar1"), 500);
-        fadeOut(document.getElementById("progbar2"), 500);
-        fadeIn(document.getElementById("startButton"), 1000);
+        fadeOut(document.getElementById("progbar1"), 1000);
+        fadeOut(document.getElementById("progbar2"), 1000);
       }, 1500);
+      setTimeout(function () {
+        fadeIn(document.getElementById("startButton"), 1000);
+      }, 1700);
+
       console.log("ws closed");
     };
   } catch (error) {
