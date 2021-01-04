@@ -12,7 +12,7 @@ async function main() {
     var freq = getFreqValue(); // amount of packets in one interval
     var duration = getDurValue(); // duration of test (x amount of pings * duration = net pings)  -- this adjusts duration this runs in ms
     if (!freq) {
-      freq = 20; // default freq value
+      freq = 200; // default freq value
     }
     if (!duration) {
       duration = 5; // default dur value
@@ -122,12 +122,12 @@ async function main() {
       }, 1200);
 
       setTimeout(function () {
-        fadeOut(document.getElementById("progbar1"), 1000);
-        fadeOut(document.getElementById("progbar2"), 1000);
+        fadeOut(document.getElementById("progbar1"), 500);
+        fadeOut(document.getElementById("progbar2"), 500);
       }, 1500);
       setTimeout(function () {
         fadeIn(document.getElementById("startButton"), 1000);
-      }, 1700);
+      }, 2000);
 
       console.log("ws closed");
     };
@@ -326,9 +326,11 @@ function updateBar2() {
 
 // Entry point
 function runClient() {
+  bar.set(0);
+  bar2.set(0);
   fadeOut(document.getElementById("startButton"), 500);
   fadeIn(document.getElementById("progbar1"), 500);
   fadeIn(document.getElementById("progbar2"), 500);
   fadeIn(document.getElementById("resultContainer"), 500);
-  setTimeout(main, 500);
+  setTimeout(main, 1000);
 }
