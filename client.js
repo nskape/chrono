@@ -11,18 +11,16 @@ async function main() {
     const interval = 1000; // 1 second as a standard interval (10ms will send 100 packets)
     var freq = getFreqValue(); // amount of packets in one interval
     var duration = getDurValue(); // duration of test (x amount of pings * duration = net pings)  -- this adjusts duration this runs in ms
+    if (!freq) {
+      freq = 20; // default freq value
+    }
+    if (!duration) {
+      duration = 5; // default dur value
+    }
     var netPackets = freq * duration;
     var numSentPackets = 0;
     var numRecPackets = 0;
     latencyValues = [];
-
-    if (!freq) {
-      freq = 20;
-    }
-
-    if (!duration) {
-      duration = 5;
-    }
 
     console.log("opening websocket");
     const ws = new WebSocket("ws://" + "localhost" + ":8080");
