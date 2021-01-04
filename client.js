@@ -16,6 +16,14 @@ async function main() {
     var numRecPackets = 0;
     latencyValues = [];
 
+    if (!freq) {
+      freq = 20;
+    }
+
+    if (!duration) {
+      duration = 5;
+    }
+
     console.log("opening websocket");
     const ws = new WebSocket("ws://" + "localhost" + ":8080");
     await onOpen(ws);
@@ -114,6 +122,12 @@ async function main() {
       setTimeout(function () {
         updateOutput();
       }, 1200);
+
+      setTimeout(function () {
+        fadeOut(document.getElementById("progbar1"), 500);
+        fadeOut(document.getElementById("progbar2"), 500);
+        fadeIn(document.getElementById("startButton"), 1000);
+      }, 1500);
       console.log("ws closed");
     };
   } catch (error) {
@@ -124,6 +138,9 @@ async function main() {
 // #################### END MAIN ####################
 
 window.onload = function () {
+  document.getElementById("resultContainer").style.opacity = 0;
+  document.getElementById("progbar1").style.opacity = 0;
+  document.getElementById("progbar2").style.opacity = 0;
   document
     .getElementById("startButton")
     .addEventListener("click", runClient, false);
@@ -209,13 +226,33 @@ function toggleSettings() {
   var x = document.getElementById("settingsBox");
   if (x.style.display === "none") {
     console.log(x.style.display);
-    console.log("meme!");
     x.style.display = "block";
   } else {
     console.log(x.style.display);
-    console.log("fuck!");
     x.style.display = "none";
   }
+}
+
+function removeFadeOut(el, speed) {
+  var seconds = speed / 1000;
+  el.style.transition = "opacity " + seconds + "s ease";
+
+  el.style.opacity = 0;
+  setTimeout(function () {
+    el.parentNode.removeChild(el);
+  }, speed);
+}
+function fadeOut(el, speed) {
+  var seconds = speed / 1000;
+  el.style.transition = "opacity " + seconds + "s ease";
+  el.style.opacity = 0;
+}
+
+function fadeIn(el, speed) {
+  var seconds = speed / 1000;
+  el.style.transition = "opacity " + seconds + "s ease";
+
+  el.style.opacity = 1;
 }
 
 // Progress bars
@@ -288,5 +325,9 @@ function updateBar2() {
 
 // Entry point
 function runClient() {
-  main();
+  fadeOut(document.getElementById("startButton"), 500);
+  fadeIn(document.getElementById("progbar1"), 500);
+  fadeIn(document.getElementById("progbar2"), 500);
+  fadeIn(document.getElementById("resultContainer"), 500);
+  setTimeout(main, 500);
 }
