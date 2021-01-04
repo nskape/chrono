@@ -18,11 +18,14 @@
   "homepage": "https://github.com/nskape/chrono#readme",
   "dependencies": {
     "bootstrap": "^4.5.3",
+    "bufferutil": "^4.0.1",
+    "chart.js": "^2.9.4",
     "express": "^4.17.1",
     "jquery": "^3.5.1",
     "popper.js": "^1.16.1",
     "progressbar.js": "^1.1.0",
     "socket.io": "^3.0.3",
+    "utf-8-validate": "^5.0.2",
     "webrtc-adapter": "^7.7.0",
     "webrtc-server-client-datachannel": "^1.0.5",
     "wrtc": "^0.4.6"
