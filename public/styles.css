@@ -64,6 +64,16 @@ footer {
   position: relative;
 }
 
+#chartBox {
+  text-align: center;
+}
+
+#myChart {
+  text-align: center;
+  /* position: absolute; */
+  margin: auto;
+}
+
 .btn-xlarge {
   padding: 18px 28px;
   font-size: 30px;

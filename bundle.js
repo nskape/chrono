@@ -13,7 +13,7 @@ async function main() {
     var freq = getFreqValue(); // amount of packets in one interval
     var duration = getDurValue(); // duration of test (x amount of pings * duration = net pings)  -- this adjusts duration this runs in ms
     if (!freq) {
-      freq = 200; // default freq value
+      freq = 100; // default freq value
     }
     if (!duration) {
       duration = 5; // default dur value
@@ -117,20 +117,88 @@ async function main() {
       setTimeout(function () {
         clearInterval(t1);
       }, 1000);
-      // ------------------------------------------
+
+      // update output
       setTimeout(function () {
         updateOutput();
       }, 1200);
 
+      // fade out bars
       setTimeout(function () {
         fadeOut(document.getElementById("progbar1"), 500);
         fadeOut(document.getElementById("progbar2"), 500);
       }, 1500);
+
+      //fade in start button
       setTimeout(function () {
         fadeIn(document.getElementById("startButton"), 1000);
       }, 2000);
 
       console.log("ws closed");
+
+      // render chart
+      setTimeout(function () {
+        latencyLabel = Array.from(latencyValues.keys());
+        var ctx = document.getElementById("myChart").getContext("2d");
+        if (window.chart && window.chart !== null) {
+          window.chart.destroy();
+        }
+        window.chart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: latencyLabel,
+            datasets: [
+              {
+                label: "ms",
+                data: latencyValues,
+                backgroundColor: "lightgray",
+                // borderColor: "gray",
+                borderWidth: "1",
+                hoverBackgroundColor: "gray",
+                //hoverBorderColor: "black",
+                hoverBorderWidth: "2",
+              },
+            ],
+          },
+          options: {
+            tooltips: {
+              enabled: true,
+              mode: "single",
+              callbacks: {
+                label: function (tooltipItems, data) {
+                  return "Latency: " + tooltipItems.yLabel + " ms";
+                },
+              },
+            },
+            scales: {
+              xAxes: [
+                {
+                  barThickness: 3,
+                  display: false,
+                  ticks: {
+                    display: false,
+                  },
+                },
+              ],
+
+              yAxes: [
+                {
+                  display: false,
+                  ticks: {
+                    max: 10,
+                    beginAtZero: false,
+                    display: false,
+                  },
+                },
+              ],
+            },
+            responsive: false,
+            legend: {
+              display: false,
+            },
+          },
+        });
+      }, 2000);
     };
   } catch (error) {
     console.log(error);
@@ -324,6 +392,38 @@ function updateBar1() {
 function updateBar2() {
   bar2.animate(recPerc);
 }
+
+// var ctx = document.getElementById("myChart").getContext("2d");
+// var myChart = new Chart(ctx, {
+//   type: "bar",
+//   data: {
+//     labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+//     datasets: [
+//       {
+//         label: "# of Votes",
+//         data: [12, 19, 3, 5, 2, 3],
+//         backgroundColor: [],
+//         borderColor: [],
+//         borderWidth: 1,
+//       },
+//     ],
+//   },
+//   options: {
+//     scales: {
+//       yAxes: [
+//         {
+//           ticks: {
+//             beginAtZero: true,
+//           },
+//         },
+//       ],
+//     },
+//     responsive: false,
+//     legend: {
+//       display: false,
+//     },
+//   },
+// });
 
 // Entry point
 function runClient() {
