@@ -129,14 +129,21 @@ async function main() {
         fadeOut(document.getElementById("progbar2"), 500);
       }, 1500);
 
-      //fade in start button
+      // fade in chart
       setTimeout(function () {
+        swapContent("startButtonDiv", "chartBox");
+        document.getElementById("chartBox").style.display = "block";
+      }, 2000);
+
+      // fade in start button
+      setTimeout(function () {
+        document.getElementById("startButton").style.display = "block";
         fadeIn(document.getElementById("startButton"), 1000);
       }, 2000);
 
       console.log("ws closed");
 
-      // render chart
+      // render chart.js
       setTimeout(function () {
         latencyLabel = Array.from(latencyValues.keys());
         var ctx = document.getElementById("myChart").getContext("2d");
@@ -161,6 +168,12 @@ async function main() {
             ],
           },
           options: {
+            layout: {
+              padding: {
+                left: 10,
+                right: 10,
+              },
+            },
             tooltips: {
               enabled: true,
               mode: "single",
@@ -185,7 +198,6 @@ async function main() {
                 {
                   display: false,
                   ticks: {
-                    max: 10,
                     beginAtZero: false,
                     display: false,
                   },
@@ -325,6 +337,16 @@ function fadeIn(el, speed) {
   el.style.opacity = 1;
 }
 
+function swapContent(x, y) {
+  const main = document.getElementById(x);
+  const div = document.getElementById(y);
+  const clone = div.cloneNode(true);
+
+  while (main.firstChild) main.firstChild.remove();
+
+  main.appendChild(clone);
+}
+
 // Progress bars
 var bar = new ProgressBar.Circle(progbar1, {
   color: "#aaa",
@@ -393,43 +415,14 @@ function updateBar2() {
   bar2.animate(recPerc);
 }
 
-// var ctx = document.getElementById("myChart").getContext("2d");
-// var myChart = new Chart(ctx, {
-//   type: "bar",
-//   data: {
-//     labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-//     datasets: [
-//       {
-//         label: "# of Votes",
-//         data: [12, 19, 3, 5, 2, 3],
-//         backgroundColor: [],
-//         borderColor: [],
-//         borderWidth: 1,
-//       },
-//     ],
-//   },
-//   options: {
-//     scales: {
-//       yAxes: [
-//         {
-//           ticks: {
-//             beginAtZero: true,
-//           },
-//         },
-//       ],
-//     },
-//     responsive: false,
-//     legend: {
-//       display: false,
-//     },
-//   },
-// });
-
 // Entry point
 function runClient() {
   bar.set(0);
   bar2.set(0);
   fadeOut(document.getElementById("startButton"), 500);
+  document.getElementById("startButton").style.display = "none";
+  // document.getElementById("progbar1").style.display = "block";
+  // document.getElementById("progbar2").style.display = "block";
   fadeIn(document.getElementById("progbar1"), 500);
   fadeIn(document.getElementById("progbar2"), 500);
   fadeIn(document.getElementById("resultContainer"), 500);

@@ -74,6 +74,11 @@ footer {
   margin: auto;
 }
 
+#navTitle {
+  font-family: "montserrat", sans-serif !important;
+  font-size: 1.4rem;
+}
+
 .btn-xlarge {
   padding: 18px 28px;
   font-size: 30px;
