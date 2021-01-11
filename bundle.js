@@ -129,6 +129,14 @@ async function main() {
         fadeOut(document.getElementById("progbar2"), 500);
       }, 1500);
 
+      // fade out bar counters
+      setTimeout(function () {
+        fadeOut(document.getElementById("counterbar1"), 500);
+        fadeOut(document.getElementById("counterbar2"), 500);
+        fadeOut(document.getElementById("counterbar1sub"), 500);
+        fadeOut(document.getElementById("counterbar2sub"), 500);
+      }, 1500);
+
       // fade in chart
       setTimeout(function () {
         swapContent("startButtonDiv", "chartBox");
@@ -178,6 +186,9 @@ async function main() {
               enabled: true,
               mode: "single",
               callbacks: {
+                beforeTitle: function (tooltipItem, data) {
+                  return "Packet ";
+                },
                 label: function (tooltipItems, data) {
                   return "Latency: " + tooltipItems.yLabel + " ms";
                 },
@@ -220,6 +231,10 @@ async function main() {
 // #################### END MAIN ####################
 
 window.onload = function () {
+  document.getElementById("counterbar1").style.opacity = 0;
+  document.getElementById("counterbar2").style.opacity = 0;
+  document.getElementById("counterbar1sub").style.opacity = 0;
+  document.getElementById("counterbar2sub").style.opacity = 0;
   document.getElementById("resultContainer").style.opacity = 0;
   document.getElementById("progbar1").style.opacity = 0;
   document.getElementById("progbar2").style.opacity = 0;
@@ -292,13 +307,13 @@ function getDurValue() {
   return out;
 }
 function incrementBadge() {
-  var count = document.getElementById("countBadge");
+  var count = document.getElementById("counterbar1");
   var number = count.innerHTML;
   number++;
   count.innerHTML = number;
 }
 function incrementBadge2() {
-  var count = document.getElementById("recBadge");
+  var count = document.getElementById("counterbar2");
   var number = count.innerHTML;
   number++;
   count.innerHTML = number;
@@ -357,7 +372,7 @@ var bar = new ProgressBar.Circle(progbar1, {
   easing: "easeInOut",
   duration: 200,
   text: {
-    autoStyleContainer: false,
+    autoStyleContainer: true,
   },
   from: { color: "#aaa", width: 1 },
   to: { color: "#333", width: 4 },
@@ -370,7 +385,7 @@ var bar = new ProgressBar.Circle(progbar1, {
     if (value === 0) {
       circle.setText("");
     } else {
-      circle.setText(value);
+      circle.setText(value + " %");
     }
   },
 });
@@ -384,7 +399,7 @@ var bar2 = new ProgressBar.Circle(progbar2, {
   easing: "easeInOut",
   duration: 200,
   text: {
-    autoStyleContainer: false,
+    autoStyleContainer: true,
   },
   from: { color: "#aaa", width: 1 },
   to: { color: "#333", width: 4 },
@@ -397,15 +412,15 @@ var bar2 = new ProgressBar.Circle(progbar2, {
     if (value === 0) {
       circle.setText("");
     } else {
-      circle.setText(value);
+      circle.setText(value + " %");
     }
   },
 });
 
 bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
-bar.text.style.fontSize = "2rem";
+bar.text.style.fontSize = "1.8rem";
 bar2.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
-bar2.text.style.fontSize = "2rem";
+bar2.text.style.fontSize = "1.8rem";
 
 function updateBar1() {
   bar.animate(sentPerc);
@@ -423,6 +438,10 @@ function runClient() {
   document.getElementById("startButton").style.display = "none";
   // document.getElementById("progbar1").style.display = "block";
   // document.getElementById("progbar2").style.display = "block";
+  fadeIn(document.getElementById("counterbar1"), 500);
+  fadeIn(document.getElementById("counterbar2"), 500);
+  fadeIn(document.getElementById("counterbar1sub"), 500);
+  fadeIn(document.getElementById("counterbar2sub"), 500);
   fadeIn(document.getElementById("progbar1"), 500);
   fadeIn(document.getElementById("progbar2"), 500);
   fadeIn(document.getElementById("resultContainer"), 500);

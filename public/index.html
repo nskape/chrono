@@ -114,7 +114,11 @@
 
     <div class="container-fluid" id="engineContainer">
       <div class="row justify-content-center" id="barRow">
-        <div id="progbar1"></div>
+        <div class="col-sm-1">
+          <div id="progbar1"></div>
+          <h1 class="display-4" id="counterbar1">0</h1>
+          <h1 class="display-4" id="counterbar1sub">Sent</h1>
+        </div>
 
         <div id="startButtonDiv">
           <a href="#" class="pulsingButton" id="startButton">GO</a>
@@ -123,18 +127,26 @@
         <div id="chartBox" style="display: none">
           <canvas id="myChart" width="470" height="140"></canvas>
         </div>
-
-        <div id="progbar2"></div>
+        <div class="col-sm-1">
+          <div id="progbar2"></div>
+          <h1 class="display-4" id="counterbar2">0</h1>
+          <h1 class="display-4" id="counterbar2sub">Received</h1>
+        </div>
       </div>
     </div>
 
-    <div class="container text-center">
+
+    <div class="container-fluid" id="endContainer">
+      <div class="row justify-content-center" id="endRow">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"></div>
+      </div>
+    </div>
+
+    <div class="container text-center" id="settingsButtonContainer">
       <div class="row justify-content-center">
         <div class="col-xs-2">
-          <p>
-            <!-- <a href="#" class="btn btn-outline-success btn-xlarge my-2" id="startButton">Start</a> -->
-            <!-- <a href="#" class="pulsingButton">GO</a> -->
-          </p>
           <p>
             <button type="button" class="btn btn-sm btn-light" id="settingsButton">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -150,20 +162,8 @@
       </div>
     </div>
 
-    <!-- Set style = "display: none" in order to keep hidden -->
-
     <div id="settingsBox" style="display: none">
       <div class="container rounded border text-center" id="settingsCont">
-        <div class="row justify-content-center">
-          <div class=" col-sm-2">
-            <h2>
-              <span class="badge badge-pill badge-primary" id="countBadge">0</span>
-            </h2>
-            <h2>
-              <span class="badge badge-pill badge-secondary" id="recBadge">0</span>
-            </h2>
-          </div>
-        </div>
 
         <div class="row justify-content-center">
           <div class=" col-sm-2">
@@ -187,11 +187,6 @@
         </div>
       </div>
     </div>
-
-    <!-- <div id="chartBox">
-      <canvas id="myChart" width="400" height="200"></canvas>
-    </div> -->
-
 
   </main>
 
