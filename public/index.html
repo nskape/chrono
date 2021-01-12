@@ -114,7 +114,7 @@
 
     <div class="container-fluid" id="engineContainer">
       <div class="row justify-content-center" id="barRow">
-        <div class="col-sm-1">
+        <div class="col-sm-1" id="bar1Column">
           <div id="progbar1"></div>
           <h1 class="display-4" id="counterbar1">0</h1>
           <h1 class="display-4" id="counterbar1sub">Sent</h1>
@@ -127,7 +127,7 @@
         <div id="chartBox" style="display: none">
           <canvas id="myChart" width="470" height="140"></canvas>
         </div>
-        <div class="col-sm-1">
+        <div class="col-sm-1" id="bar2Column">
           <div id="progbar2"></div>
           <h1 class="display-4" id="counterbar2">0</h1>
           <h1 class="display-4" id="counterbar2sub">Received</h1>
@@ -136,15 +136,29 @@
     </div>
 
 
-    <div class="container-fluid" id="endContainer">
+    <div class="container-fluid" id="endContainer" style="display: none">
       <div class="row justify-content-center" id="endRow">
-        <div class="col-sm-1"></div>
-        <div class="col-sm-1"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1"><a href="#" class="gradeCircleResult" id="gradeCircle">A+</a></div>
+        <div class="col-sm-1" id="endListResult">
+          <p>
+          <h1 class="display-4" id="endResult1">Excellent</h1>
+          </p>
+          <p>
+          <h1 class="display-4" id="endResult2">100
+            <span id="endResult2sub">packets</span>
+          </h1>
+          </p>
+          <p>
+          <h1 class="display-4" id="endResult3">5
+            <span id="endResult3sub">seconds</span>
+          </h1>
+          </p>
+        </div>
+        <div class="col-sm-1"><a href="#" class="pulsingButtonResult" id="startButtonResult">GO</a></div>
       </div>
     </div>
 
-    <div class="container text-center" id="settingsButtonContainer">
+    <div class="container text-center" id="settingsButtonContainer" style="display: none">
       <div class="row justify-content-center">
         <div class="col-xs-2">
           <p>

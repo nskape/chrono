@@ -137,17 +137,30 @@ async function main() {
         fadeOut(document.getElementById("counterbar2sub"), 500);
       }, 1500);
 
-      // fade in chart
+      // delete bar counters
+      setTimeout(function () {
+        document.getElementById("bar1Column").style.display = "none";
+        document.getElementById("bar2Column").style.display = "none";
+        document.getElementById("counterbar1sub").style.display = "none";
+        document.getElementById("counterbar2sub").style.display = "none";
+      }, 2000);
+
+      // fade in chart & end container
       setTimeout(function () {
         swapContent("startButtonDiv", "chartBox");
         document.getElementById("chartBox").style.display = "block";
+        document.getElementById("endContainer").style.display = "block";
+        document.getElementById("gradeCircle").style.opacity = 0;
+        document.getElementById("endListResult").style.opacity = 0;
+        document.getElementById("startButtonResult").style.opacity = 0;
       }, 2000);
 
-      // fade in start button
+      // fade in endContainer
       setTimeout(function () {
-        document.getElementById("startButton").style.display = "block";
-        fadeIn(document.getElementById("startButton"), 1000);
-      }, 2000);
+        fadeIn(document.getElementById("gradeCircle"), 500);
+        fadeIn(document.getElementById("endListResult"), 1000);
+        fadeIn(document.getElementById("startButtonResult"), 1500);
+      }, 2200);
 
       console.log("ws closed");
 
@@ -241,6 +254,10 @@ window.onload = function () {
   document
     .getElementById("startButton")
     .addEventListener("click", runClient, false);
+
+  document
+    .getElementById("startButtonResult")
+    .addEventListener("click", runClientEnd, false);
 
   document
     .getElementById("settingsButton")
@@ -438,6 +455,28 @@ function runClient() {
   document.getElementById("startButton").style.display = "none";
   // document.getElementById("progbar1").style.display = "block";
   // document.getElementById("progbar2").style.display = "block";
+  fadeIn(document.getElementById("counterbar1"), 500);
+  fadeIn(document.getElementById("counterbar2"), 500);
+  fadeIn(document.getElementById("counterbar1sub"), 500);
+  fadeIn(document.getElementById("counterbar2sub"), 500);
+  fadeIn(document.getElementById("progbar1"), 500);
+  fadeIn(document.getElementById("progbar2"), 500);
+  fadeIn(document.getElementById("resultContainer"), 500);
+  setTimeout(main, 1000);
+}
+
+function runClientEnd() {
+  bar.set(0);
+  bar2.set(0);
+  // fade out old elements
+  fadeOut(document.getElementById("startButtonResult"), 500);
+  fadeOut(document.getElementById("gradeCircle"), 500);
+  fadeOut(document.getElementById("endListResult"), 500);
+  fadeOut(document.getElementById("endListResult"), 500);
+  fadeOut(document.getElementById("chartBox"), 500);
+  // fade in test elements
+  document.getElementById("progbar1").style.display = "block";
+  document.getElementById("progbar2").style.display = "block";
   fadeIn(document.getElementById("counterbar1"), 500);
   fadeIn(document.getElementById("counterbar2"), 500);
   fadeIn(document.getElementById("counterbar1sub"), 500);

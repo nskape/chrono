@@ -103,22 +103,49 @@ footer {
   font-size: 1.4rem;
 }
 
-/* .col-sm-1 {
-  border: #cdcdcd medium solid;
-} */
+#endContainer {
+  margin-top: 20px;
+}
+
+#endResult1 {
+  color: #a5c882;
+  font-weight: 100;
+  font-size: 2rem;
+}
+
+#endResult2 {
+  font-weight: 300;
+  font-size: 1.4rem;
+}
+
+#endResult3 {
+  font-weight: 300;
+  font-size: 1.4rem;
+}
+
+#endResult2sub {
+  font-family: "Helvetica Neue", sans-serif !important;
+  font-weight: 100;
+  font-size: 1rem;
+  color: gray;
+}
+
+#endResult3sub {
+  font-family: "Helvetica Neue", sans-serif !important;
+  font-weight: 100;
+  font-size: 1rem;
+  color: gray;
+}
 
 #settingsButtonContainer {
   margin-top: 100px;
 }
 
-.btn-xlarge {
-  padding: 18px 28px;
-  font-size: 30px;
-  line-height: normal;
-  -webkit-border-radius: 8px;
-  -moz-border-radius: 8px;
-  border-radius: 8px;
+.col-sm-1 {
+  text-align: center;
+  /* border: #cdcdcd medium solid; */
 }
+
 .pulsingButton {
   position: absolute;
   left: 0;
@@ -147,6 +174,56 @@ footer {
   transition: all 300ms ease-in-out;
 }
 
+.pulsingButtonResult {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-left: 20px;
+  margin-right: auto;
+  display: block;
+  width: 130px;
+  height: 130px;
+  line-height: 130px;
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: 0 0 0 0 rgba(90, 153, 212, 0.5);
+  border-radius: 50%;
+  border: 1px solid lightgray;
+  background-color: white;
+  color: lightgray;
+  -webkit-animation: pulsing 3s infinite cubic-bezier(0.66, 0, 0, 1);
+  -moz-animation: pulsing 3s infinite cubic-bezier(0.66, 0, 0, 1);
+  -ms-animation: pulsing 3s infinite cubic-bezier(0.66, 0, 0, 1);
+  animation: pulsing 3s infinite cubic-bezier(0.66, 0, 0, 1);
+  font-size: 20px;
+  font-weight: normal;
+  font-family: sans-serif;
+  text-decoration: none !important;
+  transition: all 300ms ease-in-out;
+}
+
+.gradeCircleResult {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: 20px;
+  display: block;
+  width: 130px;
+  height: 130px;
+  line-height: 130px;
+  text-align: center;
+  white-space: nowrap;
+  border-radius: 50%;
+  border: 1px solid #a5c882;
+  background-color: white;
+  color: #a5c882;
+  font-size: 20px;
+  font-weight: bold;
+  font-family: sans-serif;
+  text-decoration: none !important;
+}
+
 /* Comment-out to have the button continue to pulse on mouseover */
 
 a.pulsingButton:hover {
@@ -155,6 +232,22 @@ a.pulsingButton:hover {
   -ms-animation: none;
   animation: none;
   color: grey;
+}
+a.pulsingButtonResult:hover {
+  -webkit-animation: none;
+  -moz-animation: none;
+  -ms-animation: none;
+  animation: none;
+  color: grey;
+}
+
+a.gradeCircleResult:hover {
+  -webkit-animation: none;
+  -moz-animation: none;
+  -ms-animation: none;
+  animation: none;
+  color: white;
+  background-color: #a5c882;
 }
 
 /* Animation */
