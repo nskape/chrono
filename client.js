@@ -5,6 +5,7 @@ var ProgressBar = require("progressbar.js");
 var latencyValues = []; // global array for now
 var sentPerc = 0;
 var recPerc = 0;
+var ranOnce = false; // flag if we already entered the test
 
 async function main() {
   try {
@@ -12,7 +13,7 @@ async function main() {
     var freq = getFreqValue(); // amount of packets in one interval
     var duration = getDurValue(); // duration of test (x amount of pings * duration = net pings)  -- this adjusts duration this runs in ms
     if (!freq) {
-      freq = 100; // default freq value
+      freq = 50; // default freq value
     }
     if (!duration) {
       duration = 5; // default dur value
@@ -111,6 +112,9 @@ async function main() {
         recPerc = 0;
       }, 2000);
       setTimeout(function () {
+        clearBadges();
+      }, 2000);
+      setTimeout(function () {
         clearInterval(t0);
       }, 1000);
       setTimeout(function () {
@@ -153,6 +157,11 @@ async function main() {
         document.getElementById("endListResult").style.opacity = 0;
         document.getElementById("startButtonResult").style.opacity = 0;
       }, 2000);
+
+      // Check if we are inside test
+      if (ranOnce === true) {
+        document.getElementById("chartBox").style.opacity = 1;
+      }
 
       // fade in endContainer
       setTimeout(function () {
@@ -335,6 +344,13 @@ function incrementBadge2() {
   count.innerHTML = number;
 }
 
+function clearBadges() {
+  var badge_1 = document.getElementById("counterbar1");
+  var badge_2 = document.getElementById("counterbar2");
+  badge_1.innerHTML = 0;
+  badge_2.innerHTML = 0;
+}
+
 function toggleSettings() {
   var x = document.getElementById("settingsBox");
   if (x.style.display === "none") {
@@ -450,6 +466,7 @@ function updateBar2() {
 function runClient() {
   bar.set(0);
   bar2.set(0);
+  ranOnce = true;
   fadeOut(document.getElementById("startButton"), 500);
   document.getElementById("startButton").style.display = "none";
   // document.getElementById("progbar1").style.display = "block";
@@ -464,24 +481,44 @@ function runClient() {
   setTimeout(main, 1000);
 }
 
-// function runClientEnd() {
-//   bar.set(0);
-//   bar2.set(0);
-//   // fade out old elements
-//   fadeOut(document.getElementById("startButtonResult"), 500);
-//   fadeOut(document.getElementById("gradeCircle"), 500);
-//   fadeOut(document.getElementById("endListResult"), 500);
-//   fadeOut(document.getElementById("endListResult"), 500);
-//   fadeOut(document.getElementById("chartBox"), 500);
-//   // fade in test elements
-//   document.getElementById("progbar1").style.display = "block";
-//   document.getElementById("progbar2").style.display = "block";
-//   fadeIn(document.getElementById("counterbar1"), 500);
-//   fadeIn(document.getElementById("counterbar2"), 500);
-//   fadeIn(document.getElementById("counterbar1sub"), 500);
-//   fadeIn(document.getElementById("counterbar2sub"), 500);
-//   fadeIn(document.getElementById("progbar1"), 500);
-//   fadeIn(document.getElementById("progbar2"), 500);
-//   fadeIn(document.getElementById("resultContainer"), 500);
-//   setTimeout(main, 1000);
-// }
+function runClientEnd() {
+  bar.set(0);
+  bar2.set(0);
+  // fade out old elements
+  fadeOut(document.getElementById("startButtonResult"), 500);
+  fadeOut(document.getElementById("gradeCircle"), 500);
+  fadeOut(document.getElementById("endListResult"), 500);
+  fadeOut(document.getElementById("chartBox"), 500);
+
+  //load in new elements
+  setTimeout(function () {
+    document.getElementById("chartBox").style.display = "none";
+    document.getElementById("bar1Column").style.display = "block";
+    document.getElementById("bar2Column").style.display = "block";
+    document.getElementById("counterbar1sub").style.display = "block";
+    document.getElementById("counterbar2sub").style.display = "block";
+    document.getElementById("progbar1").style.display = "block";
+    document.getElementById("progbar2").style.display = "block";
+
+    document.getElementById("bar1Column").style.opacity = 0;
+    document.getElementById("bar2Column").style.opacity = 0;
+    document.getElementById("counterbar1sub").style.opacity = 0;
+    document.getElementById("counterbar2sub").style.opacity = 0;
+    document.getElementById("progbar1").style.opacity = 0;
+    document.getElementById("progbar2").style.opacity = 0;
+  }, 600);
+
+  // fade in test elements
+  setTimeout(function () {
+    fadeIn(document.getElementById("bar1Column"), 700);
+    fadeIn(document.getElementById("bar2Column"), 700);
+    fadeIn(document.getElementById("counterbar1"), 700);
+    fadeIn(document.getElementById("counterbar2"), 700);
+    fadeIn(document.getElementById("counterbar1sub"), 700);
+    fadeIn(document.getElementById("counterbar2sub"), 700);
+    fadeIn(document.getElementById("progbar1"), 700);
+    fadeIn(document.getElementById("progbar2"), 700);
+    fadeIn(document.getElementById("resultContainer"), 700);
+  }, 650);
+  setTimeout(main, 1000);
+}

@@ -167,7 +167,7 @@ footer {
   -moz-animation: pulsing 3s infinite cubic-bezier(0.66, 0, 0, 1);
   -ms-animation: pulsing 3s infinite cubic-bezier(0.66, 0, 0, 1);
   animation: pulsing 3s infinite cubic-bezier(0.66, 0, 0, 1);
-  font-size: 30px;
+  font-size: 45px;
   font-weight: normal;
   font-family: sans-serif;
   text-decoration: none !important;
@@ -178,7 +178,7 @@ footer {
   position: absolute;
   left: 0;
   right: 0;
-  margin-left: 20px;
+  margin-left: 5px;
   margin-right: auto;
   display: block;
   width: 130px;
@@ -207,7 +207,7 @@ footer {
   left: 0;
   right: 0;
   margin-left: auto;
-  margin-right: 20px;
+  margin-right: 5px;
   display: block;
   width: 130px;
   height: 130px;
@@ -218,8 +218,8 @@ footer {
   border: 1px solid #a5c882;
   background-color: white;
   color: #a5c882;
-  font-size: 20px;
-  font-weight: bold;
+  font-size: 40px;
+  /* font-weight: bold; */
   font-family: sans-serif;
   text-decoration: none !important;
 }
