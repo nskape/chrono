@@ -137,13 +137,46 @@ footer {
   color: gray;
 }
 
+/* settings box is covered by an element when close to go button */
 #settingsButtonContainer {
-  margin-top: 100px;
+  margin-top: 0px;
 }
 
 .col-sm-1 {
   text-align: center;
   /* border: #cdcdcd medium solid; */
+}
+
+#toolbar1 {
+  margin-top: 20px;
+  margin-left: 70px;
+}
+
+#toolbar2 {
+  margin-left: 115px;
+  margin-bottom: 200px;
+
+  /* margin bottom doesnt work here? */
+}
+
+#toolbarLabel1 {
+  font-family: "Helvetica Neue", sans-serif !important;
+  font-weight: 100;
+  font-size: 1rem;
+  color: gray;
+  margin-top: 5px;
+}
+
+#toolbarLabel2 {
+  font-family: "Helvetica Neue", sans-serif !important;
+  font-weight: 100;
+  font-size: 1rem;
+  color: gray;
+  margin-top: 6px;
+}
+
+#exampleModalLabel {
+  margin-left: 200px;
 }
 
 .pulsingButton {

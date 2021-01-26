@@ -160,11 +160,12 @@
       </div>
     </div>
 
-    <div class="container text-center" id="settingsButtonContainer" style="display: none">
+    <div class="container text-center" id="settingsButtonContainer">
       <div class="row justify-content-center">
         <div class="col-xs-2">
           <p>
-            <button type="button" class="btn btn-sm btn-light" id="settingsButton">
+            <button type="button" class="btn btn-sm btn-light" id="settingsButton" data-toggle="modal"
+              data-target="#settingsModal">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                 stroke="#4a4a4a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="arcs">
                 <circle cx="12" cy="12" r="3"></circle>
@@ -177,6 +178,45 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header text-center">
+            <h5 class="modal-title" id="exampleModalLabel">Settings</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+
+            <div class="btn-toolbar mb-3" id="toolbar1" role="toolbar" aria-label="Toolbar with button groups">
+              <span id="toolbarLabel1">Frequency &nbsp;</span>
+              <div class="btn-group mr-2" role="group" aria-label="First group">
+                <button type="button" class="btn btn-outline-secondary">10</button>
+                <button type="button" class="btn btn-outline-secondary">50</button>
+                <button type="button" class="btn btn-outline-secondary">100</button>
+                <button type="button" class="btn btn-outline-secondary">300</button>
+              </div>
+            </div>
+            <div class="btn-toolbar mb-3" id="toolbar2" role="toolbar" aria-label="Toolbar with button groups">
+              <span id="toolbarLabel2">Duration &nbsp;</span>
+              <div class="btn-group mr-2" role="group" aria-label="First group">
+                <button type="button" class="btn btn-outline-secondary">5</button>
+                <button type="button" class="btn btn-outline-secondary">10</button>
+                <button type="button" class="btn btn-outline-secondary">15</button>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
 
   </main>

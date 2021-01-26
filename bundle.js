@@ -14,10 +14,10 @@ async function main() {
     var freq = getFreqValue(); // amount of packets in one interval
     var duration = getDurValue(); // duration of test (x amount of pings * duration = net pings)  -- this adjusts duration this runs in ms
     if (!freq) {
-      freq = 50; // default freq value
+      freq = 20; // default freq value
     }
     if (!duration) {
-      duration = 5; // default dur value
+      duration = 2; // default dur value
     }
     var netPackets = freq * duration;
     var numSentPackets = 0;
