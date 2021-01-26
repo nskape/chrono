@@ -337,12 +337,10 @@ function disableOutput() {
   document.getElementById("val3").style.color = "#D3D3D3";
 }
 function getFreqValue() {
-  var out = document.getElementById("freqField").value;
-  return out;
+  // TO DO
 }
 function getDurValue() {
-  var out = document.getElementById("durField").value;
-  return out;
+  // TO DO
 }
 function incrementBadge() {
   var count = document.getElementById("counterbar1");
