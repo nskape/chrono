@@ -148,6 +148,9 @@ async function main() {
         document.getElementById("counterbar2sub").style.display = "none";
       }, 2000);
 
+      // update result to be displayed between grade and go
+      updateResult(freq, duration);
+
       // fade in chart & end container
       setTimeout(function () {
         swapContent("startButtonDiv", "chartBox");
@@ -318,6 +321,15 @@ function updateOutput() {
   val2.innerHTML = result[1].toFixed(1);
   val3.innerHTML = result[2].toFixed(1);
 }
+
+function updateResult(x, y) {
+  var freqResult = document.getElementById("endResult2num");
+  var durResult = document.getElementById("endResult3num");
+
+  freqResult.innerHTML = x;
+  durResult.innerHTML = y;
+}
+
 function disableOutput() {
   document.getElementById("val1").style.color = "#D3D3D3";
   document.getElementById("val2").style.color = "#D3D3D3";
