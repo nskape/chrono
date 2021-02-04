@@ -155,6 +155,7 @@ async function main() {
       // fade in chart & end container
       setTimeout(function () {
         swapContent("startButtonDiv", "chartBox");
+        document.getElementById("settingsButton").style.display = "block";
         document.getElementById("chartBox").style.display = "block";
         document.getElementById("endContainer").style.display = "block";
         document.getElementById("gradeCircle").style.opacity = 0;
@@ -169,6 +170,7 @@ async function main() {
 
       // fade in endContainer
       setTimeout(function () {
+        fadeIn(document.getElementById("settingsButton"), 1000);
         fadeIn(document.getElementById("gradeCircle"), 500);
         fadeIn(document.getElementById("endListResult"), 1000);
         fadeIn(document.getElementById("startButtonResult"), 1500);
@@ -479,7 +481,9 @@ function runClient() {
   bar2.set(0);
   ranOnce = true;
   fadeOut(document.getElementById("startButton"), 500);
+  fadeOut(document.getElementById("settingsButton"), 500);
   document.getElementById("startButton").style.display = "none";
+  document.getElementById("settingsButton").style.display = "none";
   // document.getElementById("progbar1").style.display = "block";
   // document.getElementById("progbar2").style.display = "block";
   fadeIn(document.getElementById("counterbar1"), 500);
@@ -496,6 +500,7 @@ function runClientEnd() {
   bar.set(0);
   bar2.set(0);
   // fade out old elements
+  fadeOut(document.getElementById("settingsButton"), 500);
   fadeOut(document.getElementById("startButtonResult"), 500);
   fadeOut(document.getElementById("gradeCircle"), 500);
   fadeOut(document.getElementById("endListResult"), 500);
@@ -503,6 +508,7 @@ function runClientEnd() {
 
   //load in new elements
   setTimeout(function () {
+    document.getElementById("settingsButton").style.display = "none";
     document.getElementById("chartBox").style.display = "none";
     document.getElementById("bar1Column").style.display = "block";
     document.getElementById("bar2Column").style.display = "block";

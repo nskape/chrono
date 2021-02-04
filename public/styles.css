@@ -153,10 +153,12 @@ footer {
 }
 
 #toolbar2 {
-  margin-left: 115px;
-  margin-bottom: 200px;
-
+  margin-left: 85px;
   /* margin bottom doesnt work here? */
+}
+
+#settings-footer {
+  margin-top: 40px;
 }
 
 #toolbarLabel1 {
