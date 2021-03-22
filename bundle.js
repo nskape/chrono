@@ -10,6 +10,8 @@ var ranOnce = false; // flag if we already entered the test
 
 async function main() {
   try {
+    var time_run = performance.now();
+
     const interval = 1000; // 1 second as a standard interval (10ms will send 100 packets)
     var freq = getFreqValue(); // amount of packets in one interval
     var duration = getDurValue(); // duration of test (x amount of pings * duration = net pings)  -- this adjusts duration this runs in ms
@@ -17,7 +19,7 @@ async function main() {
       freq = 20; // default freq value
     }
     if (!duration) {
-      duration = 2; // default dur value
+      duration = 5; // default dur value
     }
     var netPackets = freq * duration;
     var numSentPackets = 0;
@@ -76,13 +78,27 @@ async function main() {
       }
     })();
 
+    // NEW WAY TO CLOSE OUT WEBSOCKET
+    setTimeout(function () {
+      // Test time for each run of test until ws close
+      var time_close = performance.now();
+      var time_test = Math.abs(time_run - time_close);
+      console.log("****** RUN TIME NEW" + time_test);
+      ws.close();
+    }, duration * 1000 - 300);
+
     // Receive relay from server
     pc.udp.onmessage = (event) => {
       // catch and close when all expected packets are received (TODO: improve with timeout)
       // netPackets - 1 to account for bug
-      if (numRecPackets === netPackets - 1) {
-        ws.close();
-      }
+
+      // OLD CLOSE OUT OF WEBSOCKET
+      // if (numRecPackets === netPackets - 1) {
+      //   var time_close2 = performance.now();
+      //   var time_test2 = Math.abs(time_run - time_close2);
+      //   console.log("****** RUN TIME OLD " + time_test2);
+      //   //ws.close();
+      // }
 
       numRecPackets++;
       recPerc = (numRecPackets / netPackets).toFixed(2);
