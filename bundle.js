@@ -4,6 +4,7 @@ const { rtcConfig } = require("./rtc.config");
 var ProgressBar = require("progressbar.js");
 
 var latencyValues = []; // global array for now
+var latencyRes = [];
 var sentPerc = 0;
 var recPerc = 0;
 var ranOnce = false; // flag if we already entered the test
@@ -15,16 +16,22 @@ async function main() {
     const interval = 1000; // 1 second as a standard interval (10ms will send 100 packets)
     var freq = getFreqValue(); // amount of packets in one interval
     var duration = getDurValue(); // duration of test (x amount of pings * duration = net pings)  -- this adjusts duration this runs in ms
+    var acc_delay = getAccDelay(); // acceptable delay threshold, flag packets in or above this as late
+
     if (!freq) {
       freq = 20; // default freq value
     }
     if (!duration) {
       duration = 5; // default dur value
     }
+    if (!acc_delay) {
+      acc_delay = 2;
+    }
     var netPackets = freq * duration;
     var numSentPackets = 0;
     var numRecPackets = 0;
     latencyValues = [];
+    latencyRes = [];
 
     console.log("opening websocket");
     const ws = new WebSocket("ws://" + "localhost" + ":8080");
@@ -78,15 +85,6 @@ async function main() {
       }
     })();
 
-    // NEW WAY TO CLOSE OUT WEBSOCKET
-    setTimeout(function () {
-      // Test time for each run of test until ws close
-      var time_close = performance.now();
-      var time_test = Math.abs(time_run - time_close);
-      console.log("****** RUN TIME NEW" + time_test);
-      ws.close();
-    }, duration * 1000 - 300);
-
     // Receive relay from server
     pc.udp.onmessage = (event) => {
       // catch and close when all expected packets are received (TODO: improve with timeout)
@@ -96,7 +94,7 @@ async function main() {
       // if (numRecPackets === netPackets - 1) {
       //   var time_close2 = performance.now();
       //   var time_test2 = Math.abs(time_run - time_close2);
-      //   console.log("****** RUN TIME OLD " + time_test2);
+      //   console.log("****** RUN TIME OLD: " + time_test2);
       //   //ws.close();
       // }
 
@@ -116,8 +114,30 @@ async function main() {
         Math.abs(packetRelayData.endTime - packetRelayData.startTime)
       );
       latencyValues.push(packetRelayData.latency);
+
+      if (packetRelayData.latency >= acc_delay) {
+        packetRelayData.delivery = "late";
+        latencyRes.push(packetRelayData.delivery);
+      } else {
+        packetRelayData.delivery = "ontime";
+        latencyRes.push(packetRelayData.delivery);
+      }
+
       console.log("* RECEIVED SERVER RELAY | ", packetRelayData);
     };
+
+    // NEW WAY TO CLOSE OUT WEBSOCKET
+    setTimeout(function () {
+      // Test time for each run of test until ws close
+      var time_close = performance.now();
+      var time_test = Math.abs(time_run - time_close);
+      console.log("****** RUN TIME NEW: " + time_test);
+      console.log("** REC PACKETS: " + numRecPackets);
+      console.log("** NET PACKETS: " + netPackets);
+      var packet_loss = 100 - (100 * numRecPackets) / netPackets;
+      console.log("****** PACKET LOSS: " + packet_loss + "%");
+      ws.close();
+    }, duration * 1000 - 300);
 
     // On WS close
     ws.onclose = function (event) {
@@ -197,6 +217,7 @@ async function main() {
       // render chart.js
       setTimeout(function () {
         latencyLabel = Array.from(latencyValues.keys());
+        backColorArray = new Array(latencyValues.length).fill("lightgray");
         var ctx = document.getElementById("myChart").getContext("2d");
         if (window.chart && window.chart !== null) {
           window.chart.destroy();
@@ -209,7 +230,7 @@ async function main() {
               {
                 label: "ms",
                 data: latencyValues,
-                backgroundColor: "lightgray",
+                backgroundColor: backColorArray,
                 // borderColor: "gray",
                 borderWidth: "1",
                 hoverBackgroundColor: "gray",
@@ -264,6 +285,19 @@ async function main() {
             },
           },
         });
+
+        var chartColors = {
+          red: "rgb(255, 99, 132)",
+          blue: "rgb(54, 162, 235)",
+        };
+        var colorChangeValue = acc_delay; //set this to whatever is the deciding color change value
+        var dataset = window.chart.data.datasets[0];
+        for (var i = 0; i < dataset.data.length; i++) {
+          if (dataset.data[i] > colorChangeValue) {
+            dataset.backgroundColor[i] = chartColors.red;
+          }
+        }
+        window.chart.update();
       }, 2000);
     };
   } catch (error) {
@@ -304,7 +338,9 @@ async function onOpen(ws) {
 // #### UI Functions ####
 
 function latencyCalc() {
+  // get only latency values LATENCY key
   arr = latencyValues;
+  console.log(arr);
   var min = arr[0]; // min
   var max = arr[0]; // max
   var sum = arr[0]; // sum
@@ -360,6 +396,10 @@ function getFreqValue() {
 function getDurValue() {
   // TO DO
 }
+function getAccDelay() {
+  // TO DO
+}
+
 function incrementBadge() {
   var count = document.getElementById("counterbar1");
   var number = count.innerHTML;
