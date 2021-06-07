@@ -453,15 +453,22 @@ function removeFadeOut(el, speed) {
 }
 function fadeOut(el, speed) {
   var seconds = speed / 1000;
+  var old_tran = el.style.transition;
   el.style.transition = "opacity " + seconds + "s ease";
   el.style.opacity = 0;
+  setTimeout(function () {
+    el.style.transition = old_tran;
+  }, 500);
 }
 
 function fadeIn(el, speed) {
   var seconds = speed / 1000;
+  var old_tran = el.style.transition;
   el.style.transition = "opacity " + seconds + "s ease";
-
   el.style.opacity = 1;
+  setTimeout(function () {
+    el.style.transition = old_tran;
+  }, 500);
 }
 
 function hideElement(el) {
