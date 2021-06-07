@@ -33,16 +33,21 @@
         <div class="row">
           <div class="col-sm-8 col-md-7 py-4">
             <h4 class="text-white">About</h4>
-            <p class="text-muted"><b>chrono</b> is a network diagnostic tool that returns connection data (Ping/Latency,
-              Jitter,
-              Packet Loss) as a graded result to the user. Use this to predict your performance in multiplayer games!
+            <p class="text-muted"><b>chrono</b> is a network diagnostic tool that returns connection data
+              <b>(ping, latency,
+                jitter,
+                packet loss)</b> as a graded result to the user. Use this to predict your performance in multiplayer
+              games,
+              streaming, and more!
+
+              <br><br> This app was created by <b>nskape</b>.
             </p>
           </div>
           <div class="col-sm-4 offset-md-1 py-4">
             <h4 class="text-white">Contact</h4>
             <ul class="list-unstyled">
               <li><a href="#" class="text-white">Twitter</a></li>
-              <li><a href="#" class="text-white">Github</a></li>
+              <li><a href="https://github.com/nskape" class="text-white">Github</a></li>
               <li><a href="#" class="text-white">Email</a></li>
             </ul>
           </div>
@@ -54,7 +59,8 @@
         <a href="#" class="navbar-brand d-flex align-items-center">
           <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none"
             stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="arcs">
-            <path d="M12 2l9 4.9V17L12 22l-9-4.9V7z" /></svg>
+            <path d="M12 2l9 4.9V17L12 22l-9-4.9V7z" />
+          </svg>
           &nbsp; <strong id="navTitle">chrono</strong> &nbsp;&nbsp;
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader"
@@ -113,11 +119,17 @@
     </div>
 
     <div class="container-fluid" id="engineContainer">
-      <div class="row justify-content-center" id="barRow">
-        <div class="col-sm-1" id="bar1Column">
+      <div class="row flex-nowrap justify-content-center" id="barRow">
+        <div class="col-auto text-center" id="bar1Column">
           <div id="progbar1"></div>
           <h1 class="display-4" id="counterbar1">0</h1>
           <h1 class="display-4" id="counterbar1sub">Sent</h1>
+        </div>
+
+        <div class="col-auto text-center" id="bar2Column">
+          <div id="progbar2"></div>
+          <h1 class="display-4" id="counterbar2">0</h1>
+          <h1 class="display-4" id="counterbar2sub">Received</h1>
         </div>
 
         <div id="startButtonDiv">
@@ -125,21 +137,17 @@
         </div>
 
         <div id="chartBox" style="display: none">
-          <canvas id="myChart" width="470" height="140"></canvas>
-        </div>
-        <div class="col-sm-1" id="bar2Column">
-          <div id="progbar2"></div>
-          <h1 class="display-4" id="counterbar2">0</h1>
-          <h1 class="display-4" id="counterbar2sub">Received</h1>
+          <canvas id="myChart"></canvas>
         </div>
       </div>
     </div>
 
 
     <div class="container-fluid" id="endContainer" style="display: none">
-      <div class="row justify-content-center" id="endRow">
-        <div class="col-sm-1"><a href="#" class="gradeCircleResult" id="gradeCircle">A+</a></div>
-        <div class="col-sm-1" id="endListResult">
+      <div class="row flex-nowrap justify-content-center" id="endRow">
+        <div class="col-auto d-flex justify-content-center"><a href="#" class="gradeCircleResult"
+            id="gradeCircle">A+</a></div>
+        <div class="col-auto" id="endListResult">
           <p>
           <h1 class="display-4" id="endResult1">Excellent</h1>
           </p>
@@ -156,7 +164,8 @@
           </h1>
           </p>
         </div>
-        <div class="col-sm-1"><a href="#" class="pulsingButtonResult" id="startButtonResult">GO</a></div>
+        <div class="col-auto d-flex justify-content-center"><a href="#" class="pulsingButtonResult"
+            id="startButtonResult">GO</a></div>
       </div>
     </div>
 
@@ -164,7 +173,7 @@
       <div class="row justify-content-center">
         <div class="col-xs-2">
           <p>
-            <button type="button" class="btn btn-sm btn-light" id="settingsButton" data-toggle="modal"
+            <a role="button" class="btn btn-sm btn-light" id="settingsButton" data-toggle="modal"
               data-target="#settingsModal">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                 stroke="#4a4a4a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="arcs">
@@ -173,7 +182,7 @@
                   d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
                 </path>
               </svg>
-              Settings</button>
+              Settings</a>
           </p>
         </div>
       </div>
@@ -185,28 +194,52 @@
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header text-center">
-            <h5 class="modal-title" id="exampleModalLabel">Settings</h5>
+            <h5 class="modal-title" id="exampleModalLabel">Test Settings</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body">
-
-            <div class="btn-toolbar mb-3" id="toolbar1" role="toolbar" aria-label="Toolbar with button groups">
-              <span id="toolbarLabel1">Frequency &nbsp;</span>
-              <div class="btn-group mr-2" role="group" aria-label="First group">
-                <button type="button" class="btn btn-outline-secondary">10</button>
-                <button type="button" class="btn btn-outline-secondary">50</button>
-                <button type="button" class="btn btn-outline-secondary">100</button>
-                <button type="button" class="btn btn-outline-secondary">300</button>
+            <p>
+              <a class="btn btn-info" id="modalInfoButton" type="button" data-toggle="collapse"
+                data-target="#collapseInfoButton" aria-expanded="false" aria-controls="collapseInfoButton">
+                User Guide
+              </a>
+            </p>
+            <div class="collapse" id="collapseInfoButton">
+              <div class="alert alert-info" id="infoAlert" role="alert">Frequency is measured in <b>packets per
+                  second</b>. Duration of
+                the test is
+                measured
+                in <b>seconds</b>. Acceptable delay is the upper bound for packets that are considered <b>late</b>.
               </div>
             </div>
+            <span id="toolbarLabel1">Frequency &nbsp;</span>
+            <div class="btn-toolbar mb-3" id="toolbar1" role="toolbar" aria-label="Toolbar with button groups">
+
+              <div class="btn-group mr-2" role="group" aria-label="First group">
+                <button type="button" class="btn btn-outline-secondary">10 ps</button>
+                <button type="button" class="btn btn-outline-secondary">50 ps</button>
+                <button type="button" class="btn btn-outline-secondary">100 ps</button>
+                <button type="button" class="btn btn-outline-secondary">300 ps</button>
+              </div>
+            </div>
+            <span id="toolbarLabel2">Duration &nbsp;</span>
             <div class="btn-toolbar mb-3" id="toolbar2" role="toolbar" aria-label="Toolbar with button groups">
-              <span id="toolbarLabel2">Duration &nbsp;</span>
+
               <div class="btn-group mr-2" role="group" aria-label="Second group">
-                <button type="button" class="btn btn-outline-secondary">5</button>
-                <button type="button" class="btn btn-outline-secondary">10</button>
-                <button type="button" class="btn btn-outline-secondary">15</button>
+                <button type="button" class="btn btn-outline-secondary">5 sec</button>
+                <button type="button" class="btn btn-outline-secondary">10 sec</button>
+                <button type="button" class="btn btn-outline-secondary">15 sec</button>
+              </div>
+            </div>
+            <span id="toolbarLabel3">Acceptable Delay &nbsp;</span>
+            <div class="btn-toolbar mb-3" id="toolbar2" role="toolbar" aria-label="Toolbar with button groups">
+
+              <div class="btn-group mr-2" role="group" aria-label="Second group">
+                <button type="button" class="btn btn-outline-secondary">2 ms</button>
+                <button type="button" class="btn btn-outline-secondary">5 ms</button>
+                <button type="button" class="btn btn-outline-secondary">6 ms</button>
               </div>
             </div>
 
@@ -219,14 +252,14 @@
 
   </main>
 
-  <footer class="fixed-bottom text-muted">
+  <!-- <footer class="fixed-bottom text-muted">
     <div class="container">
       <p class="float-right">
         <a href="#">Back to top</a>
       </p>
       <p>Created by <a href="https://github.com/nskape">@nskape</a></p>
     </div>
-  </footer>
+  </footer> -->
 
   <!-- Bootstrap core JavaScript
 ================================================== -->

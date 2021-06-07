@@ -6,18 +6,6 @@
   background-color: white;
 }
 
-/* .jumbotron {
-  padding-top: var(--jumbotron-padding-y);
-  padding-bottom: var(--jumbotron-padding-y);
-  margin-bottom: 0;
-}
-@media (min-width: 768px) {
-  .jumbotron {
-    padding-top: calc(var(--jumbotron-padding-y) * 2);
-    padding-bottom: calc(var(--jumbotron-padding-y) * 2);
-  }
-} */
-
 .jumbotron p:last-child {
   margin-bottom: 0;
 }
@@ -43,47 +31,53 @@ footer p {
   box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
 }
 
+html,
+body {
+  overflow-x: hidden;
+}
+
 footer {
   position: absolute;
   bottom: 0;
   width: 100%;
-  /* background-color: #333; */
   color: #fff;
 }
 
 #progbar1 {
   width: 200px;
   height: 200px;
+  /* border: 1px solid #333; */
 }
 #progbar2 {
   width: 200px;
   height: 200px;
+  /* border: 1px solid #333; */
 }
 
 #counterbar1 {
   text-align: center;
   margin-top: 10px;
-  margin-left: 20px;
+  /* margin-left: 20px; */
   font-size: 1.4rem;
 }
 
 #counterbar2 {
   text-align: center;
   margin-top: 10px;
-  margin-left: 20px;
+  /* margin-left: 20px; */
   font-size: 1.4rem;
 }
 
 #counterbar1sub {
   text-align: center;
-  margin-left: 20px;
+  /* margin-left: 20px; */
   font-size: 1rem;
   color: gray;
 }
 
 #counterbar2sub {
   text-align: center;
-  margin-left: 20px;
+  /* margin-left: 20px; */
   font-size: 1rem;
   color: gray;
 }
@@ -94,8 +88,11 @@ footer {
 
 #myChart {
   text-align: center;
-  /* position: absolute; */
+  position: relative;
   margin: auto;
+  width: 100% !important;
+  max-width: 470px;
+  height: auto !important;
 }
 
 #navTitle {
@@ -105,6 +102,67 @@ footer {
 
 #endContainer {
   margin-top: 20px;
+  /* border: 1px solid #333; */
+}
+
+#engineContainer {
+  /* border: 1px solid #333; */
+}
+
+#resultContainer {
+  /* border: 1px solid #333; */
+}
+
+/* settings box is covered by an element when close to go button */
+#settingsButtonContainer {
+  margin-top: 0px;
+  /* border: 1px solid #333; */
+}
+
+.col-sm-1 {
+  text-align: center;
+  /* border: 1px solid red; */
+}
+
+.col {
+  text-align: center;
+  /* border: 1px solid red; */
+}
+
+.col-auto {
+  text-align: center;
+  /* border: 1px solid red; */
+}
+
+.col-fluid {
+  text-align: center;
+  /* border: 1px solid red; */
+}
+
+/* #bar1Column {
+  margin-right: 2%;
+}
+
+#bar2Column {
+  margin-left: 2%;
+} */
+
+/* #barRow {
+  border: 1px solid blue;
+}
+
+#resultRow {
+  border: 1px solid blue;
+}
+
+#endRow {
+  border: 1px solid blue;
+} */
+
+#endRow {
+  display: flex;
+  align-items: center;
+  /* border: 1px solid blue; */
 }
 
 #endResult1 {
@@ -137,25 +195,14 @@ footer {
   color: gray;
 }
 
-/* settings box is covered by an element when close to go button */
-#settingsButtonContainer {
-  margin-top: 0px;
-}
-
-.col-sm-1 {
-  text-align: center;
-  /* border: #cdcdcd medium solid; */
-}
-
-#toolbar1 {
+/* #toolbar1 {
   margin-top: 20px;
   margin-left: 70px;
 }
 
 #toolbar2 {
   margin-left: 85px;
-  /* margin bottom doesnt work here? */
-}
+} */
 
 #settings-footer {
   margin-top: 40px;
@@ -177,8 +224,26 @@ footer {
   margin-top: 6px;
 }
 
+#toolbarLabel3 {
+  font-family: "Helvetica Neue", sans-serif !important;
+  font-weight: 100;
+  font-size: 1rem;
+  color: gray;
+  margin-top: 6px;
+}
+
+#modalInfoButton {
+  background-color: #b3e5fc;
+  border-color: #b3e5fc;
+  color: #0c5460;
+}
+
+#infoAlert {
+  background-color: #b3e5fc;
+}
+
 #exampleModalLabel {
-  margin-left: 200px;
+  /* margin-left: 200px; */
 }
 
 .pulsingButton {
@@ -192,8 +257,9 @@ footer {
   height: 200px;
   line-height: 200px;
   text-align: center;
+  justify-content: center;
   white-space: nowrap;
-  box-shadow: 0 0 0 0 rgba(90, 153, 212, 0.5);
+  box-shadow: 0 0 0 0 #b3e5fc;
   border-radius: 50%;
   border: 1px solid lightgray;
   background-color: white;
@@ -210,18 +276,17 @@ footer {
 }
 
 .pulsingButtonResult {
-  position: absolute;
+  position: relative;
   left: 0;
   right: 0;
-  margin-left: 5px;
+  margin-left: 2%;
   margin-right: auto;
-  display: block;
-  width: 130px;
-  height: 130px;
-  line-height: 130px;
+  width: 90px;
+  height: 90px;
+  line-height: 90px;
   text-align: center;
   white-space: nowrap;
-  box-shadow: 0 0 0 0 rgba(90, 153, 212, 0.5);
+  box-shadow: 0 0 0 0 #b3e5fc;
   border-radius: 50%;
   border: 1px solid lightgray;
   background-color: white;
@@ -230,7 +295,7 @@ footer {
   -moz-animation: pulsing 3s infinite cubic-bezier(0.66, 0, 0, 1);
   -ms-animation: pulsing 3s infinite cubic-bezier(0.66, 0, 0, 1);
   animation: pulsing 3s infinite cubic-bezier(0.66, 0, 0, 1);
-  font-size: 20px;
+  font-size: 32px;
   font-weight: normal;
   font-family: sans-serif;
   text-decoration: none !important;
@@ -238,22 +303,26 @@ footer {
 }
 
 .gradeCircleResult {
-  position: absolute;
+  position: relative;
   left: 0;
   right: 0;
   margin-left: auto;
-  margin-right: 5px;
-  display: block;
-  width: 130px;
-  height: 130px;
-  line-height: 130px;
+  margin-right: 2%;
+  width: 90px;
+  height: 90px;
+  line-height: 90px;
   text-align: center;
   white-space: nowrap;
   border-radius: 50%;
   border: 1px solid #a5c882;
   background-color: white;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in;
+  -moz-transition: all 0.2s ease-in;
+  -o-transition: all 0.2s ease-in;
+  -webkit-transition: all 0.2s ease-in;
   color: #a5c882;
-  font-size: 40px;
+  font-size: 32px;
   /* font-weight: bold; */
   font-family: sans-serif;
   text-decoration: none !important;
@@ -277,12 +346,10 @@ a.pulsingButtonResult:hover {
 }
 
 a.gradeCircleResult:hover {
-  -webkit-animation: none;
-  -moz-animation: none;
-  -ms-animation: none;
-  animation: none;
   color: white;
   background-color: #a5c882;
+  box-shadow: 0px 10px 15px lightgrey;
+  transform: translateY(-3px);
 }
 
 /* Animation */

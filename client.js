@@ -24,7 +24,7 @@ async function main() {
       duration = 5; // default dur value
     }
     if (!acc_delay) {
-      acc_delay = 2;
+      acc_delay = 1;
     }
     var netPackets = freq * duration;
     var numSentPackets = 0;
@@ -278,7 +278,8 @@ async function main() {
                 },
               ],
             },
-            responsive: false,
+            responsive: true,
+            maintainAspectRatio: false,
             legend: {
               display: false,
             },
@@ -358,6 +359,17 @@ function latencyCalc() {
   avg = sum / arr.length;
 
   return [min, max, avg];
+}
+
+// calculate jitter value accross all packet latency values
+function jitterCalc() {
+  arr = latencyValues;
+}
+
+// calculate percentage (%) of late packets (p over acc delay)
+function latePacketCalc() {
+  arr = latencyValues;
+  ad = getAccDelay();
 }
 
 function updateOutput() {
@@ -452,6 +464,20 @@ function fadeIn(el, speed) {
   el.style.opacity = 1;
 }
 
+function hideElement(el) {
+  el.style.visibility = "hidden";
+  el.style.height = 0;
+  el.style.width = 0;
+  el.style.overflow = "hidden";
+}
+
+function showElement(el) {
+  el.style.visibility = "visible";
+  el.style.height = "auto";
+  el.style.width = "auto";
+  el.style.overflow = "visible";
+}
+
 function swapContent(x, y) {
   const main = document.getElementById(x);
   const div = document.getElementById(y);
@@ -464,7 +490,7 @@ function swapContent(x, y) {
 
 // Progress bars
 var bar = new ProgressBar.Circle(progbar1, {
-  color: "#aaa",
+  color: "#757575",
   // This has to be the same size as the maximum width to
   // prevent clipping
   strokeWidth: 4,
@@ -474,8 +500,8 @@ var bar = new ProgressBar.Circle(progbar1, {
   text: {
     autoStyleContainer: true,
   },
-  from: { color: "#aaa", width: 1 },
-  to: { color: "#333", width: 4 },
+  from: { color: "#E0E0E0", width: 1 },
+  to: { color: "#B3E5FC", width: 4 },
   // Set default step function for all animate calls
   step: function (state, circle) {
     circle.path.setAttribute("stroke", state.color);
@@ -491,7 +517,7 @@ var bar = new ProgressBar.Circle(progbar1, {
 });
 
 var bar2 = new ProgressBar.Circle(progbar2, {
-  color: "#aaa",
+  color: "#757575",
   // This has to be the same size as the maximum width to
   // prevent clipping
   strokeWidth: 4,
@@ -501,8 +527,8 @@ var bar2 = new ProgressBar.Circle(progbar2, {
   text: {
     autoStyleContainer: true,
   },
-  from: { color: "#aaa", width: 1 },
-  to: { color: "#333", width: 4 },
+  from: { color: "#E0E0E0", width: 1 },
+  to: { color: "#AED581", width: 4 },
   // Set default step function for all animate calls
   step: function (state, circle) {
     circle.path.setAttribute("stroke", state.color);
