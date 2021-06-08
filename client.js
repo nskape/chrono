@@ -8,14 +8,18 @@ var sentPerc = 0;
 var recPerc = 0;
 var ranOnce = false; // flag if we already entered the test
 
+var freq;
+var duration;
+var acc_delay;
+
 async function main() {
   try {
     var time_run = performance.now();
 
     const interval = 1000; // 1 second as a standard interval (10ms will send 100 packets)
-    var freq = getFreqValue(); // amount of packets in one interval
-    var duration = getDurValue(); // duration of test (x amount of pings * duration = net pings)  -- this adjusts duration this runs in ms
-    var acc_delay = getAccDelay(); // acceptable delay threshold, flag packets in or above this as late
+    freq = getFreq(); // amount of packets in one interval
+    duration = getDur(); // duration of test (x amount of pings * duration = net pings)  -- this adjusts duration this runs in ms
+    acc_delay = getAccDelay(); // acceptable delay threshold, flag packets in or above this as late
 
     if (!freq) {
       freq = 20; // default freq value
@@ -185,7 +189,7 @@ async function main() {
       }, 2000);
 
       // update result to be displayed between grade and go
-      updateResult(freq, duration);
+      updateResult(getFreq(), getDur());
 
       // fade in chart & end container
       setTimeout(function () {
@@ -326,6 +330,14 @@ window.onload = function () {
   document
     .getElementById("settingsButton")
     .addEventListener("click", toggleSettings, false);
+
+  document.getElementById("tb1_default").classList.add("active");
+  document.getElementById("tb2_default").classList.add("active");
+  document.getElementById("tb3_default").classList.add("active");
+
+  tb1Controller();
+  tb2Controller();
+  tb3Controller();
 };
 
 async function onOpen(ws) {
@@ -333,6 +345,85 @@ async function onOpen(ws) {
     ws.onopen = () => resolve();
     ws.onclose = () => reject(new Error("WebSocket closed"));
   });
+}
+
+function tb1Controller() {
+  var num = null;
+  var flag = false;
+  var active_button;
+  var ele = document.querySelectorAll(
+    ".btn-group > button.btn.btn-outline-secondary.tb1"
+  );
+  console.log(ele);
+
+  for (var i = 0; i < ele.length; i++) {
+    ele[i].addEventListener("click", function () {
+      if (flag == true) {
+        active_button.classList.remove("active");
+      } else {
+        document.getElementById("tb1_default").classList.remove("active");
+      }
+      flag = true;
+      num = this.innerHTML;
+      var new_val = num.replace(/\D/g, "");
+      this.classList.add("active");
+      active_button = this;
+      console.log(new_val);
+      setFreq(new_val);
+    });
+  }
+}
+
+function tb2Controller() {
+  var num = null;
+  var flag = false;
+  var active_button;
+  var ele = document.querySelectorAll(
+    ".btn-group > button.btn.btn-outline-secondary.tb2"
+  );
+  console.log(ele);
+  for (var i = 0; i < ele.length; i++) {
+    ele[i].addEventListener("click", function () {
+      if (flag == true) {
+        active_button.classList.remove("active");
+      } else {
+        document.getElementById("tb2_default").classList.remove("active");
+      }
+      flag = true;
+      num = this.innerHTML;
+      var new_val = num.replace(/\D/g, "");
+      this.classList.add("active");
+      active_button = this;
+      console.log(new_val);
+      setDur(new_val);
+    });
+  }
+}
+
+function tb3Controller() {
+  var num = null;
+  var flag = false;
+  var active_button;
+  var ele = document.querySelectorAll(
+    ".btn-group > button.btn.btn-outline-secondary.tb3"
+  );
+  console.log(ele);
+  for (var i = 0; i < ele.length; i++) {
+    ele[i].addEventListener("click", function () {
+      if (flag == true) {
+        active_button.classList.remove("active");
+      } else {
+        document.getElementById("tb3_default").classList.remove("active");
+      }
+      flag = true;
+      num = this.innerHTML;
+      var new_val = num.replace(/\D/g, "");
+      this.classList.add("active");
+      active_button = this;
+      console.log(new_val);
+      setAccDelay(new_val);
+    });
+  }
 }
 
 // #### UI Functions ####
@@ -364,12 +455,29 @@ function latencyCalc() {
 // calculate jitter value accross all packet latency values
 function jitterCalc() {
   arr = latencyValues;
+  var sum = 0;
+
+  for (i = 0; i < arr.length - 1; i++) {
+    diff = Math.abs(arr[i] - arr[i + 1]);
+    sum += diff;
+  }
+
+  return sum / (arr.length - 1);
 }
 
 // calculate percentage (%) of late packets (p over acc delay)
 function latePacketCalc() {
   arr = latencyValues;
   ad = getAccDelay();
+  var counter = 0;
+
+  for (i = 0; i < arr.length; i++) {
+    if (arr[i] > ad) {
+      counter++;
+    }
+  }
+
+  return counter / arr.length;
 }
 
 function updateOutput() {
@@ -401,14 +509,29 @@ function disableOutput() {
   document.getElementById("val2").style.color = "#D3D3D3";
   document.getElementById("val3").style.color = "#D3D3D3";
 }
-function getFreqValue() {
-  // TO DO
+
+function setFreq(val) {
+  freq = val;
 }
-function getDurValue() {
-  // TO DO
+
+function getFreq() {
+  return freq;
 }
+
+function setDur(val) {
+  duration = val;
+}
+
+function getDur() {
+  return duration;
+}
+
+function setAccDelay(val) {
+  acc_delay = val;
+}
+
 function getAccDelay() {
-  // TO DO
+  return acc_delay;
 }
 
 function incrementBadge() {
@@ -432,14 +555,14 @@ function clearBadges() {
 }
 
 function toggleSettings() {
-  var x = document.getElementById("settingsBox");
-  if (x.style.display === "none") {
-    console.log(x.style.display);
-    x.style.display = "block";
-  } else {
-    console.log(x.style.display);
-    x.style.display = "none";
-  }
+  // var x = document.getElementById("settingsBox");
+  // if (x.style.display === "none") {
+  //   console.log(x.style.display);
+  //   x.style.display = "block";
+  // } else {
+  //   console.log(x.style.display);
+  //   x.style.display = "none";
+  // }
 }
 
 function removeFadeOut(el, speed) {
@@ -469,20 +592,6 @@ function fadeIn(el, speed) {
   setTimeout(function () {
     el.style.transition = old_tran;
   }, 500);
-}
-
-function hideElement(el) {
-  el.style.visibility = "hidden";
-  el.style.height = 0;
-  el.style.width = 0;
-  el.style.overflow = "hidden";
-}
-
-function showElement(el) {
-  el.style.visibility = "visible";
-  el.style.height = "auto";
-  el.style.width = "auto";
-  el.style.overflow = "visible";
 }
 
 function swapContent(x, y) {

@@ -92,6 +92,7 @@ footer {
   margin: auto;
   width: 100% !important;
   max-width: 470px;
+  min-width: 370px;
   height: auto !important;
 }
 
