@@ -83,38 +83,58 @@
     <div class="container text-center" id="resultContainer">
       <div class="row justify-content-center" id="resultRow">
         <div class="col-xs-4">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-            class="bi bi-arrow-down-square" viewBox="0 0 16 16">
-            <path fill-rule="evenodd"
-              d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z" />
+          <svg xmlns="http://www.w3.org/2000/svg" id="val1Icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="#4a4a4a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="arcs">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
           </svg>
-          Minimum
+          Late Packets
           <p>
-          <h1 class="display-4" id="val1">0.0</h1>
+          <h1 class="display-4" id="val1">0<span id="percSymbol">%</span></h1>
           </p>
         </div>
         <div class="col-xs-4 offset-1">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-            class="bi bi-arrow-up-circle" viewBox="0 0 16 16">
-            <path fill-rule="evenodd"
-              d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-7.5 3.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11.5z" />
-          </svg>
-          Maximum
-          <p>
-          <h1 class="display-4" id="val2">0.0</h1>
+          <div id="latencyDiv">
+            <div id="latencyLabel">
+              <svg xmlns="http://www.w3.org/2000/svg" id="val3Icon" width="16" height="16" viewBox="0 0 24 24"
+                fill="none" stroke="#4a4a4a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="arcs">
+                <line x1="12" y1="20" x2="12" y2="10"></line>
+                <line x1="18" y1="20" x2="18" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="16"></line>
+              </svg>
+              <span>Latency</span>
+            </div>
+            <p>
+            <h1 class="display-4" id="val3">0.0</h1>
+            </p>
+          </div>
+          <div id="jitterDiv">
+            <div id="jitterLabel">
+              <svg xmlns="http://www.w3.org/2000/svg" id="val4Icon" width="16" height="16" viewBox="0 0 24 24"
+                fill="none" stroke="#4a4a4a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="arcs">
+                <path d="M12 20v-6M6 20V10M18 20V4" />
+              </svg>
+              <span>Jitter</span>
+            </div>
+            <p>
+            <h1 class="display-4" id="val4">0.0</h1>
+            </p>
+          </div>
           </p>
         </div>
         <div class="col-xs-4 offset-1">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-slash-circle"
-            viewBox="0 0 16 16">
-            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-            <path d="M11.354 4.646a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 .708.708l6-6a.5.5 0 0 0 0-.708z" />
+          <svg xmlns="http://www.w3.org/2000/svg" id="val2Icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="#4a4a4a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="arcs">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="15" y1="9" x2="9" y2="15"></line>
+            <line x1="9" y1="9" x2="15" y2="15"></line>
           </svg>
-          Average
+          Packet Loss
           <p>
-          <h1 class="display-4" id="val3">0.0</h1>
+          <h1 class="display-4" id="val2">0<span id="percSymbol">%</span></h1>
           </p>
         </div>
+
       </div>
     </div>
 
@@ -175,8 +195,8 @@
           <p>
             <a role="button" class="btn btn-sm btn-light" id="settingsButton" data-toggle="modal"
               data-target="#settingsModal">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                stroke="#4a4a4a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="arcs">
+              <svg xmlns="http://www.w3.org/2000/svg" id="settingsIcon" width="16" height="16" viewBox="0 0 24 24"
+                fill="none" stroke="#4a4a4a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="arcs">
                 <circle cx="12" cy="12" r="3"></circle>
                 <path
                   d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">

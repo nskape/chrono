@@ -12,6 +12,7 @@ var ranOnce = false; // flag if we already entered the test
 var freq;
 var duration;
 var acc_delay;
+var packet_loss;
 
 async function main() {
   try {
@@ -138,7 +139,7 @@ async function main() {
       console.log("****** RUN TIME NEW: " + time_test);
       console.log("** REC PACKETS: " + numRecPackets);
       console.log("** NET PACKETS: " + netPackets);
-      var packet_loss = 100 - (100 * numRecPackets) / netPackets;
+      packet_loss = 100 - (100 * numRecPackets) / netPackets;
       console.log("****** PACKET LOSS: " + packet_loss + "%");
       ws.close();
     }, duration * 1000 - 300);
@@ -478,7 +479,7 @@ function latePacketCalc() {
     }
   }
 
-  return counter / arr.length;
+  return (counter / arr.length) * 100;
 }
 
 function updateOutput() {
@@ -490,11 +491,20 @@ function updateOutput() {
   val2.style.color = "black";
   val3.style.color = "black";
 
-  var result = latencyCalc();
+  var latencyResult = latencyCalc();
+  var jitterResult = jitterCalc();
+  var latePacketResult = latePacketCalc();
 
-  val1.innerHTML = result[0].toFixed(1);
-  val2.innerHTML = result[1].toFixed(1);
-  val3.innerHTML = result[2].toFixed(1);
+  // commented due to change to resultBar
+  // val1.innerHTML = latencyResult[0].toFixed(1);
+  // val2.innerHTML = latencyResult[1].toFixed(1);
+  val1.innerHTML = String(parseInt(latePacketResult));
+  percHTML = '<span id="percSymbol">%</span>';
+  val1.insertAdjacentHTML("beforeend", percHTML);
+  val2.innerHTML = String(parseInt(packet_loss));
+  val2.insertAdjacentHTML("beforeend", percHTML);
+  val3.innerHTML = latencyResult[2].toFixed(1);
+  val4.innerHTML = parseInt(jitterResult);
 }
 
 function updateResult(x, y) {
