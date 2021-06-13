@@ -1,5 +1,7 @@
 :root {
   --jumbotron-padding-y: 3rem;
+  --clr-black: black;
+  --clr-hover: #a5c882;
 }
 
 .jumbotron {
@@ -52,6 +54,19 @@ footer {
   max-width: 200px;
   max-height: 200px;
   /* border: 1px solid #333; */
+}
+
+/* Progbar smartphones (portrait) ----------- */
+@media only screen and (max-width: 375px) {
+  div#progbar1 {
+    width: 160px;
+    height: 160px;
+  }
+
+  div#progbar2 {
+    width: 160px;
+    height: 160px;
+  }
 }
 
 #counterbar1 {
@@ -150,7 +165,7 @@ footer {
 }
 
 #percSymbol {
-  margin-left: 3px;
+  margin-left: 4px;
   font-size: 25px;
 }
 
@@ -300,8 +315,66 @@ footer {
   background-color: #b3e5fc;
 }
 
-#exampleModalLabel {
-  /* margin-left: 200px; */
+#mosLabel {
+  font-size: 20px;
+}
+
+#resultText {
+  font-size: 18px;
+}
+
+#mosResultA {
+  color: #a5c882;
+  font-size: 20px;
+}
+
+#mosResultB {
+  color: #689f38;
+  font-size: 20px;
+}
+
+#mosResultC {
+  color: #fbc02d;
+  font-size: 20px;
+}
+
+#mosResultD {
+  color: #fb8c00;
+  font-size: 20px;
+}
+
+#mosResultF {
+  color: #f4511e;
+  font-size: 20px;
+}
+
+#gradeModalResultA {
+  color: #a5c882;
+  font-weight: 100;
+  font-size: 2rem;
+}
+
+#gradeModalResultB {
+  color: #689f38;
+  font-weight: 100;
+  font-size: 2rem;
+}
+
+#gradeModalResultC {
+  color: #fbc02d;
+  font-weight: 100;
+  font-size: 2rem;
+}
+
+#gradeModalResultD {
+  color: #fb8c00;
+  font-weight: 100;
+  font-size: 2rem;
+}
+#gradeModalResultF {
+  color: #f4511e;
+  font-weight: 100;
+  font-size: 2rem;
 }
 
 .pulsingButton {
@@ -374,13 +447,13 @@ footer {
   border-radius: 50%;
   border: 1px solid #a5c882;
   background-color: white;
-  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease-in;
   -moz-transition: all 0.2s ease-in;
   -o-transition: all 0.2s ease-in;
   -webkit-transition: all 0.2s ease-in;
   color: #a5c882;
-  font-size: 32px;
+  font-size: 45px;
   /* font-weight: bold; */
   font-family: sans-serif;
   text-decoration: none !important;
@@ -404,8 +477,8 @@ a.pulsingButtonResult:hover {
 }
 
 a.gradeCircleResult:hover {
-  color: white;
-  background-color: #a5c882;
+  color: white !important;
+  background-color: var(--clr-hover);
   box-shadow: 0px 10px 15px lightgrey;
   transform: translateY(-3px);
 }

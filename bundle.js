@@ -13,6 +13,7 @@ var freq;
 var duration;
 var acc_delay;
 var packet_loss;
+var mos;
 
 async function main() {
   try {
@@ -30,7 +31,7 @@ async function main() {
       duration = 5; // default dur value
     }
     if (!acc_delay) {
-      acc_delay = 1;
+      acc_delay = 60;
     }
     var netPackets = freq * duration;
     var numSentPackets = 0;
@@ -38,7 +39,7 @@ async function main() {
     latencyValues = [];
     latencyRes = [];
 
-    console.log("opening websocket");
+    //console.log("opening websocket");
     const ws = new WebSocket("ws://" + "localhost" + ":8080");
     await onOpen(ws);
 
@@ -61,7 +62,7 @@ async function main() {
 
     (function outerSender() {
       var freqCounter = 0;
-      console.log("*---> SENT UDP PACKETS");
+      //console.log("*---> SENT UDP PACKETS");
       (function innerSender() {
         freqCounter++;
         let packetData = {
@@ -128,7 +129,7 @@ async function main() {
         latencyRes.push(packetRelayData.delivery);
       }
 
-      console.log("* RECEIVED SERVER RELAY | ", packetRelayData);
+      //console.log("* RECEIVED SERVER RELAY | ", packetRelayData);
     };
 
     // NEW WAY TO CLOSE OUT WEBSOCKET
@@ -136,11 +137,11 @@ async function main() {
       // Test time for each run of test until ws close
       var time_close = performance.now();
       var time_test = Math.abs(time_run - time_close);
-      console.log("****** RUN TIME NEW: " + time_test);
-      console.log("** REC PACKETS: " + numRecPackets);
-      console.log("** NET PACKETS: " + netPackets);
+      //console.log("****** RUN TIME NEW: " + time_test);
+      //console.log("** REC PACKETS: " + numRecPackets);
+      //console.log("** NET PACKETS: " + netPackets);
       packet_loss = 100 - (100 * numRecPackets) / netPackets;
-      console.log("****** PACKET LOSS: " + packet_loss + "%");
+      //console.log("****** PACKET LOSS: " + packet_loss + "%");
       ws.close();
     }, duration * 1000 - 300);
 
@@ -193,6 +194,9 @@ async function main() {
       // update result to be displayed between grade and go
       updateResult(getFreq(), getDur());
 
+      // TODO: gradeSelect goes here
+      gradeSelect();
+
       // fade in chart & end container
       setTimeout(function () {
         swapContent("startButtonDiv", "chartBox");
@@ -217,7 +221,7 @@ async function main() {
         fadeIn(document.getElementById("startButtonResult"), 1500);
       }, 2200);
 
-      console.log("ws closed");
+      //console.log("ws closed");
 
       // render chart.js
       setTimeout(function () {
@@ -254,6 +258,7 @@ async function main() {
             tooltips: {
               enabled: true,
               mode: "single",
+              displayColors: false,
               callbacks: {
                 beforeTitle: function (tooltipItem, data) {
                   return "Packet ";
@@ -329,17 +334,25 @@ window.onload = function () {
     .getElementById("startButtonResult")
     .addEventListener("click", runClientEnd, false);
 
-  document
-    .getElementById("settingsButton")
-    .addEventListener("click", toggleSettings, false);
-
   document.getElementById("tb1_default").classList.add("active");
   document.getElementById("tb2_default").classList.add("active");
   document.getElementById("tb3_default").classList.add("active");
 
-  tb1Controller();
-  tb2Controller();
-  tb3Controller();
+  tbController(
+    ".btn-group > button.btn.btn-outline-secondary.tb1",
+    "tb1_default",
+    "freq"
+  );
+  tbController(
+    ".btn-group > button.btn.btn-outline-secondary.tb2",
+    "tb2_default",
+    "dur"
+  );
+  tbController(
+    ".btn-group > button.btn.btn-outline-secondary.tb3",
+    "tb3_default",
+    "delay"
+  );
 };
 
 async function onOpen(ws) {
@@ -349,81 +362,33 @@ async function onOpen(ws) {
   });
 }
 
-function tb1Controller() {
+function tbController(btn, df, type) {
   var num = null;
   var flag = false;
   var active_button;
-  var ele = document.querySelectorAll(
-    ".btn-group > button.btn.btn-outline-secondary.tb1"
-  );
-  console.log(ele);
+  var ele = document.querySelectorAll(btn);
+  //console.log(ele);
 
   for (var i = 0; i < ele.length; i++) {
     ele[i].addEventListener("click", function () {
       if (flag == true) {
         active_button.classList.remove("active");
       } else {
-        document.getElementById("tb1_default").classList.remove("active");
+        document.getElementById(df).classList.remove("active");
       }
       flag = true;
       num = this.innerHTML;
       var new_val = num.replace(/\D/g, "");
       this.classList.add("active");
       active_button = this;
-      console.log(new_val);
-      setFreq(new_val);
-    });
-  }
-}
-
-function tb2Controller() {
-  var num = null;
-  var flag = false;
-  var active_button;
-  var ele = document.querySelectorAll(
-    ".btn-group > button.btn.btn-outline-secondary.tb2"
-  );
-  console.log(ele);
-  for (var i = 0; i < ele.length; i++) {
-    ele[i].addEventListener("click", function () {
-      if (flag == true) {
-        active_button.classList.remove("active");
-      } else {
-        document.getElementById("tb2_default").classList.remove("active");
+      //console.log(new_val);
+      if (type == "freq") {
+        setFreq(new_val);
+      } else if (type == "dur") {
+        setDur(new_val);
+      } else if (type == "delay") {
+        setAccDelay(new_val);
       }
-      flag = true;
-      num = this.innerHTML;
-      var new_val = num.replace(/\D/g, "");
-      this.classList.add("active");
-      active_button = this;
-      console.log(new_val);
-      setDur(new_val);
-    });
-  }
-}
-
-function tb3Controller() {
-  var num = null;
-  var flag = false;
-  var active_button;
-  var ele = document.querySelectorAll(
-    ".btn-group > button.btn.btn-outline-secondary.tb3"
-  );
-  console.log(ele);
-  for (var i = 0; i < ele.length; i++) {
-    ele[i].addEventListener("click", function () {
-      if (flag == true) {
-        active_button.classList.remove("active");
-      } else {
-        document.getElementById("tb3_default").classList.remove("active");
-      }
-      flag = true;
-      num = this.innerHTML;
-      var new_val = num.replace(/\D/g, "");
-      this.classList.add("active");
-      active_button = this;
-      console.log(new_val);
-      setAccDelay(new_val);
     });
   }
 }
@@ -433,7 +398,7 @@ function tb3Controller() {
 function latencyCalc() {
   // get only latency values LATENCY key
   arr = latencyValues;
-  console.log(arr);
+  //console.log(arr);
   var min = arr[0]; // min
   var max = arr[0]; // max
   var sum = arr[0]; // sum
@@ -482,6 +447,116 @@ function latePacketCalc() {
   return (counter / arr.length) * 100;
 }
 
+function mosCalc(latency, jitter, ploss) {
+  var effective_latency = latency + 2 * jitter;
+  var r = 0;
+  var mos = 0;
+
+  if (effective_latency < 160) {
+    r = 93.2 - effective_latency / 40;
+  } else {
+    r = 93.2 - (effective_latency - 120) / 10;
+  }
+
+  r = r - 2.5 * ploss;
+
+  if (r < 0) {
+    mos = 1.0;
+  } else {
+    mos = 1 + 0.035 * r + 0.000007 * r * (r - 60) * (100 - r);
+  }
+
+  return mos;
+}
+
+function gradeSelect() {
+  gradeCircle = document.getElementById("gradeCircle");
+  resultLabel = document.getElementById("endResult1");
+  mosResultA = document.getElementById("mosResultA");
+  mosResultB = document.getElementById("mosResultB");
+  mosResultC = document.getElementById("mosResultC");
+  mosResultD = document.getElementById("mosResultD");
+  mosResultF = document.getElementById("mosResultF");
+  modalLabelA = document.getElementById("gradeModalResultA");
+  modalLabelB = document.getElementById("gradeModalResultB");
+  modalLabelC = document.getElementById("gradeModalResultC");
+  modalLabelD = document.getElementById("gradeModalResultD");
+  modalLabelF = document.getElementById("gradeModalResultF");
+
+  // Issues with rounding? Check this
+  var latencyResult = latencyCalc();
+  var jitterResult = parseInt(jitterCalc());
+  var latePacketResult = latePacketCalc();
+  var packetLossResult = packet_loss;
+
+  mos_val = mosCalc(
+    latencyResult[2].toFixed(1),
+    jitterResult,
+    packetLossResult
+  );
+
+  //mos_val = 1;
+  mosResultA.innerHTML = mos_val.toFixed(2);
+  mosResultB.innerHTML = mos_val.toFixed(2);
+  mosResultC.innerHTML = mos_val.toFixed(2);
+  mosResultD.innerHTML = mos_val.toFixed(2);
+  mosResultF.innerHTML = mos_val.toFixed(2);
+  // console.log("** MOS");
+  // console.log(mos_val);
+  // console.log("* values");
+  // console.log(latencyResult[2].toFixed(1));
+  // console.log(jitterResult);
+  // console.log(packetLossResult);
+  // console.log(latePacketResult);
+  // console.log("** END MOS");
+
+  if (mos_val >= 4.2) {
+    gradeCircle.innerHTML = "A";
+    mosResultA.style.color = "#a5c882";
+    modalLabelA.style.color = "#a5c882";
+  } else if (mos_val >= 3.5 && mos_val < 4.2) {
+    gradeCircle.innerHTML = "B";
+    gradeCircle.dataset.target = "#gradeBModal";
+    gradeCircle.style.color = "#689F38";
+    gradeCircle.style.border = "1px solid #689F38";
+    resultLabel.innerHTML = "Good";
+    resultLabel.style.color = "#689F38";
+    mosResultB.style.color = "#689F38";
+    modalLabelB.style.color = "#689F38";
+    document.documentElement.style.setProperty("--clr-hover", "#689F38");
+  } else if (mos_val >= 3 && mos_val < 3.5) {
+    gradeCircle.innerHTML = "C";
+    gradeCircle.dataset.target = "#gradeCModal";
+    gradeCircle.style.color = "#FBC02D";
+    gradeCircle.style.border = "1px solid #FBC02D";
+    resultLabel.innerHTML = "Fair";
+    resultLabel.style.color = "#FBC02D";
+    mosResultC.style.color = "#FBC02D";
+    modalLabelC.style.color = "#FBC02D";
+    document.documentElement.style.setProperty("--clr-hover", "#FBC02D");
+  } else if (mos_val >= 2 && mos_val < 3) {
+    gradeCircle.innerHTML = "D";
+    gradeCircle.dataset.target = "#gradeDModal";
+    gradeCircle.style.color = "#FB8C00";
+    gradeCircle.style.border = "1px solid #FB8C00";
+    resultLabel.innerHTML = "Poor";
+    resultLabel.style.color = "#FB8C00";
+    mosResultD.style.color = "#FB8C00";
+    modalLabelD.style.color = "#FB8C00";
+    document.documentElement.style.setProperty("--clr-hover", "#FB8C00");
+  } else if (mos_val >= 1 && mos_val < 2) {
+    gradeCircle.innerHTML = "F";
+    gradeCircle.dataset.target = "#gradeFModal";
+    gradeCircle.style.color = "#F4511E";
+    gradeCircle.style.border = "1px solid #F4511E";
+    resultLabel.innerHTML = "Bad";
+    resultLabel.style.color = "#F4511E";
+    mosResultF.style.color = "#F4511E";
+    modalLabelF.style.color = "#F4511E";
+    document.documentElement.style.setProperty("--clr-hover", "#F4511E");
+  }
+}
+
 function updateOutput() {
   var val1 = document.getElementById("val1");
   var val2 = document.getElementById("val2");
@@ -490,6 +565,7 @@ function updateOutput() {
   val1.style.color = "black";
   val2.style.color = "black";
   val3.style.color = "black";
+  val4.style.color = "black";
 
   var latencyResult = latencyCalc();
   var jitterResult = jitterCalc();
@@ -503,7 +579,7 @@ function updateOutput() {
   val1.insertAdjacentHTML("beforeend", percHTML);
   val2.innerHTML = String(parseInt(packet_loss));
   val2.insertAdjacentHTML("beforeend", percHTML);
-  val3.innerHTML = latencyResult[2].toFixed(1);
+  val3.innerHTML = Math.round(latencyResult[2].toFixed(1));
   val4.innerHTML = parseInt(jitterResult);
 }
 
@@ -519,6 +595,7 @@ function disableOutput() {
   document.getElementById("val1").style.color = "#D3D3D3";
   document.getElementById("val2").style.color = "#D3D3D3";
   document.getElementById("val3").style.color = "#D3D3D3";
+  document.getElementById("val4").style.color = "#D3D3D3";
 }
 
 function setFreq(val) {
@@ -565,26 +642,6 @@ function clearBadges() {
   badge_2.innerHTML = 0;
 }
 
-function toggleSettings() {
-  // var x = document.getElementById("settingsBox");
-  // if (x.style.display === "none") {
-  //   console.log(x.style.display);
-  //   x.style.display = "block";
-  // } else {
-  //   console.log(x.style.display);
-  //   x.style.display = "none";
-  // }
-}
-
-function removeFadeOut(el, speed) {
-  var seconds = speed / 1000;
-  el.style.transition = "opacity " + seconds + "s ease";
-
-  el.style.opacity = 0;
-  setTimeout(function () {
-    el.parentNode.removeChild(el);
-  }, speed);
-}
 function fadeOut(el, speed) {
   var seconds = speed / 1000;
   var old_tran = el.style.transition;

@@ -105,7 +105,7 @@
               <span>Latency</span>
             </div>
             <p>
-            <h1 class="display-4" id="val3">0.0</h1>
+            <h1 class="display-4" id="val3">0</h1>
             </p>
           </div>
           <div id="jitterDiv">
@@ -117,7 +117,7 @@
               <span>Jitter</span>
             </div>
             <p>
-            <h1 class="display-4" id="val4">0.0</h1>
+            <h1 class="display-4" id="val4">0</h1>
             </p>
           </div>
           </p>
@@ -165,8 +165,9 @@
 
     <div class="container-fluid" id="endContainer" style="display: none">
       <div class="row flex-nowrap justify-content-center" id="endRow">
-        <div class="col-auto d-flex justify-content-center"><a href="#" class="gradeCircleResult"
-            id="gradeCircle">A+</a></div>
+        <div class="col-auto d-flex justify-content-center">
+          <a href="#" class="gradeCircleResult" data-toggle="modal" data-target="#gradeAModal" id="gradeCircle">A</a>
+        </div>
         <div class="col-auto" id="endListResult">
           <p>
           <h1 class="display-4" id="endResult1">Excellent</h1>
@@ -208,13 +209,219 @@
       </div>
     </div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    <!-- Grade A Modal -->
+    <div class="modal fade" id="gradeAModal" tabindex="-1" role="dialog" aria-labelledby="gradeAModalLabel"
       aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header text-center">
-            <h5 class="modal-title" id="exampleModalLabel">Test Settings</h5>
+            <h5 class="modal-title" id="gradeAModalLabel">Test Result</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body text-center">
+
+            <h1 class="display-4" id="gradeModalResultA">Excellent</h1>
+            <h1 class="display-4" id="mosLabel">MOS: <span class="display-4" id="mosResultA">
+              </span> </h1>
+            <br>
+            <ul class="list-unstyled text-left">
+              <ul>
+                <li>
+                  <h1 class="display-4" id="resultText">Excellent mean opinion score (MOS)</h1>
+                </li>
+                <li>
+                  <h1 class="display-4" id="resultText">Top network performance for multiplayer games</h1>
+                </li>
+                <li>
+                  <h1 class="display-4" id="resultText">Top audio (VOIP) performance</h1>
+                </li>
+                <li>
+                  <h1 class="display-4" id="resultText">No HD video streaming issues</h1>
+                </li>
+              </ul>
+            </ul>
+
+            <div class="modal-footer" id="settings-footer">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grade B Modal -->
+    <div class="modal fade" id="gradeBModal" tabindex="-1" role="dialog" aria-labelledby="gradeBModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header text-center">
+            <h5 class="modal-title" id="gradeBModalLabel">Test Result</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body text-center">
+            modalLabelC = document.getElementById("gradeModalResult");
+            <h1 class="display-4" id="gradeModalResultB">Good</h1>
+            <h1 class="display-4" id="mosLabel">MOS: <span class="display-4" id="mosResultB">
+              </span> </h1>
+            <br>
+            <ul class="list-unstyled text-left">
+              <ul>
+                <li>
+                  <h1 class="display-4" id="resultText">Good mean opinion score (MOS)</h1>
+                </li>
+                <li>
+                  <h1 class="display-4" id="resultText">Great network performance for multiplayer games</h1>
+                </li>
+                <li>
+                  <h1 class="display-4" id="resultText">Top audio (VOIP) performance</h1>
+                </li>
+                <li>
+                  <h1 class="display-4" id="resultText">No HD video streaming issues</h1>
+                </li>
+              </ul>
+            </ul>
+
+            <div class="modal-footer" id="settings-footer">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grade C Modal -->
+    <div class="modal fade" id="gradeCModal" tabindex="-1" role="dialog" aria-labelledby="gradeCModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header text-center">
+            <h5 class="modal-title" id="gradeCModalLabel">Test Result</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body text-center">
+            <h1 class="display-4" id="gradeModalResultC">Fair</h1>
+            <h1 class="display-4" id="mosLabel">MOS: <span class="display-4" id="mosResultC">
+              </span> </h1>
+            <br>
+            <ul class="list-unstyled text-left">
+              <ul>
+                <li>
+                  <h1 class="display-4" id="resultText">Fair mean opinion score (MOS)</h1>
+                </li>
+                <li>
+                  <h1 class="display-4" id="resultText">Network performance issues in multiplayer games</h1>
+                </li>
+                <li>
+                  <h1 class="display-4" id="resultText">Some issues with audio (VOIP) performance</h1>
+                </li>
+                <li>
+                  <h1 class="display-4" id="resultText">Some HD video streaming issues </h1>
+                </li>
+              </ul>
+            </ul>
+
+
+            <div class="modal-footer" id="settings-footer">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grade D Modal -->
+    <div class="modal fade" id="gradeDModal" tabindex="-1" role="dialog" aria-labelledby="gradeDModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header text-center">
+            <h5 class="modal-title" id="gradeDModalLabel">Test Result</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body text-center">
+            <h1 class="display-4" id="gradeModalResultD">Poor</h1>
+            <h1 class="display-4" id="mosLabel">MOS: <span class="display-4" id="mosResultD">
+              </span> </h1>
+            <br>
+            <ul class="list-unstyled text-left">
+              <ul>
+                <li>
+                  <h1 class="display-4" id="resultText">Poor mean opinion score (MOS)</h1>
+                </li>
+                <li>
+                  <h1 class="display-4" id="resultText">Severe network performance issues in multiplayer games</h1>
+                </li>
+                <li>
+                  <h1 class="display-4" id="resultText">Issues with audio (VOIP) performance</h1>
+                </li>
+                <li>
+                  <h1 class="display-4" id="resultText">Issues with HD video streaming</h1>
+                </li>
+              </ul>
+            </ul>
+
+            <div class="modal-footer" id="settings-footer">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grade F Modal -->
+    <div class="modal fade" id="gradeFModal" tabindex="-1" role="dialog" aria-labelledby="gradeFModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header text-center">
+            <h5 class="modal-title" id="gradeFModalLabel">Test Result</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body text-center">
+
+            <h1 class="display-4" id="gradeModalResultF">Bad</h1>
+            <h1 class="display-4" id="mosLabel">MOS: <span class="display-4" id="mosResultF">
+              </span> </h1>
+            <br>
+            <ul class="list-unstyled text-left">
+              <ul>
+                <li>
+                  <h1 class="display-4" id="resultText">Bad mean opinion score (MOS)</h1>
+                </li>
+                <li>
+                  <h1 class="display-4" id="resultText">Severe network performance issues in multiplayer games</h1>
+                </li>
+                <li>
+                  <h1 class="display-4" id="resultText">Severe issues with audio (VOIP) performance</h1>
+                </li>
+                <li>
+                  <h1 class="display-4" id="resultText">Severe issues with HD video streaming</h1>
+                </li>
+              </ul>
+            </ul>
+
+            <div class="modal-footer" id="settings-footer">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="settingsModalLabel">Test Settings</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -223,7 +430,7 @@
             <p>
               <a class="btn btn-info" id="modalInfoButton" type="button" data-toggle="collapse"
                 data-target="#collapseInfoButton" aria-expanded="false" aria-controls="collapseInfoButton">
-                User Guide
+                Key
               </a>
             </p>
             <div class="collapse" id="collapseInfoButton">
@@ -231,7 +438,8 @@
                   second</b>. Duration of
                 the test is
                 measured
-                in <b>seconds</b>. Acceptable delay is the upper bound for packets that are considered <b>late</b>.
+                in <b>seconds</b>. Acceptable delay is the upper bound for packets that are considered
+                <b>late</b>.
               </div>
             </div>
             <span id="toolbarLabel1">Frequency &nbsp;</span>
@@ -257,9 +465,10 @@
             <div class="btn-toolbar mb-3" id="toolbar2" role="toolbar" aria-label="Toolbar with button groups">
 
               <div class="btn-group mr-2" role="group" aria-label="Second group">
-                <button type="button" class="btn btn-outline-secondary tb3" id="tb3_default">2 ms</button>
-                <button type="button" class="btn btn-outline-secondary tb3">5 ms</button>
-                <button type="button" class="btn btn-outline-secondary tb3">6 ms</button>
+                <button type="button" class="btn btn-outline-secondary tb3" id="tb3_default">60 ms</button>
+                <button type="button" class="btn btn-outline-secondary tb3">100 ms</button>
+                <button type="button" class="btn btn-outline-secondary tb3">150 ms</button>
+                <button type="button" class="btn btn-outline-secondary tb3">200 ms</button>
               </div>
             </div>
 
