@@ -117,6 +117,7 @@ footer {
 #navTitle {
   font-family: "montserrat", sans-serif !important;
   font-size: 1.4rem;
+  margin-bottom: 2px;
 }
 #settingsIcon {
   margin-bottom: 3px;
