@@ -296,24 +296,24 @@ footer {
 #toolbarLabel1 {
   font-family: "Helvetica Neue", sans-serif !important;
   font-weight: 100;
-  font-size: 1rem;
-  color: gray;
+  font-size: 1.2rem;
+  color: black;
   margin-top: 5px;
 }
 
 #toolbarLabel2 {
   font-family: "Helvetica Neue", sans-serif !important;
   font-weight: 100;
-  font-size: 1rem;
-  color: gray;
+  font-size: 1.2rem;
+  color: black;
   margin-top: 6px;
 }
 
 #toolbarLabel3 {
   font-family: "Helvetica Neue", sans-serif !important;
   font-weight: 100;
-  font-size: 1rem;
-  color: gray;
+  font-size: 1.2rem;
+  color: black;
   margin-top: 6px;
 }
 
