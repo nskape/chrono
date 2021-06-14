@@ -518,6 +518,7 @@ function gradeSelect() {
     resultLabel.style.color = "#a5c882";
     mosResultA.style.color = "#a5c882";
     modalLabelA.style.color = "#a5c882";
+    document.documentElement.style.setProperty("--clr-hover", "#a5c882");
   } else if (mos_val >= 3.5 && mos_val < 4.2) {
     gradeCircle.innerHTML = "B";
     gradeCircle.dataset.target = "#gradeBModal";
