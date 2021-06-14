@@ -512,6 +512,11 @@ function gradeSelect() {
 
   if (mos_val >= 4.2) {
     gradeCircle.innerHTML = "A";
+    gradeCircle.dataset.target = "#gradeAModal";
+    gradeCircle.style.color = "#a5c882";
+    gradeCircle.style.border = "1px solid #a5c882";
+    resultLabel.innerHTML = "Excellent";
+    resultLabel.style.color = "#a5c882";
     mosResultA.style.color = "#a5c882";
     modalLabelA.style.color = "#a5c882";
   } else if (mos_val >= 3.5 && mos_val < 4.2) {
