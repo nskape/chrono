@@ -6,10 +6,14 @@
 
 .jumbotron {
   background-color: white;
+  /* border: 1px solid #333; */
+  padding: 20px 20px 20px 20px;
+  display: inline-block;
+  width: 100%;
 }
 
 .jumbotron p:last-child {
-  margin-bottom: 0;
+  margin-bottom: 0px;
 }
 
 .jumbotron-heading {
@@ -162,6 +166,14 @@ footer {
 #latencyLabel {
   margin-right: 15px;
   margin-bottom: -5px;
+}
+
+#latePacketLabel {
+  margin-bottom: -10px;
+}
+
+#packetLossLabel {
+  margin-bottom: -10px;
 }
 
 #percSymbol {
