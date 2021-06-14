@@ -30,7 +30,7 @@ async function main() {
       duration = 5; // default dur value
     }
     if (!acc_delay) {
-      acc_delay = 60;
+      acc_delay = 80;
     }
     var netPackets = freq * duration;
     var numSentPackets = 0;
