@@ -17,8 +17,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
 
   <!-- Bootstrap Core JavaScript -->
-  <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <script src="../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+  <link href="./node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="./node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
   <!-- progress bar -->
   <link href="https://fonts.googleapis.com/css?family=Raleway:400,300,600,800,900" rel="stylesheet" type="text/css">
 
@@ -83,12 +83,14 @@
     <div class="container text-center" id="resultContainer">
       <div class="row justify-content-center" id="resultRow">
         <div class="col-xs-4">
-          <svg xmlns="http://www.w3.org/2000/svg" id="val1Icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="#4a4a4a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="arcs">
+          <div id="latePacketLabel">
+            <!-- <svg xmlns="http://www.w3.org/2000/svg" id="val1Icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="#4a4a4a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="arcs"> -->
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="12 6 12 12 16 14"></polyline>
-          </svg>
-          Late Packets
+            </svg>
+            Late Packets
+          </div>
           <p>
           <h1 class="display-4" id="val1">0<span id="percSymbol">%</span></h1>
           </p>
@@ -123,13 +125,15 @@
           </p>
         </div>
         <div class="col-xs-4 offset-1">
-          <svg xmlns="http://www.w3.org/2000/svg" id="val2Icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+          <div id="packetLossLabel">
+            <!-- <svg xmlns="http://www.w3.org/2000/svg" id="val2Icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
             stroke="#4a4a4a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="arcs">
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="15" y1="9" x2="9" y2="15"></line>
-            <line x1="9" y1="9" x2="15" y2="15"></line>
-          </svg>
-          Packet Loss
+            <line x1="9" y1="9" x2="15" y2="15"></line> -->
+            </svg>
+            Packet Loss
+          </div>
           <p>
           <h1 class="display-4" id="val2">0<span id="percSymbol">%</span></h1>
           </p>
@@ -465,7 +469,7 @@
             <div class="btn-toolbar mb-3" id="toolbar2" role="toolbar" aria-label="Toolbar with button groups">
 
               <div class="btn-group mr-2" role="group" aria-label="Second group">
-                <button type="button" class="btn btn-outline-secondary tb3" id="tb3_default">60 ms</button>
+                <button type="button" class="btn btn-outline-secondary tb3" id="tb3_default">80 ms</button>
                 <button type="button" class="btn btn-outline-secondary tb3">100 ms</button>
                 <button type="button" class="btn btn-outline-secondary tb3">150 ms</button>
                 <button type="button" class="btn btn-outline-secondary tb3">200 ms</button>
@@ -495,7 +499,7 @@
   <!-- Placed at the end of the document so the pages load faster -->
 
   <!-- Load bundle js file -->
-  <script type="text/javascript" src="../bundle.js"></script>
+  <script type="text/javascript" src="./bundle.js"></script>
   <!-- ================================================== -->
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
     integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"

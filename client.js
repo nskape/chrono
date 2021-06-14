@@ -30,7 +30,7 @@ async function main() {
       duration = 5; // default dur value
     }
     if (!acc_delay) {
-      acc_delay = 60;
+      acc_delay = 80;
     }
     var netPackets = freq * duration;
     var numSentPackets = 0;
@@ -39,7 +39,7 @@ async function main() {
     latencyRes = [];
 
     //console.log("opening websocket");
-    const ws = new WebSocket("ws://" + "localhost" + ":8080");
+    const ws = new WebSocket("ws://" + "18.217.186.186" + ":8080");
     await onOpen(ws);
 
     let pc = new RTCClient(
@@ -511,8 +511,14 @@ function gradeSelect() {
 
   if (mos_val >= 4.2) {
     gradeCircle.innerHTML = "A";
+    gradeCircle.dataset.target = "#gradeAModal";
+    gradeCircle.style.color = "#a5c882";
+    gradeCircle.style.border = "1px solid #a5c882";
+    resultLabel.innerHTML = "Excellent";
+    resultLabel.style.color = "#a5c882";
     mosResultA.style.color = "#a5c882";
     modalLabelA.style.color = "#a5c882";
+    document.documentElement.style.setProperty("--clr-hover", "#a5c882");
   } else if (mos_val >= 3.5 && mos_val < 4.2) {
     gradeCircle.innerHTML = "B";
     gradeCircle.dataset.target = "#gradeBModal";
