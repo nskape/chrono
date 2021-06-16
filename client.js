@@ -39,7 +39,7 @@ async function main() {
     latencyRes = [];
 
     //console.log("opening websocket");
-    const ws = new WebSocket("ws://" + "18.217.186.186" + ":8080");
+    const ws = new WebSocket("ws://" + "18.221.176.230" + ":8080");
     await onOpen(ws);
 
     let pc = new RTCClient(
