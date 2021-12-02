@@ -370,7 +370,7 @@ footer {
 }
 
 #toolbarLabel1 {
-  font-family: "Helvetica Neue", sans-serif !important;
+  /* font-family: "Helvetica Neue", sans-serif !important; */
   font-weight: 80;
   font-size: 1rem;
   color: white;
@@ -379,7 +379,7 @@ footer {
 }
 
 #toolbarLabel2 {
-  font-family: "Helvetica Neue", sans-serif !important;
+  /* font-family: "Helvetica Neue", sans-serif !important; */
   font-weight: 80;
   font-size: 1rem;
   color: white;
@@ -387,7 +387,7 @@ footer {
 }
 
 #toolbarLabel3 {
-  font-family: "Helvetica Neue", sans-serif !important;
+  /* font-family: "Helvetica Neue", sans-serif !important; */
   font-weight: 80;
   font-size: 1rem;
   color: white;
