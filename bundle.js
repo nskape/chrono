@@ -40,7 +40,7 @@ async function main() {
     latencyRes = [];
 
     //console.log("opening websocket");
-    const ws = new WebSocket("ws://" + "3.131.138.200" + ":8080");
+    const ws = new WebSocket("ws://" + "localhost" + ":8080");
     await onOpen(ws);
 
     let pc = new RTCClient(
@@ -495,7 +495,7 @@ function gradeSelect() {
     packetLossResult
   );
 
-  //mos_val = 1;
+  //mos_val = 4;
   mosResultA.innerHTML = mos_val.toFixed(2);
   mosResultB.innerHTML = mos_val.toFixed(2);
   mosResultC.innerHTML = mos_val.toFixed(2);
@@ -511,55 +511,60 @@ function gradeSelect() {
   // console.log("** END MOS");
 
   if (mos_val >= 4.2) {
+    document.documentElement.style.setProperty("--shadowColor", "#a5c882");
     gradeCircle.innerHTML = "A";
     gradeCircle.dataset.target = "#gradeAModal";
-    gradeCircle.style.color = "#a5c882";
+    gradeCircle.style.color = "#000818";
+    gradeCircle.style.backgroundColor = "#a5c882";
     gradeCircle.style.border = "1px solid #a5c882";
     resultLabel.innerHTML = "Excellent";
     resultLabel.style.color = "#a5c882";
     mosResultA.style.color = "#a5c882";
     modalLabelA.style.color = "#a5c882";
-    document.documentElement.style.setProperty("--clr-hover", "#a5c882");
   } else if (mos_val >= 3.5 && mos_val < 4.2) {
+    document.documentElement.style.setProperty("--shadowColor", "#689F38");
     gradeCircle.innerHTML = "B";
     gradeCircle.dataset.target = "#gradeBModal";
-    gradeCircle.style.color = "#689F38";
+    gradeCircle.style.color = "#000818";
+    gradeCircle.style.backgroundColor = "#689F38";
     gradeCircle.style.border = "1px solid #689F38";
     resultLabel.innerHTML = "Good";
     resultLabel.style.color = "#689F38";
     mosResultB.style.color = "#689F38";
     modalLabelB.style.color = "#689F38";
-    document.documentElement.style.setProperty("--clr-hover", "#689F38");
   } else if (mos_val >= 3 && mos_val < 3.5) {
+    document.documentElement.style.setProperty("--shadowColor", "#FBC02D");
     gradeCircle.innerHTML = "C";
     gradeCircle.dataset.target = "#gradeCModal";
-    gradeCircle.style.color = "#FBC02D";
+    gradeCircle.style.color = "#000818";
+    gradeCircle.style.backgroundColor = "#FBC02D";
     gradeCircle.style.border = "1px solid #FBC02D";
     resultLabel.innerHTML = "Fair";
     resultLabel.style.color = "#FBC02D";
     mosResultC.style.color = "#FBC02D";
     modalLabelC.style.color = "#FBC02D";
-    document.documentElement.style.setProperty("--clr-hover", "#FBC02D");
   } else if (mos_val >= 2 && mos_val < 3) {
+    document.documentElement.style.setProperty("--shadowColor", "#FB8C00");
     gradeCircle.innerHTML = "D";
     gradeCircle.dataset.target = "#gradeDModal";
-    gradeCircle.style.color = "#FB8C00";
+    gradeCircle.style.color = "#000818";
+    gradeCircle.style.backgroundColor = "#FB8C00";
     gradeCircle.style.border = "1px solid #FB8C00";
     resultLabel.innerHTML = "Poor";
     resultLabel.style.color = "#FB8C00";
     mosResultD.style.color = "#FB8C00";
     modalLabelD.style.color = "#FB8C00";
-    document.documentElement.style.setProperty("--clr-hover", "#FB8C00");
   } else if (mos_val >= 1 && mos_val < 2) {
+    document.documentElement.style.setProperty("--shadowColor", "#F4511E");
     gradeCircle.innerHTML = "F";
     gradeCircle.dataset.target = "#gradeFModal";
-    gradeCircle.style.color = "#F4511E";
+    gradeCircle.style.color = "#000818";
+    gradeCircle.style.backgroundColor = "#F4511E";
     gradeCircle.style.border = "1px solid #F4511E";
     resultLabel.innerHTML = "Bad";
     resultLabel.style.color = "#F4511E";
     mosResultF.style.color = "#F4511E";
     modalLabelF.style.color = "#F4511E";
-    document.documentElement.style.setProperty("--clr-hover", "#F4511E");
   }
 }
 
@@ -568,10 +573,10 @@ function updateOutput() {
   var val2 = document.getElementById("val2");
   var val3 = document.getElementById("val3");
 
-  val1.style.color = "black";
-  val2.style.color = "black";
-  val3.style.color = "black";
-  val4.style.color = "black";
+  val1.style.color = "white";
+  val2.style.color = "white";
+  val3.style.color = "white";
+  val4.style.color = "white";
 
   var latencyResult = latencyCalc();
   var jitterResult = jitterCalc();
@@ -598,10 +603,10 @@ function updateResult(x, y) {
 }
 
 function disableOutput() {
-  document.getElementById("val1").style.color = "#D3D3D3";
-  document.getElementById("val2").style.color = "#D3D3D3";
-  document.getElementById("val3").style.color = "#D3D3D3";
-  document.getElementById("val4").style.color = "#D3D3D3";
+  document.getElementById("val1").style.color = "#b3e5fc";
+  document.getElementById("val2").style.color = "#b3e5fc";
+  document.getElementById("val3").style.color = "#b3e5fc";
+  document.getElementById("val4").style.color = "#b3e5fc";
 }
 
 function setFreq(val) {
@@ -680,11 +685,12 @@ function swapContent(x, y) {
 
 // Progress bars
 var bar = new ProgressBar.Circle(progbar1, {
-  color: "#757575",
+  color: "white",
   // This has to be the same size as the maximum width to
   // prevent clipping
   strokeWidth: 4,
-  trailWidth: 1,
+  trailWidth: 0,
+  trailColor: "#000B23",
   easing: "easeInOut",
   duration: 200,
   text: {
@@ -707,11 +713,12 @@ var bar = new ProgressBar.Circle(progbar1, {
 });
 
 var bar2 = new ProgressBar.Circle(progbar2, {
-  color: "#757575",
+  color: "white",
   // This has to be the same size as the maximum width to
   // prevent clipping
   strokeWidth: 4,
-  trailWidth: 1,
+  trailWidth: 0,
+  trailColor: "#000B23",
   easing: "easeInOut",
   duration: 200,
   text: {

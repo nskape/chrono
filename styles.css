@@ -1,14 +1,17 @@
 :root {
   --jumbotron-padding-y: 3rem;
   --clr-black: black;
-  --clr-hover: #a5c882;
+  --shadowColor: #a5c882;
 }
 
 .jumbotron {
-  background-color: white;
-  padding: 20px 20px 20px 20px;
+  background-color: #000818;
+  /* padding: 20px 20px 20px 20px; */
   display: inline-block;
   width: 100%;
+  padding-top: 10px !important;
+  padding-bottom: 0px !important;
+  margin-bottom: 40px;
 }
 
 .jumbotron p:last-child {
@@ -39,13 +42,13 @@ footer p {
 html,
 body {
   overflow-x: hidden;
+  background-color: #000818;
 }
 
 footer {
   position: absolute;
   bottom: 0;
   width: 100%;
-  color: #fff;
 }
 
 #progbar1 {
@@ -77,6 +80,7 @@ footer {
   margin-top: 10px;
   /* margin-left: 20px; */
   font-size: 1.4rem;
+  color: #e8eddf;
 }
 
 #counterbar2 {
@@ -84,20 +88,21 @@ footer {
   margin-top: 10px;
   /* margin-left: 20px; */
   font-size: 1.4rem;
+  color: #e8eddf;
 }
 
 #counterbar1sub {
   text-align: center;
   /* margin-left: 20px; */
   font-size: 1rem;
-  color: gray;
+  color: #e8eddf;
 }
 
 #counterbar2sub {
   text-align: center;
   /* margin-left: 20px; */
   font-size: 1rem;
-  color: gray;
+  color: #e8eddf;
 }
 
 #chartBox {
@@ -114,13 +119,36 @@ footer {
   height: auto !important;
 }
 
+#chronoLogo {
+  max-height: 130px;
+  max-width: 130px;
+  margin-top: 5px;
+}
+
+#chronoLogoPage {
+  max-height: 200px;
+  max-width: 200px;
+  margin-bottom: 10px;
+}
+
+#navBox {
+  background-color: #000818;
+}
+
 #navTitle {
   font-family: "montserrat", sans-serif !important;
   font-size: 1.4rem;
   margin-bottom: 2px;
+  color: white;
 }
 #settingsIcon {
   margin-bottom: 3px;
+  margin-right: 2px;
+}
+
+#settingsButton {
+  background-color: #000818;
+  color: white;
 }
 
 #val1Icon {
@@ -139,14 +167,24 @@ footer {
   margin-bottom: 2px;
 }
 
+#val1 {
+  color: white;
+}
+
+#val2 {
+  color: white;
+}
+
 #val3 {
   font-size: 25px;
   line-height: 10px;
+  color: white;
 }
 
 #val4 {
   font-size: 25px;
   line-height: 10px;
+  color: white;
 }
 
 #latencyDiv {
@@ -161,19 +199,23 @@ footer {
 #jitterLabel {
   margin-right: 15px;
   margin-bottom: -5px;
+  color: #e8eddf;
 }
 
 #latencyLabel {
   margin-right: 15px;
   margin-bottom: -5px;
+  color: #e8eddf;
 }
 
 #latePacketLabel {
   margin-bottom: -10px;
+  color: #e8eddf;
 }
 
 #packetLossLabel {
   margin-bottom: -10px;
+  color: #e8eddf;
 }
 
 #percSymbol {
@@ -198,6 +240,38 @@ footer {
 #settingsButtonContainer {
   margin-top: 0px;
   /* border: 1px solid #333; */
+}
+
+.close {
+  color: #fff;
+  opacity: 1;
+}
+
+.modal-title {
+  text-align: center;
+  width: 100%;
+  margin-left: 40px;
+}
+
+.modal-backdrop {
+  background-color: #292b2c;
+}
+
+.modal-content {
+  color: white;
+  background-color: #000818;
+}
+
+.modal-header {
+  min-height: 16.42857143px;
+  padding: 15px;
+  border-bottom: 1px solid #292b2c;
+}
+
+.modal-footer {
+  padding: 15px;
+  text-align: right;
+  border-top: 1px solid #292b2c;
 }
 
 .col-sm-1 {
@@ -259,25 +333,27 @@ footer {
 #endResult2 {
   font-weight: 300;
   font-size: 1.4rem;
+  color: #e8eddf;
 }
 
 #endResult3 {
   font-weight: 300;
   font-size: 1.4rem;
+  color: #e8eddf;
 }
 
 #endResult2sub {
   font-family: "Helvetica Neue", sans-serif !important;
   font-weight: 100;
   font-size: 1rem;
-  color: gray;
+  color: #e8eddf;
 }
 
 #endResult3sub {
   font-family: "Helvetica Neue", sans-serif !important;
   font-weight: 100;
   font-size: 1rem;
-  color: gray;
+  color: #e8eddf;
 }
 
 /* #toolbar1 {
@@ -295,25 +371,26 @@ footer {
 
 #toolbarLabel1 {
   font-family: "Helvetica Neue", sans-serif !important;
-  font-weight: 100;
-  font-size: 1.2rem;
-  color: black;
+  font-weight: 80;
+  font-size: 1rem;
+  color: white;
   margin-top: 5px;
+  margin-bottom: 50px;
 }
 
 #toolbarLabel2 {
   font-family: "Helvetica Neue", sans-serif !important;
-  font-weight: 100;
-  font-size: 1.2rem;
-  color: black;
+  font-weight: 80;
+  font-size: 1rem;
+  color: white;
   margin-top: 6px;
 }
 
 #toolbarLabel3 {
   font-family: "Helvetica Neue", sans-serif !important;
-  font-weight: 100;
-  font-size: 1.2rem;
-  color: black;
+  font-weight: 80;
+  font-size: 1rem;
+  color: white;
   margin-top: 6px;
 }
 
@@ -404,8 +481,8 @@ footer {
   white-space: nowrap;
   box-shadow: 0 0 0 0 #b3e5fc;
   border-radius: 50%;
-  border: 1px solid lightgray;
-  background-color: white;
+  border: 2px solid #b3e5fc;
+  background-color: #000818;
   color: lightgray;
   -webkit-animation: pulsing 3s infinite cubic-bezier(0.66, 0, 0, 1);
   -moz-animation: pulsing 3s infinite cubic-bezier(0.66, 0, 0, 1);
@@ -431,8 +508,8 @@ footer {
   white-space: nowrap;
   box-shadow: 0 0 0 0 #b3e5fc;
   border-radius: 50%;
-  border: 1px solid lightgray;
-  background-color: white;
+  border: 2px solid #b3e5fc;
+  background-color: #000818;
   color: lightgray;
   -webkit-animation: pulsing 3s infinite cubic-bezier(0.66, 0, 0, 1);
   -moz-animation: pulsing 3s infinite cubic-bezier(0.66, 0, 0, 1);
@@ -458,17 +535,18 @@ footer {
   white-space: nowrap;
   border-radius: 50%;
   border: 1px solid #a5c882;
-  background-color: white;
-  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease-in;
-  -moz-transition: all 0.2s ease-in;
-  -o-transition: all 0.2s ease-in;
-  -webkit-transition: all 0.2s ease-in;
-  color: #a5c882;
+  background-color: #a5c882;
+  color: #000818;
+  box-shadow: 0 0 0 0 var(--shadowColor);
+  -webkit-animation: pulsing 3s infinite cubic-bezier(0.66, 0, 0, 1);
+  -moz-animation: pulsing 3s infinite cubic-bezier(0.66, 0, 0, 1);
+  -ms-animation: pulsing 3s infinite cubic-bezier(0.66, 0, 0, 1);
+  animation: pulsing 3s infinite cubic-bezier(0.66, 0, 0, 1);
   font-size: 45px;
   /* font-weight: bold; */
   font-family: sans-serif;
   text-decoration: none !important;
+  transition: all 300ms ease-in-out;
 }
 
 /* Comment-out to have the button continue to pulse on mouseover */
@@ -485,14 +563,18 @@ a.pulsingButtonResult:hover {
   -moz-animation: none;
   -ms-animation: none;
   animation: none;
-  color: grey;
+  color: #b3e5fc;
 }
 
 a.gradeCircleResult:hover {
-  color: white !important;
-  background-color: var(--clr-hover);
-  box-shadow: 0px 10px 15px lightgrey;
-  transform: translateY(-3px);
+  -webkit-animation: none;
+  -moz-animation: none;
+  -ms-animation: none;
+  animation: none;
+  /* color: white !important; */
+  /* background-color: var(--clr-hover); */
+  /* box-shadow: 0px 5px 30px #00256f; */
+  transform: translateY(-4px);
 }
 
 /* Animation */

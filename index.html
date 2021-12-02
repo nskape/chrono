@@ -35,14 +35,14 @@
         <div class="row">
           <div class="col-sm-8 col-md-7 py-4">
             <h4 class="text-white">About</h4>
-            <p class="text-muted"><b>chrono</b> is a network diagnostic tool that returns connection data
+            <p class="text-white"><b>Chrono</b> is a network diagnostic tool that returns connection data
               <b>(ping, latency,
                 jitter,
                 packet loss)</b> as a graded result to the user. Use this to predict your performance in multiplayer
               games,
               streaming, and more!
 
-              <br><br> This app was created by <b>nskape</b>.
+            <p class="text-muted"> This app was created by <b>nskape</b>.</p>
             </p>
           </div>
           <div class="col-sm-4 offset-md-1 py-4">
@@ -56,14 +56,15 @@
         </div>
       </div>
     </div>
-    <div class="navbar navbar-dark bg-dark box-shadow">
+    <div class="navbar navbar-dark box-shadow" id="navBox">
       <div class="container d-flex justify-content-between">
         <a href="#" class="navbar-brand d-flex align-items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none"
+          <!-- <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none"
             stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="arcs">
             <path d="M12 2l9 4.9V17L12 22l-9-4.9V7z" />
           </svg>
-          &nbsp; <strong id="navTitle">chrono</strong> &nbsp;&nbsp;
+          &nbsp; <strong id="navTitle">chrono</strong> &nbsp;&nbsp; -->
+          <img src="./img/chrono-bold-white.png" alt="chrono logo" id="chronoLogo" class="img-responsive">
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader"
           aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,8 +78,9 @@
 
     <section class="jumbotron text-center">
       <div class="container">
-        <h1 class="jumbotron-heading"><b>chrono</b></h1>
-        <p class="lead text-muted">the simple packet loss test.</p>
+        <h1 class="jumbotron-heading text-white"><b>chrono</b></h1>
+        <!-- <img src="./img/chrono-bold-white.png" alt="chrono logo 2" id="chronoLogoPage" class="img-responsive"> -->
+        <p class="lead text-white">the simple packet loss test.</p>
       </div>
     </section>
 
@@ -203,7 +205,7 @@
             <a role="button" class="btn btn-sm btn-light" id="settingsButton" data-toggle="modal"
               data-target="#settingsModal">
               <svg xmlns="http://www.w3.org/2000/svg" id="settingsIcon" width="16" height="16" viewBox="0 0 24 24"
-                fill="none" stroke="#4a4a4a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="arcs">
+                fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="arcs">
                 <circle cx="12" cy="12" r="3"></circle>
                 <path
                   d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
@@ -268,7 +270,6 @@
             </button>
           </div>
           <div class="modal-body text-center">
-            modalLabelC = document.getElementById("gradeModalResult");
             <h1 class="display-4" id="gradeModalResultB">Good</h1>
             <h1 class="display-4" id="mosLabel">MOS: <span class="display-4" id="mosResultB">
               </span> </h1>
