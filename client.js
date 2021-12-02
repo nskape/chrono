@@ -684,7 +684,7 @@ function swapContent(x, y) {
 
 // Progress bars
 var bar = new ProgressBar.Circle(progbar1, {
-  color: "white",
+  color: "#e8eddf",
   // This has to be the same size as the maximum width to
   // prevent clipping
   strokeWidth: 4,
@@ -712,7 +712,7 @@ var bar = new ProgressBar.Circle(progbar1, {
 });
 
 var bar2 = new ProgressBar.Circle(progbar2, {
-  color: "white",
+  color: "#e8eddf",
   // This has to be the same size as the maximum width to
   // prevent clipping
   strokeWidth: 4,
