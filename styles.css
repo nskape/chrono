@@ -556,7 +556,7 @@ a.pulsingButton:hover {
   -moz-animation: none;
   -ms-animation: none;
   animation: none;
-  color: grey;
+  color: #b3e5fc;
 }
 a.pulsingButtonResult:hover {
   -webkit-animation: none;
