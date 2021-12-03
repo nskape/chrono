@@ -128,7 +128,25 @@ footer {
 #chronoLogoPage {
   max-height: 200px;
   max-width: 200px;
+  margin-top: 10px;
   margin-bottom: 10px;
+}
+
+.btn:focus,
+.btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.btn-link {
+  color: #b3e5fc;
+  text-decoration: none !important;
+}
+
+.btn-link:active,
+.btn-link:focus,
+.btn-link:hover {
+  color: white !important;
 }
 
 #navBox {
@@ -288,6 +306,11 @@ footer {
   /* border: 1px solid red; */
 }
 
+.col-md-12 {
+  text-align: center;
+  /* border: 1px solid red; */
+}
+
 .col-auto {
   text-align: center;
   /* border: 1px solid red; */
@@ -371,7 +394,7 @@ footer {
 
 #toolbarLabel1 {
   /* font-family: "Helvetica Neue", sans-serif !important; */
-  font-weight: 80;
+  font-weight: 100;
   font-size: 1rem;
   color: white;
   margin-top: 5px;
@@ -380,7 +403,7 @@ footer {
 
 #toolbarLabel2 {
   /* font-family: "Helvetica Neue", sans-serif !important; */
-  font-weight: 80;
+  font-weight: 100;
   font-size: 1rem;
   color: white;
   margin-top: 6px;
@@ -388,7 +411,7 @@ footer {
 
 #toolbarLabel3 {
   /* font-family: "Helvetica Neue", sans-serif !important; */
-  font-weight: 80;
+  font-weight: 100;
   font-size: 1rem;
   color: white;
   margin-top: 6px;

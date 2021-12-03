@@ -34,57 +34,88 @@
 
 <body>
   <header>
-    <div class="collapse bg-dark" id="navbarHeader">
-      <div class="container">
-        <div class="row">
-          <div class="col-sm-8 col-md-7 py-4">
-            <h4 class="text-white">About</h4>
-            <p class="text-white"><b>Chrono</b> is a network diagnostic tool that returns connection data
-              <b>(ping, latency,
-                jitter,
-                packet loss)</b> as a graded result to the user. Use this to predict your performance in multiplayer
-              games,
-              streaming, and more!
+    <div id="myGroup">
+      <div class="collapse bg-dark" id="navbarHeaderAbout" data-parent="#myGroup">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-8 col-md-7 py-4">
+              <h4 class="text-white">About</h4>
+              <p class="text-white"><b>Chrono</b> is a network diagnostic tool that returns connection data
+                <b>(ping, latency,
+                  jitter,
+                  packet loss)</b> as a graded result to the user. Use this to predict your performance in multiplayer
+                games,
+                streaming, and more!
 
-            <p class="text-muted"> This app was created by <b>nskape</b>.</p>
-            </p>
+              <p class="text-muted"> This app was created by <b>nskape</b>.</p>
+              </p>
+            </div>
+            <div class="col-sm-4 offset-md-1 py-4">
+              <h4 class="text-white">Contact</h4>
+              <ul class="list-unstyled">
+                <li><a href="https://github.com/nskape" class="text-white">Github</a></li>
+                <li><a href="https://www.linkedin.com/in/nikitakudryavtsev/" class="text-white">LinkedIn</a></li>
+              </ul>
+            </div>
           </div>
-          <div class="col-sm-4 offset-md-1 py-4">
-            <h4 class="text-white">Contact</h4>
-            <ul class="list-unstyled">
-              <li><a href="#" class="text-white">Twitter</a></li>
-              <li><a href="https://github.com/nskape" class="text-white">Github</a></li>
-              <li><a href="#" class="text-white">Email</a></li>
-            </ul>
+        </div>
+      </div>
+      <div class="collapse bg-dark" id="navbarHeaderGuide" data-parent="#myGroup">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-8 col-md-10 py-4">
+              <h4 class="text-white">Guide</h4>
+              <p class="text-white"> Welcome to <b>Chrono</b>!</p>
+              <p class="text-white">Chrono is meant to complement a traditional internet speed test. This is an
+                easy-to-use packet loss test made possible by
+                WebRTC. To run the app, just press the GO button below. You can also adjust parameters to your liking by
+                clicking the settings button. </p>
+
+              <p style="color: #b3e5fc;"><b>What is packet loss?</b></p>
+              <p class="text-white">A packet is a unit of data traveling over the internet using a protocol (typically
+                TCP or UDP). Packet loss occurs when one or more of these packets get lost on the way to their
+                destination. Typically, users will see this manifest as poor quality in a voice/video call or lag in a
+                multiplayer game. </p>
+
+              <p style="color: #b3e5fc;"><b>What are latency, jitter and late packets?</b></p>
+              <p class="text-white">Latency (also known as Ping) is the overall time it takes for a packet to reach its
+                destination and then return to the user. Jitter is a measure of variation in your latency. Packets are
+                considered "late" when their latency exceeds a certain value.</p>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="navbar navbar-dark box-shadow" id="navBox">
+        <div class="container d-flex justify-content-between">
+          <div class="col-md-12">
+            <button class="btn btn-link" id="navButtonHome" type="button" onClick="window.location.reload()">
+              Home
+            </button>
+            <button class="btn btn-link" id="navButtonGuide" type="button" data-toggle="collapse"
+              data-target="#navbarHeaderGuide" aria-controls="navbarHeaderGuide" aria-expanded="false"
+              aria-label="Toggle navigation">
+              Guide
+            </button>
+            <button class="btn btn-link" id="navButtonAbout" type="button" data-toggle="collapse"
+              data-target="#navbarHeaderAbout" aria-controls="navbarHeaderAbout" aria-expanded="false"
+              aria-label="Toggle navigation">
+              About
+            </button>
           </div>
         </div>
       </div>
     </div>
-    <div class="navbar navbar-dark box-shadow" id="navBox">
-      <div class="container d-flex justify-content-between">
-        <a href="#" class="navbar-brand d-flex align-items-center">
-          <!-- <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none"
-            stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="arcs">
-            <path d="M12 2l9 4.9V17L12 22l-9-4.9V7z" />
-          </svg>
-          &nbsp; <strong id="navTitle">chrono</strong> &nbsp;&nbsp; -->
-          <img src="./img/chrono-bold-white.png" alt="chrono logo" id="chronoLogo" class="img-responsive">
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader"
-          aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-      </div>
     </div>
   </header>
 
-  <main role="main">
+  <main role=" main">
 
     <section class="jumbotron text-center">
       <div class="container">
-        <!-- <h1 class="jumbotron-heading text-white"><b>chrono</b></h1>
+        <!-- <h1 class="jumbotron-heading text-white"><b>chrono</b></h1> -->
         <img src="./img/chrono-bold-white.png" alt="chrono logo 2" id="chronoLogoPage" class="img-responsive">
-        <p class="lead text-white">the simple packet loss test.</p> -->
+        <!-- <p class="lead text-white">the simple packet loss test.</p> -->
       </div>
     </section>
 
@@ -365,7 +396,8 @@
                   <h1 class="display-4" id="resultText">Poor mean opinion score (MOS)</h1>
                 </li>
                 <li>
-                  <h1 class="display-4" id="resultText">Severe network performance issues in multiplayer games</h1>
+                  <h1 class="display-4" id="resultText">Severe network performance issues in multiplayer games
+                  </h1>
                 </li>
                 <li>
                   <h1 class="display-4" id="resultText">Issues with audio (VOIP) performance</h1>
@@ -406,7 +438,8 @@
                   <h1 class="display-4" id="resultText">Bad mean opinion score (MOS)</h1>
                 </li>
                 <li>
-                  <h1 class="display-4" id="resultText">Severe network performance issues in multiplayer games</h1>
+                  <h1 class="display-4" id="resultText">Severe network performance issues in multiplayer games
+                  </h1>
                 </li>
                 <li>
                   <h1 class="display-4" id="resultText">Severe issues with audio (VOIP) performance</h1>
