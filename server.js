@@ -14,9 +14,18 @@ server.listen(8080, () => {
   console.log(`Server running at ${address.port}`);
 });
 
+
+/**
+  * Creates a new RTCServer instance.
+  * Creates RTC endpoint and initiates ws handshake
+  * This is running code from wrtc that has been abstracted to simplify the process
+  *
+  * @param {WebSocket} ws - The WebSocket connection.
+  * @param {Object} rtcConfig.RTCPeerConnectionConf - The configuration object for RTCPeerConnection.
+  * @param {Array} rtcConfig.datachannels - The array of data channel configurations.
+  * @returns {RTCServer} The RTCServer instance.
+*/
 new Server({ server }).on("connection", async (ws) => {
-  // Creates RTC endpoint and initiates ws handshake
-  // This is running code from wrtc that has been abstracted to simplify the process
   let pc = new RTCServer(
     ws,
     rtcConfig.RTCPeerConnectionConf,
