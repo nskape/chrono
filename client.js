@@ -14,6 +14,17 @@ var acc_delay;
 var packet_loss;
 var mos;
 
+/**
+ * Main function to run the WebSocket and RTC client test.
+ * It initializes the WebSocket connection, sets up the RTC client,
+ * sends UDP packets at specified intervals, and handles the reception
+ * of packets from the server. It also manages the UI updates and
+ * calculates latency and packet loss.
+ *
+ * @async
+ * @function main
+ * @throws Will throw an error if the WebSocket or RTC client setup fails.
+ */
 async function main() {
   try {
     var time_run = performance.now();
@@ -354,6 +365,11 @@ window.onload = function () {
   );
 };
 
+/**
+ * Handles the WebSocket open event.
+ * @param {WebSocket} ws - The WebSocket instance.
+ * @returns {Promise} - Resolves when the WebSocket is open, rejects if closed.
+ */
 async function onOpen(ws) {
   return new Promise((resolve, reject) => {
     ws.onopen = () => resolve();
@@ -361,6 +377,12 @@ async function onOpen(ws) {
   });
 }
 
+/**
+ * Controls the test button behavior.
+ * @param {string} btn - The button selector.
+ * @param {string} df - The default button ID.
+ * @param {string} type - The type of control.
+ */
 function tbController(btn, df, type) {
   var num = null;
   var flag = false;
@@ -394,6 +416,10 @@ function tbController(btn, df, type) {
 
 // #### UI Functions ####
 
+/**
+ * Calculates the latency values (min, max, avg) from the latencyValues array.
+ * @returns {Array} - An array containing min, max, and avg latency values.
+ */
 function latencyCalc() {
   // get only latency values LATENCY key
   arr = latencyValues;
@@ -418,7 +444,11 @@ function latencyCalc() {
   return [min, max, avg];
 }
 
-// calculate jitter value accross all packet latency values
+
+/**
+ * Calculates the jitter value across all packet latency values.
+ * @returns {number} - The jitter value.
+ */
 function jitterCalc() {
   arr = latencyValues;
   var sum = 0;
@@ -431,7 +461,10 @@ function jitterCalc() {
   return sum / (arr.length - 1);
 }
 
-// calculate percentage (%) of late packets (p over acc delay)
+/**
+ * Calculates the percentage of late packets (p over acc delay).
+ * @returns {number} - The percentage of late packets.
+ */
 function latePacketCalc() {
   arr = latencyValues;
   ad = getAccDelay();
@@ -446,6 +479,13 @@ function latePacketCalc() {
   return (counter / arr.length) * 100;
 }
 
+/**
+ * Calculates the Mean Opinion Score (MOS) based on latency, jitter, and packet loss.
+ * @param {number} latency - The latency value.
+ * @param {number} jitter - The jitter value.
+ * @param {number} ploss - The packet loss percentage.
+ * @returns {number} - The MOS value.
+ */
 function mosCalc(latency, jitter, ploss) {
   var effective_latency = latency + 2 * jitter;
   var r = 0;
@@ -468,6 +508,10 @@ function mosCalc(latency, jitter, ploss) {
   return mos;
 }
 
+/**
+ * Selects the grade based on the MOS value.
+ * @returns {string} - The grade.
+ */
 function gradeSelect() {
   gradeCircle = document.getElementById("gradeCircle");
   resultLabel = document.getElementById("endResult1");
@@ -567,6 +611,9 @@ function gradeSelect() {
   }
 }
 
+/**
+ * Updates the output values displayed on the UI.
+ */
 function updateOutput() {
   var val1 = document.getElementById("val1");
   var val2 = document.getElementById("val2");
@@ -593,6 +640,11 @@ function updateOutput() {
   val4.innerHTML = parseInt(jitterResult);
 }
 
+/**
+ * Updates the result display with the given values.
+ * @param {number} x - The x value.
+ * @param {number} y - The y value.
+ */
 function updateResult(x, y) {
   var freqResult = document.getElementById("endResult2num");
   var durResult = document.getElementById("endResult3num");
@@ -601,6 +653,9 @@ function updateResult(x, y) {
   durResult.innerHTML = y;
 }
 
+/**
+ * Disables the output display.
+ */
 function disableOutput() {
   document.getElementById("val1").style.color = "#b3e5fc";
   document.getElementById("val2").style.color = "#b3e5fc";
@@ -608,36 +663,67 @@ function disableOutput() {
   document.getElementById("val4").style.color = "#b3e5fc";
 }
 
+/**
+ * Sets the frequency value.
+ * @param {number} val - The frequency value.
+ */
 function setFreq(val) {
   freq = val;
 }
 
+/**
+ * Gets the frequency value.
+ * @returns {number} - The frequency value.
+ */
 function getFreq() {
   return freq;
 }
 
+/**
+ * Sets the duration value.
+ * @param {number} val - The duration value.
+ */
 function setDur(val) {
   duration = val;
 }
 
+/**
+ * Gets the duration value.
+ * @returns {number} - The duration value.
+ */
 function getDur() {
   return duration;
 }
 
+/**
+ * Sets the acceptable delay value.
+ * @param {number} val - The acceptable delay value.
+ */
 function setAccDelay(val) {
   acc_delay = val;
 }
 
+/**
+ * Gets the acceptable delay value.
+ * @returns {number} - The acceptable delay value.
+ */
 function getAccDelay() {
   return acc_delay;
 }
 
+/**
+ * Increments the badge count.
+ */
 function incrementBadge() {
   var count = document.getElementById("counterbar1");
   var number = count.innerHTML;
   number++;
   count.innerHTML = number;
 }
+
+/**
+ * Increments the second badge count.
+ */
 function incrementBadge2() {
   var count = document.getElementById("counterbar2");
   var number = count.innerHTML;
@@ -645,6 +731,9 @@ function incrementBadge2() {
   count.innerHTML = number;
 }
 
+/**
+ * Clears all badge counts.
+ */
 function clearBadges() {
   var badge_1 = document.getElementById("counterbar1");
   var badge_2 = document.getElementById("counterbar2");
@@ -652,6 +741,12 @@ function clearBadges() {
   badge_2.innerHTML = 0;
 }
 
+/**
+ * Fades out an HTML element by gradually changing its opacity to 0 over a specified duration.
+ *
+ * @param {HTMLElement} el - The HTML element to fade out.
+ * @param {number} speed - The duration of the fade-out effect in milliseconds.
+ */
 function fadeOut(el, speed) {
   var seconds = speed / 1000;
   var old_tran = el.style.transition;
@@ -662,6 +757,12 @@ function fadeOut(el, speed) {
   }, 500);
 }
 
+/**
+ * Fades in an element by gradually changing its opacity to 1 over a specified duration.
+ *
+ * @param {HTMLElement} el - The element to fade in.
+ * @param {number} speed - The duration of the fade-in effect in milliseconds.
+ */
 function fadeIn(el, speed) {
   var seconds = speed / 1000;
   var old_tran = el.style.transition;
@@ -672,6 +773,13 @@ function fadeIn(el, speed) {
   }, 500);
 }
 
+/**
+ * Swaps the content of two HTML elements by cloning the content of the second element
+ * and replacing the content of the first element with the cloned content.
+ *
+ * @param {string} x - The ID of the element whose content will be replaced.
+ * @param {string} y - The ID of the element whose content will be cloned.
+ */
 function swapContent(x, y) {
   const main = document.getElementById(x);
   const div = document.getElementById(y);
@@ -682,7 +790,9 @@ function swapContent(x, y) {
   main.appendChild(clone);
 }
 
-// Progress bars
+/**
+ * Progress bar 1
+ */
 var bar = new ProgressBar.Circle(progbar1, {
   color: "#e8eddf",
   // This has to be the same size as the maximum width to
@@ -711,6 +821,9 @@ var bar = new ProgressBar.Circle(progbar1, {
   },
 });
 
+/**
+ * Progress bar 2
+ */
 var bar2 = new ProgressBar.Circle(progbar2, {
   color: "#e8eddf",
   // This has to be the same size as the maximum width to
@@ -744,15 +857,32 @@ bar.text.style.fontSize = "1.8rem";
 bar2.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
 bar2.text.style.fontSize = "1.8rem";
 
+/**
+ * Updates the progress bar with the specified percentage.
+ */
 function updateBar1() {
   bar.animate(sentPerc);
 }
 
+/**
+ * Updates the progress of bar2 by animating it to the specified percentage.
+ */
 function updateBar2() {
   bar2.animate(recPerc);
 }
 
 // Entry point
+/**
+ * Initializes and runs the client application.
+ * 
+ * This function performs the following actions:
+ * - Resets progress bars `bar` and `bar2` to 0.
+ * - Sets the `ranOnce` flag to true.
+ * - Fades out the start and settings buttons over 500 milliseconds.
+ * - Hides the start and settings buttons.
+ * - Fades in various UI elements including counter bars, progress bars, and the result container over 500 milliseconds.
+ * - Calls the `main` function after a delay of 1000 milliseconds.
+ */
 function runClient() {
   bar.set(0);
   bar2.set(0);
@@ -773,6 +903,17 @@ function runClient() {
   setTimeout(main, 1000);
 }
 
+/**
+ * Executes the client end sequence by resetting progress bars, fading out old elements,
+ * and fading in new elements with a series of timed transitions.
+ *
+ * The function performs the following steps:
+ * 1. Resets the progress bars `bar` and `bar2` to 0.
+ * 2. Fades out old elements such as settings button, start button result, grade circle, end list result, and chart box.
+ * 3. After a delay, hides some elements and displays new elements with zero opacity.
+ * 4. Fades in the new elements with a smooth transition.
+ * 5. Calls the `main` function after all transitions are complete.
+ */
 function runClientEnd() {
   bar.set(0);
   bar2.set(0);
