@@ -1,18 +1,9 @@
 const { RTCClient } = require("webrtc-server-client-datachannel");
 const { rtcConfig } = require("./rtc.config");
-var ProgressBar = require("progressbar.js");
-
-var latencyValues = []; // global array for now
-var latencyRes = [];
-var sentPerc = 0;
-var recPerc = 0;
-var ranOnce = false; // flag if we already entered the test
-
-var freq;
-var duration;
-var acc_delay;
-var packet_loss;
-var mos;
+const global_state = require('./global-state');
+const helper = require('./helper');
+const ui = require('./ui');
+const webrtc = require('./webrtc-client');
 
 /**
  * Main function to run the WebSocket and RTC client test.
@@ -30,28 +21,28 @@ async function main() {
     var time_run = performance.now();
 
     const interval = 1000; // 1 second as a standard interval (10ms will send 100 packets)
-    freq = getFreq(); // amount of packets in one interval
-    duration = getDur(); // duration of test (x amount of pings * duration = net pings)  -- this adjusts duration this runs in ms
-    acc_delay = getAccDelay(); // acceptable delay threshold, flag packets in or above this as late
+    global_state.freq = helper.getFreq(); // amount of packets in one interval
+    global_state.duration = helper.getDur(); // duration of test (x amount of pings * duration = net pings)  -- this adjusts duration this runs in ms
+    global_state.acc_delay = helper.getAccDelay(); // acceptable delay threshold, flag packets in or above this as late
 
-    if (!freq) {
-      freq = 20; // default freq value
+    if (!global_state.freq) {
+      global_state.freq = 20; // default freq value
     }
-    if (!duration) {
-      duration = 5; // default dur value
+    if (!global_state.duration) {
+      global_state.duration = 5; // default dur value
     }
-    if (!acc_delay) {
-      acc_delay = 80;
+    if (!global_state.acc_delay) {
+      global_state.acc_delay = 80;
     }
-    var netPackets = freq * duration;
+    var netPackets = global_state.freq * global_state.duration;
     var numSentPackets = 0;
     var numRecPackets = 0;
-    latencyValues = [];
-    latencyRes = [];
+    global_state.latencyValues = [];
+    global_state.latencyRes = [];
 
     //console.log("opening websocket");
     const ws = new WebSocket("ws://" + "localhost" + ":8080");
-    await onOpen(ws);
+    await webrtc.onOpen(ws);
 
     let pc = new RTCClient(
       ws,
@@ -62,13 +53,13 @@ async function main() {
 
     // Send UDP packet to server within interval
 
-    packetID = 0; // ID of each packet
+    var packetID = 0; // ID of each packet
     var secondCounter = 1; // count at 1 because function runs once at first
 
-    disableOutput();
+    ui.disableOutput();
 
-    var t0 = setInterval(updateBar1, 100);
-    var t1 = setInterval(updateBar2, 100);
+    var t0 = setInterval(ui.updateBar1, 100);
+    var t1 = setInterval(ui.updateBar2, 100);
 
     (function outerSender() {
       var freqCounter = 0;
@@ -83,19 +74,19 @@ async function main() {
         packetID++;
 
         numSentPackets++;
-        sentPerc = (numSentPackets / netPackets).toFixed(2);
+        global_state.sentPerc = (numSentPackets / netPackets).toFixed(2);
         //console.log(`sentPerc: ${sentPerc}`);
         //updateBar1(numSentPackets, netPackets);
         //console.log(`Sent: ${numSentPackets} Net: ${netPackets}`);
         //console.log(`Bar1: ${(numSentPackets / netPackets).toFixed(2)}`);
-        incrementBadge();
+        ui.incrementBadge();
 
-        if (freqCounter < freq) {
+        if (freqCounter < global_state.freq) {
           setTimeout(innerSender, 1);
         }
       })();
 
-      if (secondCounter < duration) {
+      if (secondCounter < global_state.duration) {
         secondCounter++;
         setTimeout(outerSender, interval);
       }
@@ -115,12 +106,12 @@ async function main() {
       // }
 
       numRecPackets++;
-      recPerc = (numRecPackets / netPackets).toFixed(2);
+      global_state.recPerc = (numRecPackets / netPackets).toFixed(2);
       //console.log(`recPerc: ${recPerc}`);
       //updateBar2(numRecPackets, netPackets);
       //console.log(`Rec: ${numRecPackets} Net: ${netPackets}`);
       //console.log(`Bar2: ${(numRecPackets / netPackets).toFixed(2)}`);
-      incrementBadge2();
+      ui.incrementBadge2();
       packetRelayData = JSON.parse(event.data); // receive and parse packet data from server
       var endDate = performance.now();
       packetRelayData.endTime = endDate; // append end trip time to JSON
@@ -129,14 +120,14 @@ async function main() {
       packetRelayData.latency = Math.round(
         Math.abs(packetRelayData.endTime - packetRelayData.startTime)
       );
-      latencyValues.push(packetRelayData.latency);
+      global_state.latencyValues.push(packetRelayData.latency);
 
-      if (packetRelayData.latency >= acc_delay) {
+      if (packetRelayData.latency >= global_state.acc_delay) {
         packetRelayData.delivery = "late";
-        latencyRes.push(packetRelayData.delivery);
+        global_state.latencyRes.push(packetRelayData.delivery);
       } else {
         packetRelayData.delivery = "ontime";
-        latencyRes.push(packetRelayData.delivery);
+        global_state.latencyRes.push(packetRelayData.delivery);
       }
 
       //console.log("* RECEIVED SERVER RELAY | ", packetRelayData);
@@ -150,22 +141,22 @@ async function main() {
       //console.log("****** RUN TIME NEW: " + time_test);
       //console.log("** REC PACKETS: " + numRecPackets);
       //console.log("** NET PACKETS: " + netPackets);
-      packet_loss = 100 - (100 * numRecPackets) / netPackets;
+      global_state.packet_loss = 100 - (100 * numRecPackets) / netPackets;
       //console.log("****** PACKET LOSS: " + packet_loss + "%");
       ws.close();
-    }, duration * 1000 - 300);
+    }, global_state.duration * 1000 - 300);
 
     // On WS close
     ws.onclose = function (event) {
       // Timeouts for fetching updates to prog bars
       setTimeout(function () {
-        sentPerc = 0;
+        global_state.sentPerc = 0;
       }, 2000);
       setTimeout(function () {
-        recPerc = 0;
+        global_state.recPerc = 0;
       }, 2000);
       setTimeout(function () {
-        clearBadges();
+        ui.clearBadges();
       }, 2000);
       setTimeout(function () {
         clearInterval(t0);
@@ -176,21 +167,21 @@ async function main() {
 
       // update output
       setTimeout(function () {
-        updateOutput();
+        ui.updateOutput();
       }, 1200);
 
       // fade out bars
       setTimeout(function () {
-        fadeOut(document.getElementById("progbar1"), 500);
-        fadeOut(document.getElementById("progbar2"), 500);
+        ui.fadeOut(document.getElementById("progbar1"), 500);
+        ui.fadeOut(document.getElementById("progbar2"), 500);
       }, 1500);
 
       // fade out bar counters
       setTimeout(function () {
-        fadeOut(document.getElementById("counterbar1"), 500);
-        fadeOut(document.getElementById("counterbar2"), 500);
-        fadeOut(document.getElementById("counterbar1sub"), 500);
-        fadeOut(document.getElementById("counterbar2sub"), 500);
+        ui.fadeOut(document.getElementById("counterbar1"), 500);
+        ui.fadeOut(document.getElementById("counterbar2"), 500);
+        ui.fadeOut(document.getElementById("counterbar1sub"), 500);
+        ui.fadeOut(document.getElementById("counterbar2sub"), 500);
       }, 1500);
 
       // delete bar counters
@@ -202,14 +193,14 @@ async function main() {
       }, 2000);
 
       // update result to be displayed between grade and go
-      updateResult(getFreq(), getDur());
+      ui.updateResult(helper.getFreq(), helper.getDur());
 
       // TODO: gradeSelect goes here
-      gradeSelect();
+      helper.gradeSelect();
 
       // fade in chart & end container
       setTimeout(function () {
-        swapContent("startButtonDiv", "chartBox");
+        ui.swapContent("startButtonDiv", "chartBox");
         document.getElementById("settingsButton").style.display = "block";
         document.getElementById("chartBox").style.display = "block";
         document.getElementById("endContainer").style.display = "block";
@@ -219,24 +210,24 @@ async function main() {
       }, 2000);
 
       // Check if we are inside test
-      if (ranOnce === true) {
+      if (global_state.ranOnce === true) {
         document.getElementById("chartBox").style.opacity = 1;
       }
 
       // fade in endContainer
       setTimeout(function () {
-        fadeIn(document.getElementById("settingsButton"), 1000);
-        fadeIn(document.getElementById("gradeCircle"), 500);
-        fadeIn(document.getElementById("endListResult"), 1000);
-        fadeIn(document.getElementById("startButtonResult"), 1500);
+        ui.fadeIn(document.getElementById("settingsButton"), 1000);
+        ui.fadeIn(document.getElementById("gradeCircle"), 500);
+        ui.fadeIn(document.getElementById("endListResult"), 1000);
+        ui.fadeIn(document.getElementById("startButtonResult"), 1500);
       }, 2200);
 
       //console.log("ws closed");
 
       // render chart.js
       setTimeout(function () {
-        latencyLabel = Array.from(latencyValues.keys());
-        backColorArray = new Array(latencyValues.length).fill("lightgray");
+        latencyLabel = Array.from(global_state.latencyValues.keys());
+        backColorArray = new Array(global_state.latencyValues.length).fill("lightgray");
         var ctx = document.getElementById("myChart").getContext("2d");
         if (window.chart && window.chart !== null) {
           window.chart.destroy();
@@ -248,7 +239,7 @@ async function main() {
             datasets: [
               {
                 label: "ms",
-                data: latencyValues,
+                data: global_state.latencyValues,
                 backgroundColor: backColorArray,
                 // borderColor: "gray",
                 borderWidth: "1",
@@ -311,7 +302,7 @@ async function main() {
           red: "rgb(255, 99, 132)",
           blue: "rgb(54, 162, 235)",
         };
-        var colorChangeValue = acc_delay; //set this to whatever is the deciding color change value
+        var colorChangeValue = global_state.acc_delay; //set this to whatever is the deciding color change value
         var dataset = window.chart.data.datasets[0];
         for (var i = 0; i < dataset.data.length; i++) {
           if (dataset.data[i] > colorChangeValue) {
@@ -325,8 +316,6 @@ async function main() {
     console.log(error);
   }
 }
-
-// #################### END MAIN ####################
 
 window.onload = function () {
   document.getElementById("counterbar1").style.opacity = 0;
@@ -348,528 +337,22 @@ window.onload = function () {
   document.getElementById("tb2_default").classList.add("active");
   document.getElementById("tb3_default").classList.add("active");
 
-  tbController(
+  ui.tbController(
     ".btn-group > button.btn.btn-outline-secondary.tb1",
     "tb1_default",
     "freq"
   );
-  tbController(
+  ui.tbController(
     ".btn-group > button.btn.btn-outline-secondary.tb2",
     "tb2_default",
     "dur"
   );
-  tbController(
+  ui.tbController(
     ".btn-group > button.btn.btn-outline-secondary.tb3",
     "tb3_default",
     "delay"
   );
 };
-
-/**
- * Handles the WebSocket open event.
- * @param {WebSocket} ws - The WebSocket instance.
- * @returns {Promise} - Resolves when the WebSocket is open, rejects if closed.
- */
-async function onOpen(ws) {
-  return new Promise((resolve, reject) => {
-    ws.onopen = () => resolve();
-    ws.onclose = () => reject(new Error("WebSocket closed"));
-  });
-}
-
-/**
- * Controls the test button behavior.
- * @param {string} btn - The button selector.
- * @param {string} df - The default button ID.
- * @param {string} type - The type of control.
- */
-function tbController(btn, df, type) {
-  var num = null;
-  var flag = false;
-  var active_button;
-  var ele = document.querySelectorAll(btn);
-  //console.log(ele);
-
-  for (var i = 0; i < ele.length; i++) {
-    ele[i].addEventListener("click", function () {
-      if (flag == true) {
-        active_button.classList.remove("active");
-      } else {
-        document.getElementById(df).classList.remove("active");
-      }
-      flag = true;
-      num = this.innerHTML;
-      var new_val = num.replace(/\D/g, "");
-      this.classList.add("active");
-      active_button = this;
-      //console.log(new_val);
-      if (type == "freq") {
-        setFreq(new_val);
-      } else if (type == "dur") {
-        setDur(new_val);
-      } else if (type == "delay") {
-        setAccDelay(new_val);
-      }
-    });
-  }
-}
-
-// #### UI Functions ####
-
-/**
- * Calculates the latency values (min, max, avg) from the latencyValues array.
- * @returns {Array} - An array containing min, max, and avg latency values.
- */
-function latencyCalc() {
-  // get only latency values LATENCY key
-  arr = latencyValues;
-  //console.log(arr);
-  var min = arr[0]; // min
-  var max = arr[0]; // max
-  var sum = arr[0]; // sum
-  var avg;
-
-  for (var i = 1; i < arr.length; i++) {
-    if (arr[i] < min) {
-      min = arr[i];
-    }
-    if (arr[i] > max) {
-      max = arr[i];
-    }
-    sum = sum + arr[i];
-  }
-
-  avg = sum / arr.length;
-
-  return [min, max, avg];
-}
-
-
-/**
- * Calculates the jitter value across all packet latency values.
- * @returns {number} - The jitter value.
- */
-function jitterCalc() {
-  arr = latencyValues;
-  var sum = 0;
-
-  for (i = 0; i < arr.length - 1; i++) {
-    diff = Math.abs(arr[i] - arr[i + 1]);
-    sum += diff;
-  }
-
-  return sum / (arr.length - 1);
-}
-
-/**
- * Calculates the percentage of late packets (p over acc delay).
- * @returns {number} - The percentage of late packets.
- */
-function latePacketCalc() {
-  arr = latencyValues;
-  ad = getAccDelay();
-  var counter = 0;
-
-  for (i = 0; i < arr.length; i++) {
-    if (arr[i] > ad) {
-      counter++;
-    }
-  }
-
-  return (counter / arr.length) * 100;
-}
-
-/**
- * Calculates the Mean Opinion Score (MOS) based on latency, jitter, and packet loss.
- * @param {number} latency - The latency value.
- * @param {number} jitter - The jitter value.
- * @param {number} ploss - The packet loss percentage.
- * @returns {number} - The MOS value.
- */
-function mosCalc(latency, jitter, ploss) {
-  var effective_latency = latency + 2 * jitter;
-  var r = 0;
-  var mos = 0;
-
-  if (effective_latency < 160) {
-    r = 93.2 - effective_latency / 40;
-  } else {
-    r = 93.2 - (effective_latency - 120) / 10;
-  }
-
-  r = r - 2.5 * ploss;
-
-  if (r < 0) {
-    mos = 1.0;
-  } else {
-    mos = 1 + 0.035 * r + 0.000007 * r * (r - 60) * (100 - r);
-  }
-
-  return mos;
-}
-
-/**
- * Selects the grade based on the MOS value.
- * @returns {string} - The grade.
- */
-function gradeSelect() {
-  gradeCircle = document.getElementById("gradeCircle");
-  resultLabel = document.getElementById("endResult1");
-  mosResultA = document.getElementById("mosResultA");
-  mosResultB = document.getElementById("mosResultB");
-  mosResultC = document.getElementById("mosResultC");
-  mosResultD = document.getElementById("mosResultD");
-  mosResultF = document.getElementById("mosResultF");
-  modalLabelA = document.getElementById("gradeModalResultA");
-  modalLabelB = document.getElementById("gradeModalResultB");
-  modalLabelC = document.getElementById("gradeModalResultC");
-  modalLabelD = document.getElementById("gradeModalResultD");
-  modalLabelF = document.getElementById("gradeModalResultF");
-
-  // Issues with rounding? Check this
-  var latencyResult = latencyCalc();
-  var jitterResult = parseInt(jitterCalc());
-  var latePacketResult = latePacketCalc();
-  var packetLossResult = packet_loss;
-
-  mos_val = mosCalc(
-    latencyResult[2].toFixed(1),
-    jitterResult,
-    packetLossResult
-  );
-
-  //mos_val = 4;
-  mosResultA.innerHTML = mos_val.toFixed(2);
-  mosResultB.innerHTML = mos_val.toFixed(2);
-  mosResultC.innerHTML = mos_val.toFixed(2);
-  mosResultD.innerHTML = mos_val.toFixed(2);
-  mosResultF.innerHTML = mos_val.toFixed(2);
-  // console.log("** MOS");
-  // console.log(mos_val);
-  // console.log("* values");
-  // console.log(latencyResult[2].toFixed(1));
-  // console.log(jitterResult);
-  // console.log(packetLossResult);
-  // console.log(latePacketResult);
-  // console.log("** END MOS");
-
-  if (mos_val >= 4.2) {
-    document.documentElement.style.setProperty("--shadowColor", "#a5c882");
-    gradeCircle.innerHTML = "A";
-    gradeCircle.dataset.target = "#gradeAModal";
-    gradeCircle.style.color = "#000818";
-    gradeCircle.style.backgroundColor = "#a5c882";
-    gradeCircle.style.border = "1px solid #a5c882";
-    resultLabel.innerHTML = "Excellent";
-    resultLabel.style.color = "#a5c882";
-    mosResultA.style.color = "#a5c882";
-    modalLabelA.style.color = "#a5c882";
-  } else if (mos_val >= 3.5 && mos_val < 4.2) {
-    document.documentElement.style.setProperty("--shadowColor", "#689F38");
-    gradeCircle.innerHTML = "B";
-    gradeCircle.dataset.target = "#gradeBModal";
-    gradeCircle.style.color = "#000818";
-    gradeCircle.style.backgroundColor = "#689F38";
-    gradeCircle.style.border = "1px solid #689F38";
-    resultLabel.innerHTML = "Good";
-    resultLabel.style.color = "#689F38";
-    mosResultB.style.color = "#689F38";
-    modalLabelB.style.color = "#689F38";
-  } else if (mos_val >= 3 && mos_val < 3.5) {
-    document.documentElement.style.setProperty("--shadowColor", "#FBC02D");
-    gradeCircle.innerHTML = "C";
-    gradeCircle.dataset.target = "#gradeCModal";
-    gradeCircle.style.color = "#000818";
-    gradeCircle.style.backgroundColor = "#FBC02D";
-    gradeCircle.style.border = "1px solid #FBC02D";
-    resultLabel.innerHTML = "Fair";
-    resultLabel.style.color = "#FBC02D";
-    mosResultC.style.color = "#FBC02D";
-    modalLabelC.style.color = "#FBC02D";
-  } else if (mos_val >= 2 && mos_val < 3) {
-    document.documentElement.style.setProperty("--shadowColor", "#FB8C00");
-    gradeCircle.innerHTML = "D";
-    gradeCircle.dataset.target = "#gradeDModal";
-    gradeCircle.style.color = "#000818";
-    gradeCircle.style.backgroundColor = "#FB8C00";
-    gradeCircle.style.border = "1px solid #FB8C00";
-    resultLabel.innerHTML = "Poor";
-    resultLabel.style.color = "#FB8C00";
-    mosResultD.style.color = "#FB8C00";
-    modalLabelD.style.color = "#FB8C00";
-  } else if (mos_val >= 1 && mos_val < 2) {
-    document.documentElement.style.setProperty("--shadowColor", "#F4511E");
-    gradeCircle.innerHTML = "F";
-    gradeCircle.dataset.target = "#gradeFModal";
-    gradeCircle.style.color = "#000818";
-    gradeCircle.style.backgroundColor = "#F4511E";
-    gradeCircle.style.border = "1px solid #F4511E";
-    resultLabel.innerHTML = "Bad";
-    resultLabel.style.color = "#F4511E";
-    mosResultF.style.color = "#F4511E";
-    modalLabelF.style.color = "#F4511E";
-  }
-}
-
-/**
- * Updates the output values displayed on the UI.
- */
-function updateOutput() {
-  var val1 = document.getElementById("val1");
-  var val2 = document.getElementById("val2");
-  var val3 = document.getElementById("val3");
-
-  val1.style.color = "white";
-  val2.style.color = "white";
-  val3.style.color = "white";
-  val4.style.color = "white";
-
-  var latencyResult = latencyCalc();
-  var jitterResult = jitterCalc();
-  var latePacketResult = latePacketCalc();
-
-  // commented due to change to resultBar
-  // val1.innerHTML = latencyResult[0].toFixed(1);
-  // val2.innerHTML = latencyResult[1].toFixed(1);
-  val1.innerHTML = String(parseInt(latePacketResult));
-  percHTML = '<span id="percSymbol">%</span>';
-  val1.insertAdjacentHTML("beforeend", percHTML);
-  val2.innerHTML = String(parseInt(packet_loss));
-  val2.insertAdjacentHTML("beforeend", percHTML);
-  val3.innerHTML = Math.round(latencyResult[2].toFixed(1));
-  val4.innerHTML = parseInt(jitterResult);
-}
-
-/**
- * Updates the result display with the given values.
- * @param {number} x - The x value.
- * @param {number} y - The y value.
- */
-function updateResult(x, y) {
-  var freqResult = document.getElementById("endResult2num");
-  var durResult = document.getElementById("endResult3num");
-
-  freqResult.innerHTML = x;
-  durResult.innerHTML = y;
-}
-
-/**
- * Disables the output display.
- */
-function disableOutput() {
-  document.getElementById("val1").style.color = "#b3e5fc";
-  document.getElementById("val2").style.color = "#b3e5fc";
-  document.getElementById("val3").style.color = "#b3e5fc";
-  document.getElementById("val4").style.color = "#b3e5fc";
-}
-
-/**
- * Sets the frequency value.
- * @param {number} val - The frequency value.
- */
-function setFreq(val) {
-  freq = val;
-}
-
-/**
- * Gets the frequency value.
- * @returns {number} - The frequency value.
- */
-function getFreq() {
-  return freq;
-}
-
-/**
- * Sets the duration value.
- * @param {number} val - The duration value.
- */
-function setDur(val) {
-  duration = val;
-}
-
-/**
- * Gets the duration value.
- * @returns {number} - The duration value.
- */
-function getDur() {
-  return duration;
-}
-
-/**
- * Sets the acceptable delay value.
- * @param {number} val - The acceptable delay value.
- */
-function setAccDelay(val) {
-  acc_delay = val;
-}
-
-/**
- * Gets the acceptable delay value.
- * @returns {number} - The acceptable delay value.
- */
-function getAccDelay() {
-  return acc_delay;
-}
-
-/**
- * Increments the badge count.
- */
-function incrementBadge() {
-  var count = document.getElementById("counterbar1");
-  var number = count.innerHTML;
-  number++;
-  count.innerHTML = number;
-}
-
-/**
- * Increments the second badge count.
- */
-function incrementBadge2() {
-  var count = document.getElementById("counterbar2");
-  var number = count.innerHTML;
-  number++;
-  count.innerHTML = number;
-}
-
-/**
- * Clears all badge counts.
- */
-function clearBadges() {
-  var badge_1 = document.getElementById("counterbar1");
-  var badge_2 = document.getElementById("counterbar2");
-  badge_1.innerHTML = 0;
-  badge_2.innerHTML = 0;
-}
-
-/**
- * Fades out an HTML element by gradually changing its opacity to 0 over a specified duration.
- *
- * @param {HTMLElement} el - The HTML element to fade out.
- * @param {number} speed - The duration of the fade-out effect in milliseconds.
- */
-function fadeOut(el, speed) {
-  var seconds = speed / 1000;
-  var old_tran = el.style.transition;
-  el.style.transition = "opacity " + seconds + "s ease";
-  el.style.opacity = 0;
-  setTimeout(function () {
-    el.style.transition = old_tran;
-  }, 500);
-}
-
-/**
- * Fades in an element by gradually changing its opacity to 1 over a specified duration.
- *
- * @param {HTMLElement} el - The element to fade in.
- * @param {number} speed - The duration of the fade-in effect in milliseconds.
- */
-function fadeIn(el, speed) {
-  var seconds = speed / 1000;
-  var old_tran = el.style.transition;
-  el.style.transition = "opacity " + seconds + "s ease";
-  el.style.opacity = 1;
-  setTimeout(function () {
-    el.style.transition = old_tran;
-  }, 500);
-}
-
-/**
- * Swaps the content of two HTML elements by cloning the content of the second element
- * and replacing the content of the first element with the cloned content.
- *
- * @param {string} x - The ID of the element whose content will be replaced.
- * @param {string} y - The ID of the element whose content will be cloned.
- */
-function swapContent(x, y) {
-  const main = document.getElementById(x);
-  const div = document.getElementById(y);
-  const clone = div.cloneNode(true);
-
-  while (main.firstChild) main.firstChild.remove();
-
-  main.appendChild(clone);
-}
-
-/**
- * Progress bar 1
- */
-var bar = new ProgressBar.Circle(progbar1, {
-  color: "#e8eddf",
-  // This has to be the same size as the maximum width to
-  // prevent clipping
-  strokeWidth: 4,
-  trailWidth: 0,
-  trailColor: "#000B23",
-  easing: "easeInOut",
-  duration: 200,
-  text: {
-    autoStyleContainer: true,
-  },
-  from: { color: "#E0E0E0", width: 1 },
-  to: { color: "#B3E5FC", width: 4 },
-  // Set default step function for all animate calls
-  step: function (state, circle) {
-    circle.path.setAttribute("stroke", state.color);
-    circle.path.setAttribute("stroke-width", state.width);
-
-    var value = Math.round(circle.value() * 100);
-    if (value === 0) {
-      circle.setText("");
-    } else {
-      circle.setText(value + " %");
-    }
-  },
-});
-
-/**
- * Progress bar 2
- */
-var bar2 = new ProgressBar.Circle(progbar2, {
-  color: "#e8eddf",
-  // This has to be the same size as the maximum width to
-  // prevent clipping
-  strokeWidth: 4,
-  trailWidth: 0,
-  trailColor: "#000B23",
-  easing: "easeInOut",
-  duration: 200,
-  text: {
-    autoStyleContainer: true,
-  },
-  from: { color: "#E0E0E0", width: 1 },
-  to: { color: "#AED581", width: 4 },
-  // Set default step function for all animate calls
-  step: function (state, circle) {
-    circle.path.setAttribute("stroke", state.color);
-    circle.path.setAttribute("stroke-width", state.width);
-
-    var value = Math.round(circle.value() * 100);
-    if (value === 0) {
-      circle.setText("");
-    } else {
-      circle.setText(value + " %");
-    }
-  },
-});
-
-bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
-bar.text.style.fontSize = "1.8rem";
-bar2.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
-bar2.text.style.fontSize = "1.8rem";
-
-/**
- * Updates the progress bar with the specified percentage.
- */
-function updateBar1() {
-  bar.animate(sentPerc);
-}
-
-/**
- * Updates the progress of bar2 by animating it to the specified percentage.
- */
-function updateBar2() {
-  bar2.animate(recPerc);
-}
 
 // Entry point
 /**
@@ -884,22 +367,22 @@ function updateBar2() {
  * - Calls the `main` function after a delay of 1000 milliseconds.
  */
 function runClient() {
-  bar.set(0);
-  bar2.set(0);
-  ranOnce = true;
-  fadeOut(document.getElementById("startButton"), 500);
-  fadeOut(document.getElementById("settingsButton"), 500);
+  ui.bar.set(0);
+  ui.bar2.set(0);
+  global_state.ranOnce = true;
+  ui.fadeOut(document.getElementById("startButton"), 500);
+  ui.fadeOut(document.getElementById("settingsButton"), 500);
   document.getElementById("startButton").style.display = "none";
   document.getElementById("settingsButton").style.display = "none";
   // document.getElementById("progbar1").style.display = "block";
   // document.getElementById("progbar2").style.display = "block";
-  fadeIn(document.getElementById("counterbar1"), 500);
-  fadeIn(document.getElementById("counterbar2"), 500);
-  fadeIn(document.getElementById("counterbar1sub"), 500);
-  fadeIn(document.getElementById("counterbar2sub"), 500);
-  fadeIn(document.getElementById("progbar1"), 500);
-  fadeIn(document.getElementById("progbar2"), 500);
-  fadeIn(document.getElementById("resultContainer"), 500);
+  ui.fadeIn(document.getElementById("counterbar1"), 500);
+  ui.fadeIn(document.getElementById("counterbar2"), 500);
+  ui.fadeIn(document.getElementById("counterbar1sub"), 500);
+  ui.fadeIn(document.getElementById("counterbar2sub"), 500);
+  ui.fadeIn(document.getElementById("progbar1"), 500);
+  ui.fadeIn(document.getElementById("progbar2"), 500);
+  ui.fadeIn(document.getElementById("resultContainer"), 500);
   setTimeout(main, 1000);
 }
 
@@ -915,14 +398,14 @@ function runClient() {
  * 5. Calls the `main` function after all transitions are complete.
  */
 function runClientEnd() {
-  bar.set(0);
-  bar2.set(0);
+  ui.bar.set(0);
+  ui.bar2.set(0);
   // fade out old elements
-  fadeOut(document.getElementById("settingsButton"), 500);
-  fadeOut(document.getElementById("startButtonResult"), 500);
-  fadeOut(document.getElementById("gradeCircle"), 500);
-  fadeOut(document.getElementById("endListResult"), 500);
-  fadeOut(document.getElementById("chartBox"), 500);
+  ui.fadeOut(document.getElementById("settingsButton"), 500);
+  ui.fadeOut(document.getElementById("startButtonResult"), 500);
+  ui.fadeOut(document.getElementById("gradeCircle"), 500);
+  ui.fadeOut(document.getElementById("endListResult"), 500);
+  ui.fadeOut(document.getElementById("chartBox"), 500);
 
   //load in new elements
   setTimeout(function () {
@@ -945,15 +428,15 @@ function runClientEnd() {
 
   // fade in test elements
   setTimeout(function () {
-    fadeIn(document.getElementById("bar1Column"), 700);
-    fadeIn(document.getElementById("bar2Column"), 700);
-    fadeIn(document.getElementById("counterbar1"), 700);
-    fadeIn(document.getElementById("counterbar2"), 700);
-    fadeIn(document.getElementById("counterbar1sub"), 700);
-    fadeIn(document.getElementById("counterbar2sub"), 700);
-    fadeIn(document.getElementById("progbar1"), 700);
-    fadeIn(document.getElementById("progbar2"), 700);
-    fadeIn(document.getElementById("resultContainer"), 700);
+    ui.fadeIn(document.getElementById("bar1Column"), 700);
+    ui.fadeIn(document.getElementById("bar2Column"), 700);
+    ui.fadeIn(document.getElementById("counterbar1"), 700);
+    ui.fadeIn(document.getElementById("counterbar2"), 700);
+    ui.fadeIn(document.getElementById("counterbar1sub"), 700);
+    ui.fadeIn(document.getElementById("counterbar2sub"), 700);
+    ui.fadeIn(document.getElementById("progbar1"), 700);
+    ui.fadeIn(document.getElementById("progbar2"), 700);
+    ui.fadeIn(document.getElementById("resultContainer"), 700);
   }, 650);
   setTimeout(main, 1000);
 }

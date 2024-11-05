@@ -1,47 +1,49 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 const { RTCClient } = require("webrtc-server-client-datachannel");
 const { rtcConfig } = require("./rtc.config");
-var ProgressBar = require("progressbar.js");
+const global_state = require('./global-state');
+const helper = require('./helper');
+const ui = require('./ui');
+const webrtc = require('./webrtc-client');
 
-var latencyValues = []; // global array for now
-var latencyRes = [];
-var sentPerc = 0;
-var recPerc = 0;
-var ranOnce = false; // flag if we already entered the test
-
-var freq;
-var duration;
-var acc_delay;
-var packet_loss;
-var mos;
-
+/**
+ * Main function to run the WebSocket and RTC client test.
+ * It initializes the WebSocket connection, sets up the RTC client,
+ * sends UDP packets at specified intervals, and handles the reception
+ * of packets from the server. It also manages the UI updates and
+ * calculates latency and packet loss.
+ *
+ * @async
+ * @function main
+ * @throws Will throw an error if the WebSocket or RTC client setup fails.
+ */
 async function main() {
   try {
     var time_run = performance.now();
 
     const interval = 1000; // 1 second as a standard interval (10ms will send 100 packets)
-    freq = getFreq(); // amount of packets in one interval
-    duration = getDur(); // duration of test (x amount of pings * duration = net pings)  -- this adjusts duration this runs in ms
-    acc_delay = getAccDelay(); // acceptable delay threshold, flag packets in or above this as late
+    global_state.freq = helper.getFreq(); // amount of packets in one interval
+    global_state.duration = helper.getDur(); // duration of test (x amount of pings * duration = net pings)  -- this adjusts duration this runs in ms
+    global_state.acc_delay = helper.getAccDelay(); // acceptable delay threshold, flag packets in or above this as late
 
-    if (!freq) {
-      freq = 20; // default freq value
+    if (!global_state.freq) {
+      global_state.freq = 20; // default freq value
     }
-    if (!duration) {
-      duration = 5; // default dur value
+    if (!global_state.duration) {
+      global_state.duration = 5; // default dur value
     }
-    if (!acc_delay) {
-      acc_delay = 80;
+    if (!global_state.acc_delay) {
+      global_state.acc_delay = 80;
     }
-    var netPackets = freq * duration;
+    var netPackets = global_state.freq * global_state.duration;
     var numSentPackets = 0;
     var numRecPackets = 0;
-    latencyValues = [];
-    latencyRes = [];
+    global_state.latencyValues = [];
+    global_state.latencyRes = [];
 
     //console.log("opening websocket");
     const ws = new WebSocket("ws://" + "localhost" + ":8080");
-    await onOpen(ws);
+    await webrtc.onOpen(ws);
 
     let pc = new RTCClient(
       ws,
@@ -52,13 +54,13 @@ async function main() {
 
     // Send UDP packet to server within interval
 
-    packetID = 0; // ID of each packet
+    var packetID = 0; // ID of each packet
     var secondCounter = 1; // count at 1 because function runs once at first
 
-    disableOutput();
+    ui.disableOutput();
 
-    var t0 = setInterval(updateBar1, 100);
-    var t1 = setInterval(updateBar2, 100);
+    var t0 = setInterval(ui.updateBar1, 100);
+    var t1 = setInterval(ui.updateBar2, 100);
 
     (function outerSender() {
       var freqCounter = 0;
@@ -73,19 +75,19 @@ async function main() {
         packetID++;
 
         numSentPackets++;
-        sentPerc = (numSentPackets / netPackets).toFixed(2);
+        global_state.sentPerc = (numSentPackets / netPackets).toFixed(2);
         //console.log(`sentPerc: ${sentPerc}`);
         //updateBar1(numSentPackets, netPackets);
         //console.log(`Sent: ${numSentPackets} Net: ${netPackets}`);
         //console.log(`Bar1: ${(numSentPackets / netPackets).toFixed(2)}`);
-        incrementBadge();
+        ui.incrementBadge();
 
-        if (freqCounter < freq) {
+        if (freqCounter < global_state.freq) {
           setTimeout(innerSender, 1);
         }
       })();
 
-      if (secondCounter < duration) {
+      if (secondCounter < global_state.duration) {
         secondCounter++;
         setTimeout(outerSender, interval);
       }
@@ -105,12 +107,12 @@ async function main() {
       // }
 
       numRecPackets++;
-      recPerc = (numRecPackets / netPackets).toFixed(2);
+      global_state.recPerc = (numRecPackets / netPackets).toFixed(2);
       //console.log(`recPerc: ${recPerc}`);
       //updateBar2(numRecPackets, netPackets);
       //console.log(`Rec: ${numRecPackets} Net: ${netPackets}`);
       //console.log(`Bar2: ${(numRecPackets / netPackets).toFixed(2)}`);
-      incrementBadge2();
+      ui.incrementBadge2();
       packetRelayData = JSON.parse(event.data); // receive and parse packet data from server
       var endDate = performance.now();
       packetRelayData.endTime = endDate; // append end trip time to JSON
@@ -119,14 +121,14 @@ async function main() {
       packetRelayData.latency = Math.round(
         Math.abs(packetRelayData.endTime - packetRelayData.startTime)
       );
-      latencyValues.push(packetRelayData.latency);
+      global_state.latencyValues.push(packetRelayData.latency);
 
-      if (packetRelayData.latency >= acc_delay) {
+      if (packetRelayData.latency >= global_state.acc_delay) {
         packetRelayData.delivery = "late";
-        latencyRes.push(packetRelayData.delivery);
+        global_state.latencyRes.push(packetRelayData.delivery);
       } else {
         packetRelayData.delivery = "ontime";
-        latencyRes.push(packetRelayData.delivery);
+        global_state.latencyRes.push(packetRelayData.delivery);
       }
 
       //console.log("* RECEIVED SERVER RELAY | ", packetRelayData);
@@ -140,22 +142,22 @@ async function main() {
       //console.log("****** RUN TIME NEW: " + time_test);
       //console.log("** REC PACKETS: " + numRecPackets);
       //console.log("** NET PACKETS: " + netPackets);
-      packet_loss = 100 - (100 * numRecPackets) / netPackets;
+      global_state.packet_loss = 100 - (100 * numRecPackets) / netPackets;
       //console.log("****** PACKET LOSS: " + packet_loss + "%");
       ws.close();
-    }, duration * 1000 - 300);
+    }, global_state.duration * 1000 - 300);
 
     // On WS close
     ws.onclose = function (event) {
       // Timeouts for fetching updates to prog bars
       setTimeout(function () {
-        sentPerc = 0;
+        global_state.sentPerc = 0;
       }, 2000);
       setTimeout(function () {
-        recPerc = 0;
+        global_state.recPerc = 0;
       }, 2000);
       setTimeout(function () {
-        clearBadges();
+        ui.clearBadges();
       }, 2000);
       setTimeout(function () {
         clearInterval(t0);
@@ -166,21 +168,21 @@ async function main() {
 
       // update output
       setTimeout(function () {
-        updateOutput();
+        ui.updateOutput();
       }, 1200);
 
       // fade out bars
       setTimeout(function () {
-        fadeOut(document.getElementById("progbar1"), 500);
-        fadeOut(document.getElementById("progbar2"), 500);
+        ui.fadeOut(document.getElementById("progbar1"), 500);
+        ui.fadeOut(document.getElementById("progbar2"), 500);
       }, 1500);
 
       // fade out bar counters
       setTimeout(function () {
-        fadeOut(document.getElementById("counterbar1"), 500);
-        fadeOut(document.getElementById("counterbar2"), 500);
-        fadeOut(document.getElementById("counterbar1sub"), 500);
-        fadeOut(document.getElementById("counterbar2sub"), 500);
+        ui.fadeOut(document.getElementById("counterbar1"), 500);
+        ui.fadeOut(document.getElementById("counterbar2"), 500);
+        ui.fadeOut(document.getElementById("counterbar1sub"), 500);
+        ui.fadeOut(document.getElementById("counterbar2sub"), 500);
       }, 1500);
 
       // delete bar counters
@@ -192,14 +194,14 @@ async function main() {
       }, 2000);
 
       // update result to be displayed between grade and go
-      updateResult(getFreq(), getDur());
+      ui.updateResult(helper.getFreq(), helper.getDur());
 
       // TODO: gradeSelect goes here
-      gradeSelect();
+      helper.gradeSelect();
 
       // fade in chart & end container
       setTimeout(function () {
-        swapContent("startButtonDiv", "chartBox");
+        ui.swapContent("startButtonDiv", "chartBox");
         document.getElementById("settingsButton").style.display = "block";
         document.getElementById("chartBox").style.display = "block";
         document.getElementById("endContainer").style.display = "block";
@@ -209,24 +211,24 @@ async function main() {
       }, 2000);
 
       // Check if we are inside test
-      if (ranOnce === true) {
+      if (global_state.ranOnce === true) {
         document.getElementById("chartBox").style.opacity = 1;
       }
 
       // fade in endContainer
       setTimeout(function () {
-        fadeIn(document.getElementById("settingsButton"), 1000);
-        fadeIn(document.getElementById("gradeCircle"), 500);
-        fadeIn(document.getElementById("endListResult"), 1000);
-        fadeIn(document.getElementById("startButtonResult"), 1500);
+        ui.fadeIn(document.getElementById("settingsButton"), 1000);
+        ui.fadeIn(document.getElementById("gradeCircle"), 500);
+        ui.fadeIn(document.getElementById("endListResult"), 1000);
+        ui.fadeIn(document.getElementById("startButtonResult"), 1500);
       }, 2200);
 
       //console.log("ws closed");
 
       // render chart.js
       setTimeout(function () {
-        latencyLabel = Array.from(latencyValues.keys());
-        backColorArray = new Array(latencyValues.length).fill("lightgray");
+        latencyLabel = Array.from(global_state.latencyValues.keys());
+        backColorArray = new Array(global_state.latencyValues.length).fill("lightgray");
         var ctx = document.getElementById("myChart").getContext("2d");
         if (window.chart && window.chart !== null) {
           window.chart.destroy();
@@ -238,7 +240,7 @@ async function main() {
             datasets: [
               {
                 label: "ms",
-                data: latencyValues,
+                data: global_state.latencyValues,
                 backgroundColor: backColorArray,
                 // borderColor: "gray",
                 borderWidth: "1",
@@ -301,7 +303,7 @@ async function main() {
           red: "rgb(255, 99, 132)",
           blue: "rgb(54, 162, 235)",
         };
-        var colorChangeValue = acc_delay; //set this to whatever is the deciding color change value
+        var colorChangeValue = global_state.acc_delay; //set this to whatever is the deciding color change value
         var dataset = window.chart.data.datasets[0];
         for (var i = 0; i < dataset.data.length; i++) {
           if (dataset.data[i] > colorChangeValue) {
@@ -315,8 +317,6 @@ async function main() {
     console.log(error);
   }
 }
-
-// #################### END MAIN ####################
 
 window.onload = function () {
   document.getElementById("counterbar1").style.opacity = 0;
@@ -338,451 +338,75 @@ window.onload = function () {
   document.getElementById("tb2_default").classList.add("active");
   document.getElementById("tb3_default").classList.add("active");
 
-  tbController(
+  ui.tbController(
     ".btn-group > button.btn.btn-outline-secondary.tb1",
     "tb1_default",
     "freq"
   );
-  tbController(
+  ui.tbController(
     ".btn-group > button.btn.btn-outline-secondary.tb2",
     "tb2_default",
     "dur"
   );
-  tbController(
+  ui.tbController(
     ".btn-group > button.btn.btn-outline-secondary.tb3",
     "tb3_default",
     "delay"
   );
 };
 
-async function onOpen(ws) {
-  return new Promise((resolve, reject) => {
-    ws.onopen = () => resolve();
-    ws.onclose = () => reject(new Error("WebSocket closed"));
-  });
-}
-
-function tbController(btn, df, type) {
-  var num = null;
-  var flag = false;
-  var active_button;
-  var ele = document.querySelectorAll(btn);
-  //console.log(ele);
-
-  for (var i = 0; i < ele.length; i++) {
-    ele[i].addEventListener("click", function () {
-      if (flag == true) {
-        active_button.classList.remove("active");
-      } else {
-        document.getElementById(df).classList.remove("active");
-      }
-      flag = true;
-      num = this.innerHTML;
-      var new_val = num.replace(/\D/g, "");
-      this.classList.add("active");
-      active_button = this;
-      //console.log(new_val);
-      if (type == "freq") {
-        setFreq(new_val);
-      } else if (type == "dur") {
-        setDur(new_val);
-      } else if (type == "delay") {
-        setAccDelay(new_val);
-      }
-    });
-  }
-}
-
-// #### UI Functions ####
-
-function latencyCalc() {
-  // get only latency values LATENCY key
-  arr = latencyValues;
-  //console.log(arr);
-  var min = arr[0]; // min
-  var max = arr[0]; // max
-  var sum = arr[0]; // sum
-  var avg;
-
-  for (var i = 1; i < arr.length; i++) {
-    if (arr[i] < min) {
-      min = arr[i];
-    }
-    if (arr[i] > max) {
-      max = arr[i];
-    }
-    sum = sum + arr[i];
-  }
-
-  avg = sum / arr.length;
-
-  return [min, max, avg];
-}
-
-// calculate jitter value accross all packet latency values
-function jitterCalc() {
-  arr = latencyValues;
-  var sum = 0;
-
-  for (i = 0; i < arr.length - 1; i++) {
-    diff = Math.abs(arr[i] - arr[i + 1]);
-    sum += diff;
-  }
-
-  return sum / (arr.length - 1);
-}
-
-// calculate percentage (%) of late packets (p over acc delay)
-function latePacketCalc() {
-  arr = latencyValues;
-  ad = getAccDelay();
-  var counter = 0;
-
-  for (i = 0; i < arr.length; i++) {
-    if (arr[i] > ad) {
-      counter++;
-    }
-  }
-
-  return (counter / arr.length) * 100;
-}
-
-function mosCalc(latency, jitter, ploss) {
-  var effective_latency = latency + 2 * jitter;
-  var r = 0;
-  var mos = 0;
-
-  if (effective_latency < 160) {
-    r = 93.2 - effective_latency / 40;
-  } else {
-    r = 93.2 - (effective_latency - 120) / 10;
-  }
-
-  r = r - 2.5 * ploss;
-
-  if (r < 0) {
-    mos = 1.0;
-  } else {
-    mos = 1 + 0.035 * r + 0.000007 * r * (r - 60) * (100 - r);
-  }
-
-  return mos;
-}
-
-function gradeSelect() {
-  gradeCircle = document.getElementById("gradeCircle");
-  resultLabel = document.getElementById("endResult1");
-  mosResultA = document.getElementById("mosResultA");
-  mosResultB = document.getElementById("mosResultB");
-  mosResultC = document.getElementById("mosResultC");
-  mosResultD = document.getElementById("mosResultD");
-  mosResultF = document.getElementById("mosResultF");
-  modalLabelA = document.getElementById("gradeModalResultA");
-  modalLabelB = document.getElementById("gradeModalResultB");
-  modalLabelC = document.getElementById("gradeModalResultC");
-  modalLabelD = document.getElementById("gradeModalResultD");
-  modalLabelF = document.getElementById("gradeModalResultF");
-
-  // Issues with rounding? Check this
-  var latencyResult = latencyCalc();
-  var jitterResult = parseInt(jitterCalc());
-  var latePacketResult = latePacketCalc();
-  var packetLossResult = packet_loss;
-
-  mos_val = mosCalc(
-    latencyResult[2].toFixed(1),
-    jitterResult,
-    packetLossResult
-  );
-
-  //mos_val = 4;
-  mosResultA.innerHTML = mos_val.toFixed(2);
-  mosResultB.innerHTML = mos_val.toFixed(2);
-  mosResultC.innerHTML = mos_val.toFixed(2);
-  mosResultD.innerHTML = mos_val.toFixed(2);
-  mosResultF.innerHTML = mos_val.toFixed(2);
-  // console.log("** MOS");
-  // console.log(mos_val);
-  // console.log("* values");
-  // console.log(latencyResult[2].toFixed(1));
-  // console.log(jitterResult);
-  // console.log(packetLossResult);
-  // console.log(latePacketResult);
-  // console.log("** END MOS");
-
-  if (mos_val >= 4.2) {
-    document.documentElement.style.setProperty("--shadowColor", "#a5c882");
-    gradeCircle.innerHTML = "A";
-    gradeCircle.dataset.target = "#gradeAModal";
-    gradeCircle.style.color = "#000818";
-    gradeCircle.style.backgroundColor = "#a5c882";
-    gradeCircle.style.border = "1px solid #a5c882";
-    resultLabel.innerHTML = "Excellent";
-    resultLabel.style.color = "#a5c882";
-    mosResultA.style.color = "#a5c882";
-    modalLabelA.style.color = "#a5c882";
-  } else if (mos_val >= 3.5 && mos_val < 4.2) {
-    document.documentElement.style.setProperty("--shadowColor", "#689F38");
-    gradeCircle.innerHTML = "B";
-    gradeCircle.dataset.target = "#gradeBModal";
-    gradeCircle.style.color = "#000818";
-    gradeCircle.style.backgroundColor = "#689F38";
-    gradeCircle.style.border = "1px solid #689F38";
-    resultLabel.innerHTML = "Good";
-    resultLabel.style.color = "#689F38";
-    mosResultB.style.color = "#689F38";
-    modalLabelB.style.color = "#689F38";
-  } else if (mos_val >= 3 && mos_val < 3.5) {
-    document.documentElement.style.setProperty("--shadowColor", "#FBC02D");
-    gradeCircle.innerHTML = "C";
-    gradeCircle.dataset.target = "#gradeCModal";
-    gradeCircle.style.color = "#000818";
-    gradeCircle.style.backgroundColor = "#FBC02D";
-    gradeCircle.style.border = "1px solid #FBC02D";
-    resultLabel.innerHTML = "Fair";
-    resultLabel.style.color = "#FBC02D";
-    mosResultC.style.color = "#FBC02D";
-    modalLabelC.style.color = "#FBC02D";
-  } else if (mos_val >= 2 && mos_val < 3) {
-    document.documentElement.style.setProperty("--shadowColor", "#FB8C00");
-    gradeCircle.innerHTML = "D";
-    gradeCircle.dataset.target = "#gradeDModal";
-    gradeCircle.style.color = "#000818";
-    gradeCircle.style.backgroundColor = "#FB8C00";
-    gradeCircle.style.border = "1px solid #FB8C00";
-    resultLabel.innerHTML = "Poor";
-    resultLabel.style.color = "#FB8C00";
-    mosResultD.style.color = "#FB8C00";
-    modalLabelD.style.color = "#FB8C00";
-  } else if (mos_val >= 1 && mos_val < 2) {
-    document.documentElement.style.setProperty("--shadowColor", "#F4511E");
-    gradeCircle.innerHTML = "F";
-    gradeCircle.dataset.target = "#gradeFModal";
-    gradeCircle.style.color = "#000818";
-    gradeCircle.style.backgroundColor = "#F4511E";
-    gradeCircle.style.border = "1px solid #F4511E";
-    resultLabel.innerHTML = "Bad";
-    resultLabel.style.color = "#F4511E";
-    mosResultF.style.color = "#F4511E";
-    modalLabelF.style.color = "#F4511E";
-  }
-}
-
-function updateOutput() {
-  var val1 = document.getElementById("val1");
-  var val2 = document.getElementById("val2");
-  var val3 = document.getElementById("val3");
-
-  val1.style.color = "white";
-  val2.style.color = "white";
-  val3.style.color = "white";
-  val4.style.color = "white";
-
-  var latencyResult = latencyCalc();
-  var jitterResult = jitterCalc();
-  var latePacketResult = latePacketCalc();
-
-  // commented due to change to resultBar
-  // val1.innerHTML = latencyResult[0].toFixed(1);
-  // val2.innerHTML = latencyResult[1].toFixed(1);
-  val1.innerHTML = String(parseInt(latePacketResult));
-  percHTML = '<span id="percSymbol">%</span>';
-  val1.insertAdjacentHTML("beforeend", percHTML);
-  val2.innerHTML = String(parseInt(packet_loss));
-  val2.insertAdjacentHTML("beforeend", percHTML);
-  val3.innerHTML = Math.round(latencyResult[2].toFixed(1));
-  val4.innerHTML = parseInt(jitterResult);
-}
-
-function updateResult(x, y) {
-  var freqResult = document.getElementById("endResult2num");
-  var durResult = document.getElementById("endResult3num");
-
-  freqResult.innerHTML = x;
-  durResult.innerHTML = y;
-}
-
-function disableOutput() {
-  document.getElementById("val1").style.color = "#b3e5fc";
-  document.getElementById("val2").style.color = "#b3e5fc";
-  document.getElementById("val3").style.color = "#b3e5fc";
-  document.getElementById("val4").style.color = "#b3e5fc";
-}
-
-function setFreq(val) {
-  freq = val;
-}
-
-function getFreq() {
-  return freq;
-}
-
-function setDur(val) {
-  duration = val;
-}
-
-function getDur() {
-  return duration;
-}
-
-function setAccDelay(val) {
-  acc_delay = val;
-}
-
-function getAccDelay() {
-  return acc_delay;
-}
-
-function incrementBadge() {
-  var count = document.getElementById("counterbar1");
-  var number = count.innerHTML;
-  number++;
-  count.innerHTML = number;
-}
-function incrementBadge2() {
-  var count = document.getElementById("counterbar2");
-  var number = count.innerHTML;
-  number++;
-  count.innerHTML = number;
-}
-
-function clearBadges() {
-  var badge_1 = document.getElementById("counterbar1");
-  var badge_2 = document.getElementById("counterbar2");
-  badge_1.innerHTML = 0;
-  badge_2.innerHTML = 0;
-}
-
-function fadeOut(el, speed) {
-  var seconds = speed / 1000;
-  var old_tran = el.style.transition;
-  el.style.transition = "opacity " + seconds + "s ease";
-  el.style.opacity = 0;
-  setTimeout(function () {
-    el.style.transition = old_tran;
-  }, 500);
-}
-
-function fadeIn(el, speed) {
-  var seconds = speed / 1000;
-  var old_tran = el.style.transition;
-  el.style.transition = "opacity " + seconds + "s ease";
-  el.style.opacity = 1;
-  setTimeout(function () {
-    el.style.transition = old_tran;
-  }, 500);
-}
-
-function swapContent(x, y) {
-  const main = document.getElementById(x);
-  const div = document.getElementById(y);
-  const clone = div.cloneNode(true);
-
-  while (main.firstChild) main.firstChild.remove();
-
-  main.appendChild(clone);
-}
-
-// Progress bars
-var bar = new ProgressBar.Circle(progbar1, {
-  color: "#e8eddf",
-  // This has to be the same size as the maximum width to
-  // prevent clipping
-  strokeWidth: 4,
-  trailWidth: 0,
-  trailColor: "#000B23",
-  easing: "easeInOut",
-  duration: 200,
-  text: {
-    autoStyleContainer: true,
-  },
-  from: { color: "#E0E0E0", width: 1 },
-  to: { color: "#B3E5FC", width: 4 },
-  // Set default step function for all animate calls
-  step: function (state, circle) {
-    circle.path.setAttribute("stroke", state.color);
-    circle.path.setAttribute("stroke-width", state.width);
-
-    var value = Math.round(circle.value() * 100);
-    if (value === 0) {
-      circle.setText("");
-    } else {
-      circle.setText(value + " %");
-    }
-  },
-});
-
-var bar2 = new ProgressBar.Circle(progbar2, {
-  color: "#e8eddf",
-  // This has to be the same size as the maximum width to
-  // prevent clipping
-  strokeWidth: 4,
-  trailWidth: 0,
-  trailColor: "#000B23",
-  easing: "easeInOut",
-  duration: 200,
-  text: {
-    autoStyleContainer: true,
-  },
-  from: { color: "#E0E0E0", width: 1 },
-  to: { color: "#AED581", width: 4 },
-  // Set default step function for all animate calls
-  step: function (state, circle) {
-    circle.path.setAttribute("stroke", state.color);
-    circle.path.setAttribute("stroke-width", state.width);
-
-    var value = Math.round(circle.value() * 100);
-    if (value === 0) {
-      circle.setText("");
-    } else {
-      circle.setText(value + " %");
-    }
-  },
-});
-
-bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
-bar.text.style.fontSize = "1.8rem";
-bar2.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
-bar2.text.style.fontSize = "1.8rem";
-
-function updateBar1() {
-  bar.animate(sentPerc);
-}
-
-function updateBar2() {
-  bar2.animate(recPerc);
-}
-
 // Entry point
+/**
+ * Initializes and runs the client application.
+ * 
+ * This function performs the following actions:
+ * - Resets progress bars `bar` and `bar2` to 0.
+ * - Sets the `ranOnce` flag to true.
+ * - Fades out the start and settings buttons over 500 milliseconds.
+ * - Hides the start and settings buttons.
+ * - Fades in various UI elements including counter bars, progress bars, and the result container over 500 milliseconds.
+ * - Calls the `main` function after a delay of 1000 milliseconds.
+ */
 function runClient() {
-  bar.set(0);
-  bar2.set(0);
-  ranOnce = true;
-  fadeOut(document.getElementById("startButton"), 500);
-  fadeOut(document.getElementById("settingsButton"), 500);
+  ui.bar.set(0);
+  ui.bar2.set(0);
+  global_state.ranOnce = true;
+  ui.fadeOut(document.getElementById("startButton"), 500);
+  ui.fadeOut(document.getElementById("settingsButton"), 500);
   document.getElementById("startButton").style.display = "none";
   document.getElementById("settingsButton").style.display = "none";
   // document.getElementById("progbar1").style.display = "block";
   // document.getElementById("progbar2").style.display = "block";
-  fadeIn(document.getElementById("counterbar1"), 500);
-  fadeIn(document.getElementById("counterbar2"), 500);
-  fadeIn(document.getElementById("counterbar1sub"), 500);
-  fadeIn(document.getElementById("counterbar2sub"), 500);
-  fadeIn(document.getElementById("progbar1"), 500);
-  fadeIn(document.getElementById("progbar2"), 500);
-  fadeIn(document.getElementById("resultContainer"), 500);
+  ui.fadeIn(document.getElementById("counterbar1"), 500);
+  ui.fadeIn(document.getElementById("counterbar2"), 500);
+  ui.fadeIn(document.getElementById("counterbar1sub"), 500);
+  ui.fadeIn(document.getElementById("counterbar2sub"), 500);
+  ui.fadeIn(document.getElementById("progbar1"), 500);
+  ui.fadeIn(document.getElementById("progbar2"), 500);
+  ui.fadeIn(document.getElementById("resultContainer"), 500);
   setTimeout(main, 1000);
 }
 
+/**
+ * Executes the client end sequence by resetting progress bars, fading out old elements,
+ * and fading in new elements with a series of timed transitions.
+ *
+ * The function performs the following steps:
+ * 1. Resets the progress bars `bar` and `bar2` to 0.
+ * 2. Fades out old elements such as settings button, start button result, grade circle, end list result, and chart box.
+ * 3. After a delay, hides some elements and displays new elements with zero opacity.
+ * 4. Fades in the new elements with a smooth transition.
+ * 5. Calls the `main` function after all transitions are complete.
+ */
 function runClientEnd() {
-  bar.set(0);
-  bar2.set(0);
+  ui.bar.set(0);
+  ui.bar2.set(0);
   // fade out old elements
-  fadeOut(document.getElementById("settingsButton"), 500);
-  fadeOut(document.getElementById("startButtonResult"), 500);
-  fadeOut(document.getElementById("gradeCircle"), 500);
-  fadeOut(document.getElementById("endListResult"), 500);
-  fadeOut(document.getElementById("chartBox"), 500);
+  ui.fadeOut(document.getElementById("settingsButton"), 500);
+  ui.fadeOut(document.getElementById("startButtonResult"), 500);
+  ui.fadeOut(document.getElementById("gradeCircle"), 500);
+  ui.fadeOut(document.getElementById("endListResult"), 500);
+  ui.fadeOut(document.getElementById("chartBox"), 500);
 
   //load in new elements
   setTimeout(function () {
@@ -805,20 +429,298 @@ function runClientEnd() {
 
   // fade in test elements
   setTimeout(function () {
-    fadeIn(document.getElementById("bar1Column"), 700);
-    fadeIn(document.getElementById("bar2Column"), 700);
-    fadeIn(document.getElementById("counterbar1"), 700);
-    fadeIn(document.getElementById("counterbar2"), 700);
-    fadeIn(document.getElementById("counterbar1sub"), 700);
-    fadeIn(document.getElementById("counterbar2sub"), 700);
-    fadeIn(document.getElementById("progbar1"), 700);
-    fadeIn(document.getElementById("progbar2"), 700);
-    fadeIn(document.getElementById("resultContainer"), 700);
+    ui.fadeIn(document.getElementById("bar1Column"), 700);
+    ui.fadeIn(document.getElementById("bar2Column"), 700);
+    ui.fadeIn(document.getElementById("counterbar1"), 700);
+    ui.fadeIn(document.getElementById("counterbar2"), 700);
+    ui.fadeIn(document.getElementById("counterbar1sub"), 700);
+    ui.fadeIn(document.getElementById("counterbar2sub"), 700);
+    ui.fadeIn(document.getElementById("progbar1"), 700);
+    ui.fadeIn(document.getElementById("progbar2"), 700);
+    ui.fadeIn(document.getElementById("resultContainer"), 700);
   }, 650);
   setTimeout(main, 1000);
 }
 
-},{"./rtc.config":16,"progressbar.js":4,"webrtc-server-client-datachannel":11}],2:[function(require,module,exports){
+},{"./global-state":2,"./helper":3,"./rtc.config":18,"./ui":19,"./webrtc-client":20,"webrtc-server-client-datachannel":13}],2:[function(require,module,exports){
+/**
+ * @file global-state.js
+ * @description global variables to manage test state
+ */
+
+var latencyValues = []; // global array for now
+var latencyRes = [];
+var sentPerc = 0;
+var recPerc = 0;
+var ranOnce = false; // flag if we already entered the test
+
+var freq;
+var duration;
+var acc_delay;
+var packet_loss;
+},{}],3:[function(require,module,exports){
+/**
+ * helper.js
+ * This file will contain utility functions that are used across different parts of the application.
+ */
+const global_state = require('./global-state');
+/**
+ * Calculates the latency values (min, max, avg) from the latencyValues array.
+ * @returns {Array} - An array containing min, max, and avg latency values.
+ */
+function latencyCalc() {
+    // get only latency values LATENCY key
+    arr = global_state.latencyValues;
+    //console.log(arr);
+    var min = arr[0]; // min
+    var max = arr[0]; // max
+    var sum = arr[0]; // sum
+    var avg;
+
+    for (var i = 1; i < arr.length; i++) {
+        if (arr[i] < min) {
+            min = arr[i];
+        }
+        if (arr[i] > max) {
+            max = arr[i];
+        }
+        sum = sum + arr[i];
+    }
+
+    avg = sum / arr.length;
+
+    return [min, max, avg];
+}
+
+/**
+ * Calculates the jitter value across all packet latency values.
+ * @returns {number} - The jitter value.
+ */
+function jitterCalc() {
+    arr = global_state.latencyValues;
+    var sum = 0;
+
+    for (i = 0; i < arr.length - 1; i++) {
+        diff = Math.abs(arr[i] - arr[i + 1]);
+        sum += diff;
+    }
+
+    return sum / (arr.length - 1);
+}
+
+/**
+ * Calculates the percentage of late packets (p over acc delay).
+ * @returns {number} - The percentage of late packets.
+ */
+function latePacketCalc() {
+    arr = global_state.latencyValues;
+    ad = getAccDelay();
+    var counter = 0;
+
+    for (i = 0; i < arr.length; i++) {
+        if (arr[i] > ad) {
+            counter++;
+        }
+    }
+
+    return (counter / arr.length) * 100;
+}
+
+/**
+ * Calculates the Mean Opinion Score (MOS) based on latency, jitter, and packet loss.
+ * @param {number} latency - The latency value.
+ * @param {number} jitter - The jitter value.
+ * @param {number} ploss - The packet loss percentage.
+ * @returns {number} - The MOS value.
+ */
+function mosCalc(latency, jitter, ploss) {
+    var effective_latency = latency + 2 * jitter;
+    var r = 0;
+    var mos = 0;
+
+    if (effective_latency < 160) {
+        r = 93.2 - effective_latency / 40;
+    } else {
+        r = 93.2 - (effective_latency - 120) / 10;
+    }
+
+    r = r - 2.5 * ploss;
+
+    if (r < 0) {
+        mos = 1.0;
+    } else {
+        mos = 1 + 0.035 * r + 0.000007 * r * (r - 60) * (100 - r);
+    }
+
+    return mos;
+}
+
+/**
+ * Selects the grade based on the MOS value.
+ * @returns {string} - The grade.
+ */
+function gradeSelect() {
+    gradeCircle = document.getElementById("gradeCircle");
+    resultLabel = document.getElementById("endResult1");
+    mosResultA = document.getElementById("mosResultA");
+    mosResultB = document.getElementById("mosResultB");
+    mosResultC = document.getElementById("mosResultC");
+    mosResultD = document.getElementById("mosResultD");
+    mosResultF = document.getElementById("mosResultF");
+    modalLabelA = document.getElementById("gradeModalResultA");
+    modalLabelB = document.getElementById("gradeModalResultB");
+    modalLabelC = document.getElementById("gradeModalResultC");
+    modalLabelD = document.getElementById("gradeModalResultD");
+    modalLabelF = document.getElementById("gradeModalResultF");
+
+    // Issues with rounding? Check this
+    var latencyResult = latencyCalc();
+    var jitterResult = parseInt(jitterCalc());
+    var latePacketResult = latePacketCalc();
+    var packetLossResult = global_state.packet_loss;
+
+    mos_val = mosCalc(
+        latencyResult[2].toFixed(1),
+        jitterResult,
+        packetLossResult
+    );
+
+    //mos_val = 4;
+    mosResultA.innerHTML = mos_val.toFixed(2);
+    mosResultB.innerHTML = mos_val.toFixed(2);
+    mosResultC.innerHTML = mos_val.toFixed(2);
+    mosResultD.innerHTML = mos_val.toFixed(2);
+    mosResultF.innerHTML = mos_val.toFixed(2);
+    // console.log("** MOS");
+    // console.log(mos_val);
+    // console.log("* values");
+    // console.log(latencyResult[2].toFixed(1));
+    // console.log(jitterResult);
+    // console.log(packetLossResult);
+    // console.log(latePacketResult);
+    // console.log("** END MOS");
+
+    if (mos_val >= 4.2) {
+        document.documentElement.style.setProperty("--shadowColor", "#a5c882");
+        gradeCircle.innerHTML = "A";
+        gradeCircle.dataset.target = "#gradeAModal";
+        gradeCircle.style.color = "#000818";
+        gradeCircle.style.backgroundColor = "#a5c882";
+        gradeCircle.style.border = "1px solid #a5c882";
+        resultLabel.innerHTML = "Excellent";
+        resultLabel.style.color = "#a5c882";
+        mosResultA.style.color = "#a5c882";
+        modalLabelA.style.color = "#a5c882";
+    } else if (mos_val >= 3.5 && mos_val < 4.2) {
+        document.documentElement.style.setProperty("--shadowColor", "#689F38");
+        gradeCircle.innerHTML = "B";
+        gradeCircle.dataset.target = "#gradeBModal";
+        gradeCircle.style.color = "#000818";
+        gradeCircle.style.backgroundColor = "#689F38";
+        gradeCircle.style.border = "1px solid #689F38";
+        resultLabel.innerHTML = "Good";
+        resultLabel.style.color = "#689F38";
+        mosResultB.style.color = "#689F38";
+        modalLabelB.style.color = "#689F38";
+    } else if (mos_val >= 3 && mos_val < 3.5) {
+        document.documentElement.style.setProperty("--shadowColor", "#FBC02D");
+        gradeCircle.innerHTML = "C";
+        gradeCircle.dataset.target = "#gradeCModal";
+        gradeCircle.style.color = "#000818";
+        gradeCircle.style.backgroundColor = "#FBC02D";
+        gradeCircle.style.border = "1px solid #FBC02D";
+        resultLabel.innerHTML = "Fair";
+        resultLabel.style.color = "#FBC02D";
+        mosResultC.style.color = "#FBC02D";
+        modalLabelC.style.color = "#FBC02D";
+    } else if (mos_val >= 2 && mos_val < 3) {
+        document.documentElement.style.setProperty("--shadowColor", "#FB8C00");
+        gradeCircle.innerHTML = "D";
+        gradeCircle.dataset.target = "#gradeDModal";
+        gradeCircle.style.color = "#000818";
+        gradeCircle.style.backgroundColor = "#FB8C00";
+        gradeCircle.style.border = "1px solid #FB8C00";
+        resultLabel.innerHTML = "Poor";
+        resultLabel.style.color = "#FB8C00";
+        mosResultD.style.color = "#FB8C00";
+        modalLabelD.style.color = "#FB8C00";
+    } else if (mos_val >= 1 && mos_val < 2) {
+        document.documentElement.style.setProperty("--shadowColor", "#F4511E");
+        gradeCircle.innerHTML = "F";
+        gradeCircle.dataset.target = "#gradeFModal";
+        gradeCircle.style.color = "#000818";
+        gradeCircle.style.backgroundColor = "#F4511E";
+        gradeCircle.style.border = "1px solid #F4511E";
+        resultLabel.innerHTML = "Bad";
+        resultLabel.style.color = "#F4511E";
+        mosResultF.style.color = "#F4511E";
+        modalLabelF.style.color = "#F4511E";
+    }
+}
+
+/**
+ * Sets the frequency value.
+ * @param {number} val - The frequency value.
+ */
+function setFreq(val) {
+    console.log("Setting freq to: " + val);
+    global_state.freq = val;
+}
+
+/**
+ * Gets the frequency value.
+ * @returns {number} - The frequency value.
+ */
+function getFreq() {
+    return global_state.freq;
+}
+
+/**
+ * Sets the duration value.
+ * @param {number} val - The duration value.
+ */
+function setDur(val) {
+    global_state.duration = val;
+}
+
+/**
+ * Gets the duration value.
+ * @returns {number} - The duration value.
+ */
+function getDur() {
+    return global_state.duration;
+}
+
+/**
+ * Sets the acceptable delay value.
+ * @param {number} val - The acceptable delay value.
+ */
+function setAccDelay(val) {
+    global_state.acc_delay = val;
+}
+
+/**
+ * Gets the acceptable delay value.
+ * @returns {number} - The acceptable delay value.
+ */
+function getAccDelay() {
+    return global_state.acc_delay;
+}
+
+module.exports = {
+    latencyCalc,
+    jitterCalc,
+    latePacketCalc,
+    mosCalc,
+    gradeSelect,
+    setFreq,
+    getFreq,
+    setDur,
+    getDur,
+    setAccDelay,
+    getAccDelay
+};
+},{"./global-state":2}],4:[function(require,module,exports){
 // Circle shaped progress bar
 
 var Shape = require('./shape');
@@ -860,7 +762,7 @@ Circle.prototype._trailString = function _trailString(opts) {
 
 module.exports = Circle;
 
-},{"./shape":7,"./utils":9}],3:[function(require,module,exports){
+},{"./shape":9,"./utils":11}],5:[function(require,module,exports){
 // Line shaped progress bar
 
 var Shape = require('./shape');
@@ -891,7 +793,7 @@ Line.prototype._trailString = function _trailString(opts) {
 
 module.exports = Line;
 
-},{"./shape":7,"./utils":9}],4:[function(require,module,exports){
+},{"./shape":9,"./utils":11}],6:[function(require,module,exports){
 module.exports = {
     // Higher level API, different shaped progress bars
     Line: require('./line'),
@@ -911,7 +813,7 @@ module.exports = {
     utils: require('./utils')
 };
 
-},{"./circle":2,"./line":3,"./path":5,"./semicircle":6,"./shape":7,"./square":8,"./utils":9}],5:[function(require,module,exports){
+},{"./circle":4,"./line":5,"./path":7,"./semicircle":8,"./shape":9,"./square":10,"./utils":11}],7:[function(require,module,exports){
 // Lower level API to animate any kind of svg path
 
 var shifty = require('shifty');
@@ -1088,7 +990,7 @@ Path.prototype._easing = function _easing(easing) {
 
 module.exports = Path;
 
-},{"./utils":9,"shifty":10}],6:[function(require,module,exports){
+},{"./utils":11,"shifty":12}],8:[function(require,module,exports){
 // Semi-SemiCircle shaped progress bar
 
 var Shape = require('./shape');
@@ -1138,7 +1040,7 @@ SemiCircle.prototype._trailString = Circle.prototype._trailString;
 
 module.exports = SemiCircle;
 
-},{"./circle":2,"./shape":7,"./utils":9}],7:[function(require,module,exports){
+},{"./circle":4,"./shape":9,"./utils":11}],9:[function(require,module,exports){
 // Base object for different progress bar shapes
 
 var Path = require('./path');
@@ -1492,7 +1394,7 @@ Shape.prototype._warnContainerAspectRatio = function _warnContainerAspectRatio(c
 
 module.exports = Shape;
 
-},{"./path":5,"./utils":9}],8:[function(require,module,exports){
+},{"./path":7,"./utils":11}],10:[function(require,module,exports){
 // Square shaped progress bar
 // Note: Square is not core part of API anymore. It's left here
 //       for reference. square is not included to the progressbar
@@ -1545,7 +1447,7 @@ Square.prototype._trailString = function _trailString(opts) {
 
 module.exports = Square;
 
-},{"./shape":7,"./utils":9}],9:[function(require,module,exports){
+},{"./shape":9,"./utils":11}],11:[function(require,module,exports){
 // Utility functions
 
 var PREFIXES = 'Webkit Moz O ms'.split(' ');
@@ -1684,16 +1586,16 @@ module.exports = {
     removeChildren: removeChildren
 };
 
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*! For license information please see shifty.js.LICENSE.txt */
-!function(t,n){"object"==typeof exports&&"object"==typeof module?module.exports=n():"function"==typeof define&&define.amd?define("shifty",[],n):"object"==typeof exports?exports.shifty=n():t.shifty=n()}(self,(function(){return function(){"use strict";var t={720:function(t,n,e){e.r(n),e.d(n,{Scene:function(){return Xt},Tweenable:function(){return _t},interpolate:function(){return Wt},processTweens:function(){return ft},setBezierFunction:function(){return Yt},tween:function(){return yt},unsetBezierFunction:function(){return Zt}});var r={};e.r(r),e.d(r,{bounce:function(){return D},bouncePast:function(){return q},easeFrom:function(){return B},easeFromTo:function(){return Q},easeInBack:function(){return T},easeInCirc:function(){return j},easeInCubic:function(){return c},easeInExpo:function(){return w},easeInOutBack:function(){return F},easeInOutCirc:function(){return P},easeInOutCubic:function(){return l},easeInOutExpo:function(){return S},easeInOutQuad:function(){return s},easeInOutQuart:function(){return v},easeInOutQuint:function(){return d},easeInOutSine:function(){return b},easeInQuad:function(){return o},easeInQuart:function(){return h},easeInQuint:function(){return _},easeInSine:function(){return m},easeOutBack:function(){return E},easeOutBounce:function(){return M},easeOutCirc:function(){return k},easeOutCubic:function(){return f},easeOutExpo:function(){return O},easeOutQuad:function(){return a},easeOutQuart:function(){return p},easeOutQuint:function(){return y},easeOutSine:function(){return g},easeTo:function(){return N},elastic:function(){return x},linear:function(){return u},swingFrom:function(){return I},swingFromTo:function(){return A},swingTo:function(){return C}});var i={};e.r(i),e.d(i,{afterTween:function(){return Nt},beforeTween:function(){return Bt},doesApply:function(){return qt},tweenCreated:function(){return Qt}});var u=function(t){return t},o=function(t){return Math.pow(t,2)},a=function(t){return-(Math.pow(t-1,2)-1)},s=function(t){return(t/=.5)<1?.5*Math.pow(t,2):-.5*((t-=2)*t-2)},c=function(t){return Math.pow(t,3)},f=function(t){return Math.pow(t-1,3)+1},l=function(t){return(t/=.5)<1?.5*Math.pow(t,3):.5*(Math.pow(t-2,3)+2)},h=function(t){return Math.pow(t,4)},p=function(t){return-(Math.pow(t-1,4)-1)},v=function(t){return(t/=.5)<1?.5*Math.pow(t,4):-.5*((t-=2)*Math.pow(t,3)-2)},_=function(t){return Math.pow(t,5)},y=function(t){return Math.pow(t-1,5)+1},d=function(t){return(t/=.5)<1?.5*Math.pow(t,5):.5*(Math.pow(t-2,5)+2)},m=function(t){return 1-Math.cos(t*(Math.PI/2))},g=function(t){return Math.sin(t*(Math.PI/2))},b=function(t){return-.5*(Math.cos(Math.PI*t)-1)},w=function(t){return 0===t?0:Math.pow(2,10*(t-1))},O=function(t){return 1===t?1:1-Math.pow(2,-10*t)},S=function(t){return 0===t?0:1===t?1:(t/=.5)<1?.5*Math.pow(2,10*(t-1)):.5*(2-Math.pow(2,-10*--t))},j=function(t){return-(Math.sqrt(1-t*t)-1)},k=function(t){return Math.sqrt(1-Math.pow(t-1,2))},P=function(t){return(t/=.5)<1?-.5*(Math.sqrt(1-t*t)-1):.5*(Math.sqrt(1-(t-=2)*t)+1)},M=function(t){return t<1/2.75?7.5625*t*t:t<2/2.75?7.5625*(t-=1.5/2.75)*t+.75:t<2.5/2.75?7.5625*(t-=2.25/2.75)*t+.9375:7.5625*(t-=2.625/2.75)*t+.984375},T=function(t){var n=1.70158;return t*t*((n+1)*t-n)},E=function(t){var n=1.70158;return(t-=1)*t*((n+1)*t+n)+1},F=function(t){var n=1.70158;return(t/=.5)<1?t*t*((1+(n*=1.525))*t-n)*.5:.5*((t-=2)*t*((1+(n*=1.525))*t+n)+2)},x=function(t){return-1*Math.pow(4,-8*t)*Math.sin((6*t-1)*(2*Math.PI)/2)+1},A=function(t){var n=1.70158;return(t/=.5)<1?t*t*((1+(n*=1.525))*t-n)*.5:.5*((t-=2)*t*((1+(n*=1.525))*t+n)+2)},I=function(t){var n=1.70158;return t*t*((n+1)*t-n)},C=function(t){var n=1.70158;return(t-=1)*t*((n+1)*t+n)+1},D=function(t){return t<1/2.75?7.5625*t*t:t<2/2.75?7.5625*(t-=1.5/2.75)*t+.75:t<2.5/2.75?7.5625*(t-=2.25/2.75)*t+.9375:7.5625*(t-=2.625/2.75)*t+.984375},q=function(t){return t<1/2.75?7.5625*t*t:t<2/2.75?2-(7.5625*(t-=1.5/2.75)*t+.75):t<2.5/2.75?2-(7.5625*(t-=2.25/2.75)*t+.9375):2-(7.5625*(t-=2.625/2.75)*t+.984375)},Q=function(t){return(t/=.5)<1?.5*Math.pow(t,4):-.5*((t-=2)*Math.pow(t,3)-2)},B=function(t){return Math.pow(t,4)},N=function(t){return Math.pow(t,.25)};function R(t,n){if(!(t instanceof n))throw new TypeError("Cannot call a class as a function")}function z(t,n){for(var e=0;e<n.length;e++){var r=n[e];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(t,r.key,r)}}function L(t){return(L="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(t){return typeof t}:function(t){return t&&"function"==typeof Symbol&&t.constructor===Symbol&&t!==Symbol.prototype?"symbol":typeof t})(t)}function U(t,n){var e=Object.keys(t);if(Object.getOwnPropertySymbols){var r=Object.getOwnPropertySymbols(t);n&&(r=r.filter((function(n){return Object.getOwnPropertyDescriptor(t,n).enumerable}))),e.push.apply(e,r)}return e}function V(t){for(var n=1;n<arguments.length;n++){var e=null!=arguments[n]?arguments[n]:{};n%2?U(Object(e),!0).forEach((function(n){W(t,n,e[n])})):Object.getOwnPropertyDescriptors?Object.defineProperties(t,Object.getOwnPropertyDescriptors(e)):U(Object(e)).forEach((function(n){Object.defineProperty(t,n,Object.getOwnPropertyDescriptor(e,n))}))}return t}function W(t,n,e){return n in t?Object.defineProperty(t,n,{value:e,enumerable:!0,configurable:!0,writable:!0}):t[n]=e,t}var $,G,H,J="linear",K="undefined"!=typeof window?window:e.g,X="afterTween",Y="afterTweenEnd",Z="beforeTween",tt="tweenCreated",nt="function",et="string",rt=K.requestAnimationFrame||K.webkitRequestAnimationFrame||K.oRequestAnimationFrame||K.msRequestAnimationFrame||K.mozCancelRequestAnimationFrame&&K.mozRequestAnimationFrame||setTimeout,it=function(){},ut=null,ot=null,at=V({},r),st=function(t,n,e,r,i,u,o){var a,s,c,f=t<u?0:(t-u)/i,l=!1;for(var h in o&&o.call&&(l=!0,a=o(f)),n)l||(a=((s=o[h]).call?s:at[s])(f)),c=e[h],n[h]=c+(r[h]-c)*a;return n},ct=function(t,n){var e=t._timestamp,r=t._currentState,i=t._delay;if(!(n<e+i)){var u=t._duration,o=t._targetState,a=e+i+u,s=n>a?a:n,c=s>=a,f=u-(a-s),l=t._filters.length>0;if(c)return t._render(o,t._data,f),t.stop(!0);l&&t._applyFilter(Z),s<e+i?e=u=s=1:e+=i,st(s,r,t._originalState,o,u,e,t._easing),l&&t._applyFilter(X),t._render(r,t._data,f)}},ft=function(){for(var t,n=_t.now(),e=ut;e;)t=e._next,ct(e,n),e=t},lt=Date.now||function(){return+new Date},ht=function(t){var n=arguments.length>1&&void 0!==arguments[1]?arguments[1]:J,e=arguments.length>2&&void 0!==arguments[2]?arguments[2]:{},r=L(n);if(at[n])return at[n];if(r===et||r===nt)for(var i in t)e[i]=n;else for(var u in t)e[u]=n[u]||J;return e},pt=function(t){t===ut?(ut=t._next)?ut._previous=null:ot=null:t===ot?(ot=t._previous)?ot._next=null:ut=null:(G=t._previous,H=t._next,G._next=H,H._previous=G),t._previous=t._next=null},vt="function"==typeof Promise?Promise:null,_t=function(){function t(){var n=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{},e=arguments.length>1&&void 0!==arguments[1]?arguments[1]:void 0;R(this,t),this._config={},this._data={},this._delay=0,this._filters=[],this._next=null,this._previous=null,this._timestamp=null,this._resolve=null,this._reject=null,this._currentState=n||{},this._originalState={},this._targetState={},this._start=it,this._render=it,this._promiseCtor=vt,e&&this.setConfig(e)}var n,e;return n=t,(e=[{key:"_applyFilter",value:function(t){for(var n=this._filters.length;n>0;n--){var e=this._filters[n-n][t];e&&e(this)}}},{key:"tween",value:function(){var n=arguments.length>0&&void 0!==arguments[0]?arguments[0]:void 0;return this._isPlaying&&this.stop(),!n&&this._config||this.setConfig(n),this._pausedAtTime=null,this._timestamp=t.now(),this._start(this.get(),this._data),this._delay&&this._render(this._currentState,this._data,0),this._resume(this._timestamp)}},{key:"setConfig",value:function(){var n=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{},e=this._config;for(var r in n)e[r]=n[r];var i=e.promise,u=void 0===i?this._promiseCtor:i,o=e.start,a=void 0===o?it:o,s=e.finish,c=e.render,f=void 0===c?this._config.step||it:c,l=e.step,h=void 0===l?it:l;this._data=e.data||e.attachment||this._data,this._isPlaying=!1,this._pausedAtTime=null,this._scheduleId=null,this._delay=n.delay||0,this._start=a,this._render=f||h,this._duration=e.duration||500,this._promiseCtor=u,s&&(this._resolve=s);var p=n.from,v=n.to,_=void 0===v?{}:v,y=this._currentState,d=this._originalState,m=this._targetState;for(var g in p)y[g]=p[g];var b=!1;for(var w in y){var O=y[w];b||L(O)!==et||(b=!0),d[w]=O,m[w]=_.hasOwnProperty(w)?_[w]:O}if(this._easing=ht(this._currentState,e.easing,this._easing),this._filters.length=0,b){for(var S in t.filters)t.filters[S].doesApply(this)&&this._filters.push(t.filters[S]);this._applyFilter(tt)}return this}},{key:"then",value:function(t,n){var e=this;return this._promise=new this._promiseCtor((function(t,n){e._resolve=t,e._reject=n})),this._promise.then(t,n)}},{key:"catch",value:function(t){return this.then().catch(t)}},{key:"get",value:function(){return V({},this._currentState)}},{key:"set",value:function(t){this._currentState=t}},{key:"pause",value:function(){if(this._isPlaying)return this._pausedAtTime=t.now(),this._isPlaying=!1,pt(this),this}},{key:"resume",value:function(){return this._resume()}},{key:"_resume",value:function(){var n=arguments.length>0&&void 0!==arguments[0]?arguments[0]:t.now();return null===this._timestamp?this.tween():this._isPlaying?this._promise:(this._pausedAtTime&&(this._timestamp+=n-this._pausedAtTime,this._pausedAtTime=null),this._isPlaying=!0,null===ut?(ut=this,ot=this):(this._previous=ot,ot._next=this,ot=this),this)}},{key:"seek",value:function(n){n=Math.max(n,0);var e=t.now();return this._timestamp+n===0||(this._timestamp=e-n,ct(this,e)),this}},{key:"stop",value:function(){var t=arguments.length>0&&void 0!==arguments[0]&&arguments[0];if(!this._isPlaying)return this;this._isPlaying=!1,pt(this);var n=this._filters.length>0;t&&(n&&this._applyFilter(Z),st(1,this._currentState,this._originalState,this._targetState,1,0,this._easing),n&&(this._applyFilter(X),this._applyFilter(Y))),this._resolve&&this._resolve({data:this._data,state:this._currentState,tweenable:this}),this._resolve=null,this._reject=null;var e=this._currentState,r=this._originalState,i=this._targetState;for(var u in e)r[u]=i[u]=e[u];return this}},{key:"cancel",value:function(){var t=arguments.length>0&&void 0!==arguments[0]&&arguments[0],n=this._currentState,e=this._data,r=this._isPlaying;return r?(this._reject&&this._reject({data:e,state:n,tweenable:this}),this._resolve=null,this._reject=null,this.stop(t)):this}},{key:"isPlaying",value:function(){return this._isPlaying}},{key:"setScheduleFunction",value:function(n){t.setScheduleFunction(n)}},{key:"data",value:function(){var t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:null;return t&&(this._data=V({},t)),this._data}},{key:"dispose",value:function(){for(var t in this)delete this[t]}}])&&z(n.prototype,e),t}();function yt(){var t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{},n=new _t;return n.tween(t),n.tweenable=n,n}W(_t,"now",(function(){return $})),_t.setScheduleFunction=function(t){return rt=t},_t.formulas=at,_t.filters={},function t(){$=lt(),rt.call(K,t,16.666666666666668),ft()}();var dt,mt,gt=/(\d|-|\.)/,bt=/([^\-0-9.]+)/g,wt=/[0-9.-]+/g,Ot=(dt=wt.source,mt=/,\s*/.source,new RegExp("rgb\\(".concat(dt).concat(mt).concat(dt).concat(mt).concat(dt,"\\)"),"g")),St=/^.*\(/,jt=/#([0-9]|[a-f]){3,6}/gi,kt="VAL",Pt=function(t,n){return t.map((function(t,e){return"_".concat(n,"_").concat(e)}))};function Mt(t){return parseInt(t,16)}var Tt=function(t){return"rgb(".concat((n=t,3===(n=n.replace(/#/,"")).length&&(n=(n=n.split(""))[0]+n[0]+n[1]+n[1]+n[2]+n[2]),[Mt(n.substr(0,2)),Mt(n.substr(2,2)),Mt(n.substr(4,2))]).join(","),")");var n},Et=function(t,n,e){var r=n.match(t),i=n.replace(t,kt);return r&&r.forEach((function(t){return i=i.replace(kt,e(t))})),i},Ft=function(t){for(var n in t){var e=t[n];"string"==typeof e&&e.match(jt)&&(t[n]=Et(jt,e,Tt))}},xt=function(t){var n=t.match(wt).map(Math.floor),e=t.match(St)[0];return"".concat(e).concat(n.join(","),")")},At=function(t){return t.match(wt)},It=function(t,n){var e={};return n.forEach((function(n){e[n]=t[n],delete t[n]})),e},Ct=function(t,n){return n.map((function(n){return t[n]}))},Dt=function(t,n){return n.forEach((function(n){return t=t.replace(kt,+n.toFixed(4))})),t},qt=function(t){for(var n in t._currentState)if("string"==typeof t._currentState[n])return!0;return!1};function Qt(t){var n=t._currentState;[n,t._originalState,t._targetState].forEach(Ft),t._tokenData=function(t){var n,e,r={};for(var i in t){var u=t[i];"string"==typeof u&&(r[i]={formatString:(n=u,e=void 0,e=n.match(bt),e?(1===e.length||n.charAt(0).match(gt))&&e.unshift(""):e=["",""],e.join(kt)),chunkNames:Pt(At(u),i)})}return r}(n)}function Bt(t){var n=t._currentState,e=t._originalState,r=t._targetState,i=t._easing,u=t._tokenData;!function(t,n){var e=function(e){var r=n[e].chunkNames,i=t[e];if("string"==typeof i){var u=i.split(" "),o=u[u.length-1];r.forEach((function(n,e){return t[n]=u[e]||o}))}else r.forEach((function(n){return t[n]=i}));delete t[e]};for(var r in n)e(r)}(i,u),[n,e,r].forEach((function(t){return function(t,n){var e=function(e){At(t[e]).forEach((function(r,i){return t[n[e].chunkNames[i]]=+r})),delete t[e]};for(var r in n)e(r)}(t,u)}))}function Nt(t){var n=t._currentState,e=t._originalState,r=t._targetState,i=t._easing,u=t._tokenData;[n,e,r].forEach((function(t){return function(t,n){for(var e in n){var r=n[e],i=r.chunkNames,u=r.formatString,o=Dt(u,Ct(It(t,i),i));t[e]=Et(Ot,o,xt)}}(t,u)})),function(t,n){for(var e in n){var r=n[e].chunkNames,i=t[r[0]];t[e]="string"==typeof i?r.map((function(n){var e=t[n];return delete t[n],e})).join(" "):i}}(i,u)}function Rt(t,n){var e=Object.keys(t);if(Object.getOwnPropertySymbols){var r=Object.getOwnPropertySymbols(t);n&&(r=r.filter((function(n){return Object.getOwnPropertyDescriptor(t,n).enumerable}))),e.push.apply(e,r)}return e}function zt(t){for(var n=1;n<arguments.length;n++){var e=null!=arguments[n]?arguments[n]:{};n%2?Rt(Object(e),!0).forEach((function(n){Lt(t,n,e[n])})):Object.getOwnPropertyDescriptors?Object.defineProperties(t,Object.getOwnPropertyDescriptors(e)):Rt(Object(e)).forEach((function(n){Object.defineProperty(t,n,Object.getOwnPropertyDescriptor(e,n))}))}return t}function Lt(t,n,e){return n in t?Object.defineProperty(t,n,{value:e,enumerable:!0,configurable:!0,writable:!0}):t[n]=e,t}var Ut=new _t,Vt=_t.filters,Wt=function(t,n,e,r){var i=arguments.length>4&&void 0!==arguments[4]?arguments[4]:0,u=zt({},t),o=ht(t,r);for(var a in Ut._filters.length=0,Ut.set({}),Ut._currentState=u,Ut._originalState=t,Ut._targetState=n,Ut._easing=o,Vt)Vt[a].doesApply(Ut)&&Ut._filters.push(Vt[a]);Ut._applyFilter("tweenCreated"),Ut._applyFilter("beforeTween");var s=st(e,u,t,n,1,i,o);return Ut._applyFilter("afterTween"),s};function $t(t,n){(null==n||n>t.length)&&(n=t.length);for(var e=0,r=new Array(n);e<n;e++)r[e]=t[e];return r}function Gt(t,n){if(!(t instanceof n))throw new TypeError("Cannot call a class as a function")}function Ht(t,n){for(var e=0;e<n.length;e++){var r=n[e];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(t,r.key,r)}}function Jt(t,n){var e=n.get(t);if(!e)throw new TypeError("attempted to get private field on non-instance");return e.get?e.get.call(t):e.value}var Kt=new WeakMap,Xt=function(){function t(){Gt(this,t),Kt.set(this,{writable:!0,value:[]});for(var n=arguments.length,e=new Array(n),r=0;r<n;r++)e[r]=arguments[r];e.forEach(this.add.bind(this))}var n,e;return n=t,(e=[{key:"add",value:function(t){return Jt(this,Kt).push(t),t}},{key:"remove",value:function(t){var n=Jt(this,Kt).indexOf(t);return~n&&Jt(this,Kt).splice(n,1),t}},{key:"empty",value:function(){return this.tweenables.map(this.remove.bind(this))}},{key:"isPlaying",value:function(){return Jt(this,Kt).some((function(t){return t.isPlaying()}))}},{key:"play",value:function(){return Jt(this,Kt).forEach((function(t){return t.tween()})),this}},{key:"pause",value:function(){return Jt(this,Kt).forEach((function(t){return t.pause()})),this}},{key:"resume",value:function(){return Jt(this,Kt).forEach((function(t){return t.resume()})),this}},{key:"stop",value:function(t){return Jt(this,Kt).forEach((function(n){return n.stop(t)})),this}},{key:"tweenables",get:function(){return function(t){if(Array.isArray(t))return $t(t)}(t=Jt(this,Kt))||function(t){if("undefined"!=typeof Symbol&&Symbol.iterator in Object(t))return Array.from(t)}(t)||function(t,n){if(t){if("string"==typeof t)return $t(t,n);var e=Object.prototype.toString.call(t).slice(8,-1);return"Object"===e&&t.constructor&&(e=t.constructor.name),"Map"===e||"Set"===e?Array.from(t):"Arguments"===e||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(e)?$t(t,n):void 0}}(t)||function(){throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}();var t}},{key:"promises",get:function(){return Jt(this,Kt).map((function(t){return t.then()}))}}])&&Ht(n.prototype,e),t}();var Yt=function(t,n,e,r,i){var u=function(t,n,e,r){return function(i){return f=0,l=0,h=0,p=function(t){return((f*t+l)*t+h)*t},v=function(t){return(3*f*t+2*l)*t+h},_=function(t){return t>=0?t:0-t},f=1-(h=3*(u=t))-(l=3*(e-u)-h),a=1-(c=3*(o=n))-(s=3*(r-o)-c),function(t){return((a*t+s)*t+c)*t}(function(t,n){var e,r,i,u,o,a;for(i=t,a=0;a<8;a++){if(u=p(i)-t,_(u)<n)return i;if(o=v(i),_(o)<1e-6)break;i-=u/o}if((i=t)<(e=0))return e;if(i>(r=1))return r;for(;e<r;){if(u=p(i),_(u-t)<n)return i;t>u?e=i:r=i,i=.5*(r-e)+e}return i}(i,function(t){return 1/(200*t)}(1)));var u,o,a,s,c,f,l,h,p,v,_}}(n,e,r,i);return u.displayName=t,u.x1=n,u.y1=e,u.x2=r,u.y2=i,_t.formulas[t]=u},Zt=function(t){return delete _t.formulas[t]};_t.filters.token=i}},n={};function e(r){if(n[r])return n[r].exports;var i=n[r]={exports:{}};return t[r](i,i.exports,e),i.exports}return e.d=function(t,n){for(var r in n)e.o(n,r)&&!e.o(t,r)&&Object.defineProperty(t,r,{enumerable:!0,get:n[r]})},e.g=function(){if("object"==typeof globalThis)return globalThis;try{return this||new Function("return this")()}catch(t){if("object"==typeof window)return window}}(),e.o=function(t,n){return Object.prototype.hasOwnProperty.call(t,n)},e.r=function(t){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})},e(720)}()}));
+!function(t,n){"object"==typeof exports&&"object"==typeof module?module.exports=n():"function"==typeof define&&define.amd?define("shifty",[],n):"object"==typeof exports?exports.shifty=n():t.shifty=n()}(self,(function(){return function(){"use strict";var t={720:function(t,n,e){e.r(n),e.d(n,{Scene:function(){return sn},Tweenable:function(){return kt},interpolate:function(){return nn},processTweens:function(){return dt},setBezierFunction:function(){return $},shouldScheduleUpdate:function(){return bt},tween:function(){return Pt},unsetBezierFunction:function(){return L}});var r={};e.r(r),e.d(r,{bounce:function(){return D},bouncePast:function(){return q},easeFrom:function(){return B},easeFromTo:function(){return Q},easeInBack:function(){return E},easeInCirc:function(){return j},easeInCubic:function(){return c},easeInExpo:function(){return w},easeInOutBack:function(){return T},easeInOutCirc:function(){return P},easeInOutCubic:function(){return l},easeInOutExpo:function(){return S},easeInOutQuad:function(){return s},easeInOutQuart:function(){return v},easeInOutQuint:function(){return d},easeInOutSine:function(){return b},easeInQuad:function(){return u},easeInQuart:function(){return h},easeInQuint:function(){return y},easeInSine:function(){return g},easeOutBack:function(){return A},easeOutBounce:function(){return M},easeOutCirc:function(){return k},easeOutCubic:function(){return f},easeOutExpo:function(){return O},easeOutQuad:function(){return a},easeOutQuart:function(){return p},easeOutQuint:function(){return _},easeOutSine:function(){return m},easeTo:function(){return N},elastic:function(){return I},linear:function(){return o},swingFrom:function(){return x},swingFromTo:function(){return F},swingTo:function(){return C}});var i={};e.r(i),e.d(i,{afterTween:function(){return Jt},beforeTween:function(){return Ht},doesApply:function(){return Wt},tweenCreated:function(){return Gt}});var o=function(t){return t},u=function(t){return Math.pow(t,2)},a=function(t){return-(Math.pow(t-1,2)-1)},s=function(t){return(t/=.5)<1?.5*Math.pow(t,2):-.5*((t-=2)*t-2)},c=function(t){return Math.pow(t,3)},f=function(t){return Math.pow(t-1,3)+1},l=function(t){return(t/=.5)<1?.5*Math.pow(t,3):.5*(Math.pow(t-2,3)+2)},h=function(t){return Math.pow(t,4)},p=function(t){return-(Math.pow(t-1,4)-1)},v=function(t){return(t/=.5)<1?.5*Math.pow(t,4):-.5*((t-=2)*Math.pow(t,3)-2)},y=function(t){return Math.pow(t,5)},_=function(t){return Math.pow(t-1,5)+1},d=function(t){return(t/=.5)<1?.5*Math.pow(t,5):.5*(Math.pow(t-2,5)+2)},g=function(t){return 1-Math.cos(t*(Math.PI/2))},m=function(t){return Math.sin(t*(Math.PI/2))},b=function(t){return-.5*(Math.cos(Math.PI*t)-1)},w=function(t){return 0===t?0:Math.pow(2,10*(t-1))},O=function(t){return 1===t?1:1-Math.pow(2,-10*t)},S=function(t){return 0===t?0:1===t?1:(t/=.5)<1?.5*Math.pow(2,10*(t-1)):.5*(2-Math.pow(2,-10*--t))},j=function(t){return-(Math.sqrt(1-t*t)-1)},k=function(t){return Math.sqrt(1-Math.pow(t-1,2))},P=function(t){return(t/=.5)<1?-.5*(Math.sqrt(1-t*t)-1):.5*(Math.sqrt(1-(t-=2)*t)+1)},M=function(t){return t<1/2.75?7.5625*t*t:t<2/2.75?7.5625*(t-=1.5/2.75)*t+.75:t<2.5/2.75?7.5625*(t-=2.25/2.75)*t+.9375:7.5625*(t-=2.625/2.75)*t+.984375},E=function(t){var n=1.70158;return t*t*((n+1)*t-n)},A=function(t){var n=1.70158;return(t-=1)*t*((n+1)*t+n)+1},T=function(t){var n=1.70158;return(t/=.5)<1?t*t*((1+(n*=1.525))*t-n)*.5:.5*((t-=2)*t*((1+(n*=1.525))*t+n)+2)},I=function(t){return-1*Math.pow(4,-8*t)*Math.sin((6*t-1)*(2*Math.PI)/2)+1},F=function(t){var n=1.70158;return(t/=.5)<1?t*t*((1+(n*=1.525))*t-n)*.5:.5*((t-=2)*t*((1+(n*=1.525))*t+n)+2)},x=function(t){var n=1.70158;return t*t*((n+1)*t-n)},C=function(t){var n=1.70158;return(t-=1)*t*((n+1)*t+n)+1},D=function(t){return t<1/2.75?7.5625*t*t:t<2/2.75?7.5625*(t-=1.5/2.75)*t+.75:t<2.5/2.75?7.5625*(t-=2.25/2.75)*t+.9375:7.5625*(t-=2.625/2.75)*t+.984375},q=function(t){return t<1/2.75?7.5625*t*t:t<2/2.75?2-(7.5625*(t-=1.5/2.75)*t+.75):t<2.5/2.75?2-(7.5625*(t-=2.25/2.75)*t+.9375):2-(7.5625*(t-=2.625/2.75)*t+.984375)},Q=function(t){return(t/=.5)<1?.5*Math.pow(t,4):-.5*((t-=2)*Math.pow(t,3)-2)},B=function(t){return Math.pow(t,4)},N=function(t){return Math.pow(t,.25)};function R(t,n,e,r,i,o){var u,a,s,c,f,l=0,h=0,p=0,v=function(t){return((l*t+h)*t+p)*t},y=function(t){return(3*l*t+2*h)*t+p},_=function(t){return t>=0?t:0-t};return l=1-(p=3*n)-(h=3*(r-n)-p),s=1-(f=3*e)-(c=3*(i-e)-f),u=t,a=function(t){return 1/(200*t)}(o),function(t){return((s*t+c)*t+f)*t}(function(t,n){var e,r,i,o,u,a;for(i=t,a=0;a<8;a++){if(o=v(i)-t,_(o)<n)return i;if(u=y(i),_(u)<1e-6)break;i-=o/u}if((i=t)<(e=0))return e;if(i>(r=1))return r;for(;e<r;){if(o=v(i),_(o-t)<n)return i;t>o?e=i:r=i,i=.5*(r-e)+e}return i}(u,a))}var z,U=function(){var t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:.25,n=arguments.length>1&&void 0!==arguments[1]?arguments[1]:.25,e=arguments.length>2&&void 0!==arguments[2]?arguments[2]:.75,r=arguments.length>3&&void 0!==arguments[3]?arguments[3]:.75;return function(i){return R(i,t,n,e,r,1)}},$=function(t,n,e,r,i){var o=U(n,e,r,i);return o.displayName=t,o.x1=n,o.y1=e,o.x2=r,o.y2=i,kt.formulas[t]=o},L=function(t){return delete kt.formulas[t]};function V(t,n){if(!(t instanceof n))throw new TypeError("Cannot call a class as a function")}function W(t,n){for(var e=0;e<n.length;e++){var r=n[e];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(t,r.key,r)}}function G(t){return G="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(t){return typeof t}:function(t){return t&&"function"==typeof Symbol&&t.constructor===Symbol&&t!==Symbol.prototype?"symbol":typeof t},G(t)}function H(t){return function(t){if(Array.isArray(t))return J(t)}(t)||function(t){if("undefined"!=typeof Symbol&&Symbol.iterator in Object(t))return Array.from(t)}(t)||function(t,n){if(t){if("string"==typeof t)return J(t,n);var e=Object.prototype.toString.call(t).slice(8,-1);return"Object"===e&&t.constructor&&(e=t.constructor.name),"Map"===e||"Set"===e?Array.from(t):"Arguments"===e||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(e)?J(t,n):void 0}}(t)||function(){throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}()}function J(t,n){(null==n||n>t.length)&&(n=t.length);for(var e=0,r=new Array(n);e<n;e++)r[e]=t[e];return r}function K(t,n){var e=Object.keys(t);if(Object.getOwnPropertySymbols){var r=Object.getOwnPropertySymbols(t);n&&(r=r.filter((function(n){return Object.getOwnPropertyDescriptor(t,n).enumerable}))),e.push.apply(e,r)}return e}function X(t){for(var n=1;n<arguments.length;n++){var e=null!=arguments[n]?arguments[n]:{};n%2?K(Object(e),!0).forEach((function(n){Y(t,n,e[n])})):Object.getOwnPropertyDescriptors?Object.defineProperties(t,Object.getOwnPropertyDescriptors(e)):K(Object(e)).forEach((function(n){Object.defineProperty(t,n,Object.getOwnPropertyDescriptor(e,n))}))}return t}function Y(t,n,e){return n in t?Object.defineProperty(t,n,{value:e,enumerable:!0,configurable:!0,writable:!0}):t[n]=e,t}var Z,tt,nt,et="linear",rt="undefined"!=typeof window?window:e.g,it="afterTween",ot="afterTweenEnd",ut="beforeTween",at="tweenCreated",st="function",ct="string",ft=rt.requestAnimationFrame||rt.webkitRequestAnimationFrame||rt.oRequestAnimationFrame||rt.msRequestAnimationFrame||rt.mozCancelRequestAnimationFrame&&rt.mozRequestAnimationFrame||setTimeout,lt=function(){},ht=null,pt=null,vt=X({},r),yt=function(t,n,e,r,i,o,u){var a,s,c,f=t<o?0:(t-o)/i,l=!1;for(var h in u&&u.call&&(l=!0,a=u(f)),n)l||(a=((s=u[h]).call?s:vt[s])(f)),c=e[h],n[h]=c+(r[h]-c)*a;return n},_t=function(t,n){var e=t._timestamp,r=t._currentState,i=t._delay;if(!(n<e+i)){var o=t._duration,u=t._targetState,a=e+i+o,s=n>a?a:n;t._hasEnded=s>=a;var c=o-(a-s),f=t._filters.length>0;if(t._hasEnded)return t._render(u,t._data,c),t.stop(!0);f&&t._applyFilter(ut),s<e+i?e=o=s=1:e+=i,yt(s,r,t._originalState,u,o,e,t._easing),f&&t._applyFilter(it),t._render(r,t._data,c)}},dt=function(){for(var t,n=kt.now(),e=ht;e;)t=e._next,_t(e,n),e=t},gt=Date.now||function(){return+new Date},mt=!1,bt=function(t){t&&mt||(mt=t,t&&wt())},wt=function t(){Z=gt(),mt&&ft.call(rt,t,16.666666666666668),dt()},Ot=function(t){var n=arguments.length>1&&void 0!==arguments[1]?arguments[1]:et,e=arguments.length>2&&void 0!==arguments[2]?arguments[2]:{};if(Array.isArray(n)){var r=U.apply(void 0,H(n));return r}var i=G(n);if(vt[n])return vt[n];if(i===ct||i===st)for(var o in t)e[o]=n;else for(var u in t)e[u]=n[u]||et;return e},St=function(t){t===ht?(ht=t._next)?ht._previous=null:pt=null:t===pt?(pt=t._previous)?pt._next=null:ht=null:(tt=t._previous,nt=t._next,tt._next=nt,nt._previous=tt),t._previous=t._next=null},jt="function"==typeof Promise?Promise:null;z=Symbol.toStringTag;var kt=function(){function t(){var n=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{},e=arguments.length>1&&void 0!==arguments[1]?arguments[1]:void 0;V(this,t),Y(this,z,"Promise"),this._config={},this._data={},this._delay=0,this._filters=[],this._next=null,this._previous=null,this._timestamp=null,this._hasEnded=!1,this._resolve=null,this._reject=null,this._currentState=n||{},this._originalState={},this._targetState={},this._start=lt,this._render=lt,this._promiseCtor=jt,e&&this.setConfig(e)}var n,e;return n=t,e=[{key:"_applyFilter",value:function(t){for(var n=this._filters.length;n>0;n--){var e=this._filters[n-n][t];e&&e(this)}}},{key:"tween",value:function(){var n=arguments.length>0&&void 0!==arguments[0]?arguments[0]:void 0;return this._isPlaying&&this.stop(),!n&&this._config||this.setConfig(n),this._pausedAtTime=null,this._timestamp=t.now(),this._start(this.get(),this._data),this._delay&&this._render(this._currentState,this._data,0),this._resume(this._timestamp)}},{key:"setConfig",value:function(){var n=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{},e=this._config;for(var r in n)e[r]=n[r];var i=e.promise,o=void 0===i?this._promiseCtor:i,u=e.start,a=void 0===u?lt:u,s=e.finish,c=e.render,f=void 0===c?this._config.step||lt:c,l=e.step,h=void 0===l?lt:l;this._data=e.data||e.attachment||this._data,this._isPlaying=!1,this._pausedAtTime=null,this._scheduleId=null,this._delay=n.delay||0,this._start=a,this._render=f||h,this._duration=e.duration||500,this._promiseCtor=o,s&&(this._resolve=s);var p=n.from,v=n.to,y=void 0===v?{}:v,_=this._currentState,d=this._originalState,g=this._targetState;for(var m in p)_[m]=p[m];var b=!1;for(var w in _){var O=_[w];b||G(O)!==ct||(b=!0),d[w]=O,g[w]=y.hasOwnProperty(w)?y[w]:O}if(this._easing=Ot(this._currentState,e.easing,this._easing),this._filters.length=0,b){for(var S in t.filters)t.filters[S].doesApply(this)&&this._filters.push(t.filters[S]);this._applyFilter(at)}return this}},{key:"then",value:function(t,n){var e=this;return this._promise=new this._promiseCtor((function(t,n){e._resolve=t,e._reject=n})),this._promise.then(t,n)}},{key:"catch",value:function(t){return this.then().catch(t)}},{key:"finally",value:function(t){return this.then().finally(t)}},{key:"get",value:function(){return X({},this._currentState)}},{key:"set",value:function(t){this._currentState=t}},{key:"pause",value:function(){if(this._isPlaying)return this._pausedAtTime=t.now(),this._isPlaying=!1,St(this),this}},{key:"resume",value:function(){return this._resume()}},{key:"_resume",value:function(){var n=arguments.length>0&&void 0!==arguments[0]?arguments[0]:t.now();return null===this._timestamp?this.tween():this._isPlaying?this._promise:(this._pausedAtTime&&(this._timestamp+=n-this._pausedAtTime,this._pausedAtTime=null),this._isPlaying=!0,null===ht?(ht=this,pt=this):(this._previous=pt,pt._next=this,pt=this),this)}},{key:"seek",value:function(n){n=Math.max(n,0);var e=t.now();return this._timestamp+n===0||(this._timestamp=e-n,_t(this,e)),this}},{key:"stop",value:function(){var t=arguments.length>0&&void 0!==arguments[0]&&arguments[0];if(!this._isPlaying)return this;this._isPlaying=!1,St(this);var n=this._filters.length>0;return t&&(n&&this._applyFilter(ut),yt(1,this._currentState,this._originalState,this._targetState,1,0,this._easing),n&&(this._applyFilter(it),this._applyFilter(ot))),this._resolve&&this._resolve({data:this._data,state:this._currentState,tweenable:this}),this._resolve=null,this._reject=null,this}},{key:"cancel",value:function(){var t=arguments.length>0&&void 0!==arguments[0]&&arguments[0],n=this._currentState,e=this._data,r=this._isPlaying;return r?(this._reject&&this._reject({data:e,state:n,tweenable:this}),this._resolve=null,this._reject=null,this.stop(t)):this}},{key:"isPlaying",value:function(){return this._isPlaying}},{key:"hasEnded",value:function(){return this._hasEnded}},{key:"setScheduleFunction",value:function(n){t.setScheduleFunction(n)}},{key:"data",value:function(){var t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:null;return t&&(this._data=X({},t)),this._data}},{key:"dispose",value:function(){for(var t in this)delete this[t]}}],e&&W(n.prototype,e),t}();function Pt(){var t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{},n=new kt;return n.tween(t),n.tweenable=n,n}Y(kt,"now",(function(){return Z})),Y(kt,"setScheduleFunction",(function(t){return ft=t})),Y(kt,"filters",{}),Y(kt,"formulas",vt),bt(!0);var Mt,Et,At=/(\d|-|\.)/,Tt=/([^\-0-9.]+)/g,It=/[0-9.-]+/g,Ft=(Mt=It.source,Et=/,\s*/.source,new RegExp("rgba?\\(".concat(Mt).concat(Et).concat(Mt).concat(Et).concat(Mt,"(").concat(Et).concat(Mt,")?\\)"),"g")),xt=/^.*\(/,Ct=/#([0-9]|[a-f]){3,6}/gi,Dt="VAL",qt=function(t,n){return t.map((function(t,e){return"_".concat(n,"_").concat(e)}))};function Qt(t){return parseInt(t,16)}var Bt=function(t){return"rgb(".concat((n=t,3===(n=n.replace(/#/,"")).length&&(n=(n=n.split(""))[0]+n[0]+n[1]+n[1]+n[2]+n[2]),[Qt(n.substr(0,2)),Qt(n.substr(2,2)),Qt(n.substr(4,2))]).join(","),")");var n},Nt=function(t,n,e){var r=n.match(t),i=n.replace(t,Dt);return r&&r.forEach((function(t){return i=i.replace(Dt,e(t))})),i},Rt=function(t){for(var n in t){var e=t[n];"string"==typeof e&&e.match(Ct)&&(t[n]=Nt(Ct,e,Bt))}},zt=function(t){var n=t.match(It),e=n.slice(0,3).map(Math.floor),r=t.match(xt)[0];if(3===n.length)return"".concat(r).concat(e.join(","),")");if(4===n.length)return"".concat(r).concat(e.join(","),",").concat(n[3],")");throw new Error("Invalid rgbChunk: ".concat(t))},Ut=function(t){return t.match(It)},$t=function(t,n){var e={};return n.forEach((function(n){e[n]=t[n],delete t[n]})),e},Lt=function(t,n){return n.map((function(n){return t[n]}))},Vt=function(t,n){return n.forEach((function(n){return t=t.replace(Dt,+n.toFixed(4))})),t},Wt=function(t){for(var n in t._currentState)if("string"==typeof t._currentState[n])return!0;return!1};function Gt(t){var n=t._currentState;[n,t._originalState,t._targetState].forEach(Rt),t._tokenData=function(t){var n,e,r={};for(var i in t){var o=t[i];"string"==typeof o&&(r[i]={formatString:(n=o,e=void 0,e=n.match(Tt),e?(1===e.length||n.charAt(0).match(At))&&e.unshift(""):e=["",""],e.join(Dt)),chunkNames:qt(Ut(o),i)})}return r}(n)}function Ht(t){var n=t._currentState,e=t._originalState,r=t._targetState,i=t._easing,o=t._tokenData;!function(t,n){var e=function(e){var r=n[e].chunkNames,i=t[e];if("string"==typeof i){var o=i.split(" "),u=o[o.length-1];r.forEach((function(n,e){return t[n]=o[e]||u}))}else r.forEach((function(n){return t[n]=i}));delete t[e]};for(var r in n)e(r)}(i,o),[n,e,r].forEach((function(t){return function(t,n){var e=function(e){Ut(t[e]).forEach((function(r,i){return t[n[e].chunkNames[i]]=+r})),delete t[e]};for(var r in n)e(r)}(t,o)}))}function Jt(t){var n=t._currentState,e=t._originalState,r=t._targetState,i=t._easing,o=t._tokenData;[n,e,r].forEach((function(t){return function(t,n){for(var e in n){var r=n[e],i=r.chunkNames,o=r.formatString,u=Vt(o,Lt($t(t,i),i));t[e]=Nt(Ft,u,zt)}}(t,o)})),function(t,n){for(var e in n){var r=n[e].chunkNames,i=t[r[0]];t[e]="string"==typeof i?r.map((function(n){var e=t[n];return delete t[n],e})).join(" "):i}}(i,o)}function Kt(t,n){var e=Object.keys(t);if(Object.getOwnPropertySymbols){var r=Object.getOwnPropertySymbols(t);n&&(r=r.filter((function(n){return Object.getOwnPropertyDescriptor(t,n).enumerable}))),e.push.apply(e,r)}return e}function Xt(t){for(var n=1;n<arguments.length;n++){var e=null!=arguments[n]?arguments[n]:{};n%2?Kt(Object(e),!0).forEach((function(n){Yt(t,n,e[n])})):Object.getOwnPropertyDescriptors?Object.defineProperties(t,Object.getOwnPropertyDescriptors(e)):Kt(Object(e)).forEach((function(n){Object.defineProperty(t,n,Object.getOwnPropertyDescriptor(e,n))}))}return t}function Yt(t,n,e){return n in t?Object.defineProperty(t,n,{value:e,enumerable:!0,configurable:!0,writable:!0}):t[n]=e,t}var Zt=new kt,tn=kt.filters,nn=function(t,n,e,r){var i=arguments.length>4&&void 0!==arguments[4]?arguments[4]:0,o=Xt({},t),u=Ot(t,r);for(var a in Zt._filters.length=0,Zt.set({}),Zt._currentState=o,Zt._originalState=t,Zt._targetState=n,Zt._easing=u,tn)tn[a].doesApply(Zt)&&Zt._filters.push(tn[a]);Zt._applyFilter("tweenCreated"),Zt._applyFilter("beforeTween");var s=yt(e,o,t,n,1,i,u);return Zt._applyFilter("afterTween"),s};function en(t,n){(null==n||n>t.length)&&(n=t.length);for(var e=0,r=new Array(n);e<n;e++)r[e]=t[e];return r}function rn(t,n){if(!(t instanceof n))throw new TypeError("Cannot call a class as a function")}function on(t,n){for(var e=0;e<n.length;e++){var r=n[e];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(t,r.key,r)}}function un(t,n){var e=n.get(t);if(!e)throw new TypeError("attempted to get private field on non-instance");return e.get?e.get.call(t):e.value}var an=new WeakMap,sn=function(){function t(){rn(this,t),an.set(this,{writable:!0,value:[]});for(var n=arguments.length,e=new Array(n),r=0;r<n;r++)e[r]=arguments[r];e.forEach(this.add.bind(this))}var n,e;return n=t,(e=[{key:"add",value:function(t){return un(this,an).push(t),t}},{key:"remove",value:function(t){var n=un(this,an).indexOf(t);return~n&&un(this,an).splice(n,1),t}},{key:"empty",value:function(){return this.tweenables.map(this.remove.bind(this))}},{key:"isPlaying",value:function(){return un(this,an).some((function(t){return t.isPlaying()}))}},{key:"play",value:function(){return un(this,an).forEach((function(t){return t.tween()})),this}},{key:"pause",value:function(){return un(this,an).forEach((function(t){return t.pause()})),this}},{key:"resume",value:function(){return this.playingTweenables.forEach((function(t){return t.resume()})),this}},{key:"stop",value:function(t){return un(this,an).forEach((function(n){return n.stop(t)})),this}},{key:"tweenables",get:function(){return function(t){if(Array.isArray(t))return en(t)}(t=un(this,an))||function(t){if("undefined"!=typeof Symbol&&Symbol.iterator in Object(t))return Array.from(t)}(t)||function(t,n){if(t){if("string"==typeof t)return en(t,n);var e=Object.prototype.toString.call(t).slice(8,-1);return"Object"===e&&t.constructor&&(e=t.constructor.name),"Map"===e||"Set"===e?Array.from(t):"Arguments"===e||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(e)?en(t,n):void 0}}(t)||function(){throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}();var t}},{key:"playingTweenables",get:function(){return un(this,an).filter((function(t){return!t.hasEnded()}))}},{key:"promises",get:function(){return un(this,an).map((function(t){return t.then()}))}}])&&on(n.prototype,e),t}();kt.filters.token=i}},n={};function e(r){if(n[r])return n[r].exports;var i=n[r]={exports:{}};return t[r](i,i.exports,e),i.exports}return e.d=function(t,n){for(var r in n)e.o(n,r)&&!e.o(t,r)&&Object.defineProperty(t,r,{enumerable:!0,get:n[r]})},e.g=function(){if("object"==typeof globalThis)return globalThis;try{return this||new Function("return this")()}catch(t){if("object"==typeof window)return window}}(),e.o=function(t,n){return Object.prototype.hasOwnProperty.call(t,n)},e.r=function(t){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})},e(720)}()}));
 
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 const { RTCServer } = require('./src/RTCServer');
 const { RTCClient } = require('./src/RTCClient');
 module.exports.RTCServer = RTCServer;
 module.exports.RTCClient = RTCClient;
-},{"./src/RTCClient":13,"./src/RTCServer":14}],12:[function(require,module,exports){
+},{"./src/RTCClient":15,"./src/RTCServer":16}],14:[function(require,module,exports){
 'use strict';
 
 exports.MediaStream = window.MediaStream;
@@ -1701,7 +1603,7 @@ exports.RTCIceCandidate = window.RTCIceCandidate;
 exports.RTCPeerConnection = window.RTCPeerConnection;
 exports.RTCSessionDescription = window.RTCSessionDescription;
 
-},{}],13:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 const { getOffer, onCandidate, Rtcpc } = require("./common");
 
 async function ClientRecieveOffer(pc, ws) {
@@ -1756,7 +1658,7 @@ module.exports.RTCClient = class RtcpcClient extends Rtcpc {
         console.log("Datachannels opened");
     }
 }
-},{"./common":15}],14:[function(require,module,exports){
+},{"./common":17}],16:[function(require,module,exports){
 const { getAnswer, onCandidate, Rtcpc } =require('./common');
 const { RTCPeerConnection } = require('wrtc');
 
@@ -1814,7 +1716,7 @@ module.exports.RTCServer = class RtcpcServer extends Rtcpc {
         await Promise.all(this.openPromises);
     }
 }
-},{"./common":15,"wrtc":12}],15:[function(require,module,exports){
+},{"./common":17,"wrtc":14}],17:[function(require,module,exports){
 'use strict';
 
 const {
@@ -1923,7 +1825,7 @@ module.exports.onCandidate = function onCandidate(ws, callback) {
     }
   });
 }
-},{"wrtc":12}],16:[function(require,module,exports){
+},{"wrtc":14}],18:[function(require,module,exports){
 module.exports.rtcConfig = {
   RTCPeerConnectionConf: { 
     required: {
@@ -1952,4 +1854,298 @@ module.exports.rtcConfig = {
     }
   }]
 }
+},{}],19:[function(require,module,exports){
+/**
+ * ui.js
+ * This file will handle all the UI-related functions and DOM manipulations.
+ */
+
+var ProgressBar = require("progressbar.js");
+const global_state = require('./global-state');
+const helper = require('./helper');
+/**
+ * Updates the output values displayed on the UI.
+ */
+function updateOutput() {
+    var val1 = document.getElementById("val1");
+    var val2 = document.getElementById("val2");
+    var val3 = document.getElementById("val3");
+
+    val1.style.color = "white";
+    val2.style.color = "white";
+    val3.style.color = "white";
+    val4.style.color = "white";
+
+    var latencyResult = helper.latencyCalc();
+    var jitterResult = helper.jitterCalc();
+    var latePacketResult = helper.latePacketCalc();
+
+    // commented due to change to resultBar
+    // val1.innerHTML = latencyResult[0].toFixed(1);
+    // val2.innerHTML = latencyResult[1].toFixed(1);
+    val1.innerHTML = String(parseInt(latePacketResult));
+    percHTML = '<span id="percSymbol">%</span>';
+    val1.insertAdjacentHTML("beforeend", percHTML);
+    val2.innerHTML = String(parseInt(global_state.packet_loss));
+    val2.insertAdjacentHTML("beforeend", percHTML);
+    val3.innerHTML = Math.round(latencyResult[2].toFixed(1));
+    val4.innerHTML = parseInt(jitterResult);
+}
+
+/**
+ * Updates the result display with the given values.
+ * @param {number} x - The x value.
+ * @param {number} y - The y value.
+ */
+function updateResult(x, y) {
+    var freqResult = document.getElementById("endResult2num");
+    var durResult = document.getElementById("endResult3num");
+
+    freqResult.innerHTML = x;
+    durResult.innerHTML = y;
+}
+
+/**
+* Disables the output display.
+*/
+function disableOutput() {
+    document.getElementById("val1").style.color = "#b3e5fc";
+    document.getElementById("val2").style.color = "#b3e5fc";
+    document.getElementById("val3").style.color = "#b3e5fc";
+    document.getElementById("val4").style.color = "#b3e5fc";
+}
+
+
+/**
+ * Increments the badge count.
+ */
+function incrementBadge() {
+    var count = document.getElementById("counterbar1");
+    var number = count.innerHTML;
+    number++;
+    count.innerHTML = number;
+}
+
+/**
+* Increments the second badge count.
+*/
+function incrementBadge2() {
+    var count = document.getElementById("counterbar2");
+    var number = count.innerHTML;
+    number++;
+    count.innerHTML = number;
+}
+
+/**
+* Clears all badge counts.
+*/
+function clearBadges() {
+    var badge_1 = document.getElementById("counterbar1");
+    var badge_2 = document.getElementById("counterbar2");
+    badge_1.innerHTML = 0;
+    badge_2.innerHTML = 0;
+}
+
+
+/**
+* Fades out an HTML element by gradually changing its opacity to 0 over a specified duration.
+*
+* @param {HTMLElement} el - The HTML element to fade out.
+* @param {number} speed - The duration of the fade-out effect in milliseconds.
+*/
+function fadeOut(el, speed) {
+    var seconds = speed / 1000;
+    var old_tran = el.style.transition;
+    el.style.transition = "opacity " + seconds + "s ease";
+    el.style.opacity = 0;
+    setTimeout(function () {
+        el.style.transition = old_tran;
+    }, 500);
+}
+
+
+/**
+* Fades in an element by gradually changing its opacity to 1 over a specified duration.
+*
+* @param {HTMLElement} el - The element to fade in.
+* @param {number} speed - The duration of the fade-in effect in milliseconds.
+*/
+function fadeIn(el, speed) {
+    var seconds = speed / 1000;
+    var old_tran = el.style.transition;
+    el.style.transition = "opacity " + seconds + "s ease";
+    el.style.opacity = 1;
+    setTimeout(function () {
+        el.style.transition = old_tran;
+    }, 500);
+}
+
+/**
+ * Swaps the content of two HTML elements by cloning the content of the second element
+ * and replacing the content of the first element with the cloned content.
+ *
+ * @param {string} x - The ID of the element whose content will be replaced.
+ * @param {string} y - The ID of the element whose content will be cloned.
+ */
+function swapContent(x, y) {
+    const main = document.getElementById(x);
+    const div = document.getElementById(y);
+    const clone = div.cloneNode(true);
+
+    while (main.firstChild) main.firstChild.remove();
+
+    main.appendChild(clone);
+}
+
+var bar = new ProgressBar.Circle(progbar1, {
+    color: "#e8eddf",
+    // This has to be the same size as the maximum width to
+    // prevent clipping
+    strokeWidth: 4,
+    trailWidth: 0,
+    trailColor: "#000B23",
+    easing: "easeInOut",
+    duration: 200,
+    text: {
+      autoStyleContainer: true,
+    },
+    from: { color: "#E0E0E0", width: 1 },
+    to: { color: "#B3E5FC", width: 4 },
+    // Set default step function for all animate calls
+    step: function (state, circle) {
+      circle.path.setAttribute("stroke", state.color);
+      circle.path.setAttribute("stroke-width", state.width);
+  
+      var value = Math.round(circle.value() * 100);
+      if (value === 0) {
+        circle.setText("");
+      } else {
+        circle.setText(value + " %");
+      }
+    },
+  });
+  
+  /**
+   * Progress bar 2
+   */
+  var bar2 = new ProgressBar.Circle(progbar2, {
+    color: "#e8eddf",
+    // This has to be the same size as the maximum width to
+    // prevent clipping
+    strokeWidth: 4,
+    trailWidth: 0,
+    trailColor: "#000B23",
+    easing: "easeInOut",
+    duration: 200,
+    text: {
+      autoStyleContainer: true,
+    },
+    from: { color: "#E0E0E0", width: 1 },
+    to: { color: "#AED581", width: 4 },
+    // Set default step function for all animate calls
+    step: function (state, circle) {
+      circle.path.setAttribute("stroke", state.color);
+      circle.path.setAttribute("stroke-width", state.width);
+  
+      var value = Math.round(circle.value() * 100);
+      if (value === 0) {
+        circle.setText("");
+      } else {
+        circle.setText(value + " %");
+      }
+    },
+  });
+
+  bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
+  bar.text.style.fontSize = "1.8rem";
+  bar2.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
+  bar2.text.style.fontSize = "1.8rem";
+  
+
+/**
+* Updates the progress bar with the specified percentage.
+*/
+function updateBar1() {
+    bar.animate(global_state.sentPerc);
+}
+
+
+/**
+* Updates the progress of bar2 by animating it to the specified percentage.
+*/
+function updateBar2() {
+    bar2.animate(global_state.recPerc);
+}
+
+
+/**
+ * Controls the test button behavior.
+ * @param {string} btn - The button selector.
+ * @param {string} df - The default button ID.
+ * @param {string} type - The type of control.
+ */
+function tbController(btn, df, type) {
+    var num = null;
+    var flag = false;
+    var active_button;
+    var ele = document.querySelectorAll(btn);
+    //console.log(ele);
+
+    for (var i = 0; i < ele.length; i++) {
+        ele[i].addEventListener("click", function () {
+            if (flag == true) {
+                active_button.classList.remove("active");
+            } else {
+                document.getElementById(df).classList.remove("active");
+            }
+            flag = true;
+            num = this.innerHTML;
+            var new_val = num.replace(/[^\d]/g, "");
+            this.classList.add("active");
+            active_button = this;
+            //console.log(new_val);
+            if (type == "freq") {
+                helper.setFreq(new_val);
+                console.log('Frequency set to:', global_state.freq, 'new_val:', new_val);
+            } else if (type == "dur") {
+                helper.setDur(new_val);
+            } else if (type == "delay") {
+                helper.setAccDelay(new_val);
+            }
+        });
+    }
+}
+
+
+module.exports = {
+    bar,
+    bar2,
+    updateOutput,
+    updateResult,
+    disableOutput,
+    incrementBadge,
+    incrementBadge2,
+    clearBadges,
+    fadeOut,
+    fadeIn,
+    swapContent,
+    updateBar1,
+    updateBar2,
+    tbController
+};
+},{"./global-state":2,"./helper":3,"progressbar.js":6}],20:[function(require,module,exports){
+/**
+ * webrtc-client.js
+ * Runs a WebRTC client that handles WebSocket connections, sends and receives data, measures latency, and updates the user interface accordingly.
+ */
+
+async function onOpen(ws) {
+    return new Promise((resolve, reject) => {
+        ws.onopen = () => resolve();
+        ws.onclose = () => reject(new Error("WebSocket closed"));
+    });
+}
+module.exports = { onOpen };
+
+
 },{}]},{},[1]);
