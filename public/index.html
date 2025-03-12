@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" class="dark-mode">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chrono - WebRTC Packet Test</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <meta name="description" content="Chrono is a network diagnostic tool that returns connection data (ping, latency, jitter, packet loss) as a graded result to the user.">
+  <meta name="author" content="nskape">
+  <!-- SVG icons inline for better performance -->
+  <style>
+    .icon-github {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23adb5bd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22'%3E%3C/path%3E%3C/svg%3E");
+    }
+    .icon-linkedin {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23adb5bd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z'%3E%3C/path%3E%3Crect x='2' y='9' width='4' height='12'%3E%3C/rect%3E%3Ccircle cx='4' cy='4' r='2'%3E%3C/circle%3E%3C/svg%3E");
+    }
+    .icon-info {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23e0e0e0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='12' y1='16' x2='12' y2='12'%3E%3C/line%3E%3Cline x1='12' y1='8' x2='12.01' y2='8'%3E%3C/line%3E%3C/svg%3E");
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-left">
+        <div class="logo-container">
+          <img src="img/chrono-bold-white.png" alt="Chrono" class="logo-image">
+        </div>
+      </div>
+      
+      <div class="header-right">
+        <button id="about-button" class="header-button">
+          <span class="icon-info"></span>
+          <span>About</span>
+        </button>
+      </div>
+    </header>
+    
+    <main>
+      <div class="test-circle-container">
+        <!-- Main test circle with GO button -->
+        <div class="test-circle" id="test-circle">
+          <!-- Progress circle for animation -->
+          <div class="test-progress-circle" id="test-progress-circle"></div>
+          
+          <!-- Timer display -->
+          <div class="test-timer" id="test-timer">0.000</div>
+          
+          <!-- GO button -->
+          <button class="test-button" id="test-button">GO</button>
+        </div>
+        
+        <!-- Test results (overlay directly on the circle) -->
+        <div class="test-results" id="test-results">
+          <div class="test-duration" id="test-duration">Test Duration: <span id="duration-value">0</span> seconds</div>
+          <div class="results-cards" id="results-cards">
+            <div class="result-card" data-tooltip="Percentage of packets that failed to reach their destination. Lower values indicate better connection quality.">
+              <h3>Packet Loss</h3>
+              <div class="result-value" id="packet-loss-value">0%</div>
+            </div>
+            
+            <div class="result-card" data-tooltip="Mean Opinion Score rates the quality of your connection from A (excellent) to F (poor). Based on packet loss, latency, and jitter.">
+              <h3>MOS Score</h3>
+              <div class="result-value">
+                <span id="mos-grade">-</span>
+                <span id="mos-value">-</span>
+              </div>
+            </div>
+            
+            <div class="result-card combined-card" data-tooltip="Latency is the round-trip time for packets in milliseconds. Jitter is the variation in packet round-trip times. Lower values indicate a better connection.">
+              <h3>Connection</h3>
+              <div class="combined-values">
+                <div class="combined-value">
+                  <h4>Latency</h4>
+                  <div class="value" id="avg-latency">0 ms</div>
+                </div>
+                <div class="combined-value">
+                  <h4>Jitter</h4>
+                  <div class="value" id="jitter-value">0 ms</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="chart-container" data-tooltip="This chart shows the round-trip time for each packet sent during the test. Consistent values indicate a stable connection.">
+            <canvas id="packet-chart"></canvas>
+          </div>
+          
+          <button class="test-again-btn" id="test-again-btn">Test Again</button>
+        </div>
+      </div>
+      
+      <div id="about-panel" class="about-panel">
+        <div class="about-content">
+          <div class="about-header">
+            <h2>About Chrono</h2>
+            <button id="close-about" class="close-about-btn" aria-label="Close">×</button>
+          </div>
+          
+          <div class="about-body">
+            <div class="about-section">
+              <div class="about-icon about-icon-app"></div>
+              <div class="about-text">
+                <h3>Network Diagnostic Tool</h3>
+                <p>Chrono is a network diagnostic tool that returns connection data (ping, latency, jitter, packet loss) as a graded result to the user. Use this to predict your performance in multiplayer games, streaming, and more!</p>
+                <p class="about-author">Created by <a href="https://github.com/nskape" target="_blank">@nskape</a></p>
+              </div>
+            </div>
+            
+            <div class="about-section">
+              <div class="about-icon about-icon-packet"></div>
+              <div class="about-text">
+                <h3>What is packet loss?</h3>
+                <p>A packet is a unit of data traveling over the internet using a protocol (typically TCP or UDP). Packet loss occurs when one or more of these packets get lost on the way to their destination. Typically, users will see this manifest as poor quality in a voice/video call or lag in a multiplayer game.</p>
+              </div>
+            </div>
+            
+            <div class="about-section">
+              <div class="about-icon about-icon-latency"></div>
+              <div class="about-text">
+                <h3>What are latency, jitter and late packets?</h3>
+                <p>Latency (also known as Ping) is the overall time it takes for a packet to reach its destination and then return to the user. Jitter is a measure of variation in your latency. Packets are considered "late" when their latency exceeds a certain value.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    
+    <footer>
+      <p>Chrono uses WebRTC to measure your connection quality</p>
+      <p>Created by <a href="https://github.com/nskape" target="_blank">@nskape</a></p>
+      <div class="social-links">
+        <a href="https://github.com/nskape" class="icon-link icon-github" target="_blank" aria-label="GitHub Profile"></a>
+        <a href="https://www.linkedin.com/in/nikitakudryavtsev/" class="icon-link icon-linkedin" target="_blank" aria-label="LinkedIn Profile"></a>
+      </div>
+    </footer>
+  </div>
+</body>
+</html> 
