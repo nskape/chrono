@@ -539,7 +539,7 @@ footer a:hover {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
-  z-index: 1000;
+  z-index: 9999;
   pointer-events: none;
 }
 
@@ -612,7 +612,7 @@ footer a:hover {
   top: 125%;
   left: 50%;
   transform: translateX(-50%) translateY(-10px);
-  z-index: 1000;
+  z-index: 99999; /* Increased z-index to ensure tooltips appear above all content */
 }
 
 .tooltip-bottom::after {
@@ -621,7 +621,7 @@ footer a:hover {
   margin-top: -12px;
   transform: translateX(-50%) translateY(-10px);
   border-color: transparent transparent rgba(36, 44, 61, 0.95) transparent;
-  z-index: 1000;
+  z-index: 99999; /* Increased z-index to ensure tooltips appear above all content */
 }
 
 .tooltip-bottom:hover::before,
@@ -629,6 +629,7 @@ footer a:hover {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
+  z-index: 99999; /* Increased z-index to ensure tooltips appear above all content */
 }
 
 /* Specific adjustments for parameter item tooltips */
@@ -636,6 +637,7 @@ footer a:hover {
   width: max-content;
   max-width: 200px;
   font-size: 0.8rem;
+  z-index: 99999; /* Increased z-index to ensure tooltips appear above all content */
 }
 
 /* Specific adjustments for MOS Score tooltip */
@@ -646,6 +648,7 @@ footer a:hover {
   top: 100%;
   left: 50%;
   transform: translateX(-50%) translateY(0);
+  z-index: 99999; /* Increased z-index to ensure tooltips appear above all content */
 }
 
 .result-card.tooltip-bottom::after {
@@ -654,6 +657,7 @@ footer a:hover {
   margin-top: -6px;
   transform: translateX(-50%) translateY(0);
   border-color: transparent transparent rgba(36, 44, 61, 0.95) transparent;
+  z-index: 99999; /* Increased z-index to ensure tooltips appear above all content */
 }
 
 /* Right tooltip (for Connection) */
@@ -661,6 +665,7 @@ footer a:hover {
   top: 50%;
   left: 125%;
   transform: translateY(-50%) translateX(-10px);
+  z-index: 99999; /* Increased z-index to ensure tooltips appear above all content */
 }
 
 .tooltip-right::after {
@@ -669,6 +674,7 @@ footer a:hover {
   margin-left: -12px;
   transform: translateY(-50%) translateX(-10px);
   border-color: transparent rgba(36, 44, 61, 0.95) transparent transparent;
+  z-index: 99999; /* Increased z-index to ensure tooltips appear above all content */
 }
 
 .tooltip-right:hover::before,
@@ -676,6 +682,7 @@ footer a:hover {
   opacity: 1;
   visibility: visible;
   transform: translateY(-50%) translateX(0);
+  z-index: 99999; /* Increased z-index to ensure tooltips appear above all content */
 }
 
 /* Chart tooltip (bottom, covering test again button) */
@@ -683,7 +690,7 @@ footer a:hover {
   top: 100%;
   left: 50%;
   transform: translateX(-50%) translateY(-10px);
-  z-index: 1001; /* Higher z-index to cover the test again button */
+  z-index: 9999; /* Higher z-index to cover the test again button */
 }
 
 .chart-container[data-tooltip]::after {
@@ -692,7 +699,7 @@ footer a:hover {
   margin-top: -12px;
   transform: translateX(-50%) translateY(-10px);
   border-color: transparent transparent rgba(36, 44, 61, 0.95) transparent;
-  z-index: 1001; /* Higher z-index to cover the test again button */
+  z-index: 9999; /* Higher z-index to cover the test again button */
 }
 
 .chart-container[data-tooltip]:hover::before,
@@ -890,13 +897,24 @@ footer a:hover {
   stroke-width: 8;
 }
 
-.progress-ring__circle-progress {
+/* Inner progress ring (packets sent) */
+.progress-ring__circle-progress-sent {
   fill: transparent;
   stroke: var(--theme-primary);
   stroke-width: 8;
   stroke-linecap: round;
   transition: stroke-dashoffset 0.3s ease;
   filter: drop-shadow(0 0 4px rgba(129, 140, 248, 0.5));
+}
+
+/* Outer progress ring (packets received) */
+.progress-ring__circle-progress-received {
+  fill: transparent;
+  stroke: var(--grade-a-color); /* Using the green color from the grade colors */
+  stroke-width: 12;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
+  filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.5)); /* Green glow */
 }
 
 /* Packet info container styles */

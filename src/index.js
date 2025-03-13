@@ -261,17 +261,23 @@ function initTest() {
   // Create SVG progress ring
   progressRing = createProgressRing();
   
-  // Function to set progress - moved inside initTest to access progressRing
+  // Function to set progress for both rings - moved inside initTest to access progressRing
   function setProgress(percent) {
     if (!progressRing) {
       console.error('Progress ring not initialized');
       return;
     }
     
-    const radius = 90;
-    const circumference = 2 * Math.PI * radius;
-    const offset = circumference - (percent / 100) * circumference;
-    progressRing.setAttribute('stroke-dashoffset', offset);
+    // Calculate offsets for both rings
+    const sentOffset = progressRing.innerCircumference - (percent / 100) * progressRing.innerCircumference;
+    
+    // For received progress, use the ratio of received to sent packets
+    const receivedPercent = totalSent > 0 ? (totalReceived / totalSent) * percent : 0;
+    const receivedOffset = progressRing.outerCircumference - (receivedPercent / 100) * progressRing.outerCircumference;
+    
+    // Update both progress rings
+    progressRing.sentProgress.setAttribute('stroke-dashoffset', sentOffset);
+    progressRing.receivedProgress.setAttribute('stroke-dashoffset', receivedOffset);
   }
   
   // Initialize the chart function - moved inside initTest to access chartObject
@@ -416,8 +422,15 @@ function initTest() {
     // Add packet info container to test circle
     testCircle.appendChild(packetInfoContainer);
     
-    // Reset progress
-    setProgress(0);
+    // Reset both progress rings
+    if (progressRing) {
+      progressRing.sentProgress.setAttribute('stroke-dashoffset', progressRing.innerCircumference);
+      progressRing.receivedProgress.setAttribute('stroke-dashoffset', progressRing.outerCircumference);
+    }
+    
+    // Reset counters
+    totalSent = 0;
+    totalReceived = 0;
     
     // Reset test results
     testResults.classList.remove('visible');
@@ -612,75 +625,70 @@ function createProgressRing() {
   svg.setAttribute('height', '100%');
   svg.setAttribute('viewBox', '0 0 200 200');
   
-  // Calculate radius and circumference
-  const radius = 90;
-  const circumference = 2 * Math.PI * radius;
+  // Calculate radius and circumference for inner and outer rings
+  const innerRadius = 90;
+  const outerRadius = 100;
+  const innerCircumference = 2 * Math.PI * innerRadius;
+  const outerCircumference = 2 * Math.PI * outerRadius;
   
   // Create background circle
   const backgroundCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
   backgroundCircle.setAttribute('class', 'progress-ring__background');
   backgroundCircle.setAttribute('cx', '100');
   backgroundCircle.setAttribute('cy', '100');
-  backgroundCircle.setAttribute('r', radius);
+  backgroundCircle.setAttribute('r', outerRadius);
   
-  // Create track circle
-  const trackCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-  trackCircle.setAttribute('class', 'progress-ring__circle');
-  trackCircle.setAttribute('cx', '100');
-  trackCircle.setAttribute('cy', '100');
-  trackCircle.setAttribute('r', radius);
+  // Create inner track circle
+  const innerTrackCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  innerTrackCircle.setAttribute('class', 'progress-ring__circle');
+  innerTrackCircle.setAttribute('cx', '100');
+  innerTrackCircle.setAttribute('cy', '100');
+  innerTrackCircle.setAttribute('r', innerRadius);
   
-  // Create progress circle
-  const progressCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-  progressCircle.setAttribute('class', 'progress-ring__circle-progress');
-  progressCircle.setAttribute('cx', '100');
-  progressCircle.setAttribute('cy', '100');
-  progressCircle.setAttribute('r', radius);
-  progressCircle.setAttribute('stroke-dasharray', circumference);
-  progressCircle.setAttribute('stroke-dashoffset', circumference);
-  progressCircle.setAttribute('transform', 'rotate(-90, 100, 100)');
+  // Create outer track circle
+  const outerTrackCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  outerTrackCircle.setAttribute('class', 'progress-ring__circle');
+  outerTrackCircle.setAttribute('cx', '100');
+  outerTrackCircle.setAttribute('cy', '100');
+  outerTrackCircle.setAttribute('r', outerRadius);
   
-  // Append circles to SVG
+  // Create inner progress circle (packets sent)
+  const innerProgressCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  innerProgressCircle.setAttribute('class', 'progress-ring__circle-progress-sent');
+  innerProgressCircle.setAttribute('cx', '100');
+  innerProgressCircle.setAttribute('cy', '100');
+  innerProgressCircle.setAttribute('r', innerRadius);
+  innerProgressCircle.setAttribute('stroke-dasharray', innerCircumference);
+  innerProgressCircle.setAttribute('stroke-dashoffset', innerCircumference);
+  innerProgressCircle.setAttribute('transform', 'rotate(-90, 100, 100)');
+  
+  // Create outer progress circle (packets received)
+  const outerProgressCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  outerProgressCircle.setAttribute('class', 'progress-ring__circle-progress-received');
+  outerProgressCircle.setAttribute('cx', '100');
+  outerProgressCircle.setAttribute('cy', '100');
+  outerProgressCircle.setAttribute('r', outerRadius);
+  outerProgressCircle.setAttribute('stroke-dasharray', outerCircumference);
+  outerProgressCircle.setAttribute('stroke-dashoffset', outerCircumference);
+  outerProgressCircle.setAttribute('transform', 'rotate(-90, 100, 100)');
+  
+  // Append circles to SVG in the correct order
   svg.appendChild(backgroundCircle);
-  svg.appendChild(trackCircle);
-  svg.appendChild(progressCircle);
+  svg.appendChild(outerTrackCircle);
+  svg.appendChild(innerTrackCircle);
+  svg.appendChild(outerProgressCircle);
+  svg.appendChild(innerProgressCircle);
   
   // Append SVG to progress circle container
   testProgressCircle.appendChild(svg);
   
-  // Add CSS for the progress ring
-  const style = document.createElement('style');
-  style.textContent = `
-    .progress-ring {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-    
-    .progress-ring__background {
-      fill: transparent;
-    }
-    
-    .progress-ring__circle {
-      fill: transparent;
-      stroke: rgba(255, 255, 255, 0.1);
-      stroke-width: 8;
-    }
-    
-    .progress-ring__circle-progress {
-      fill: transparent;
-      stroke: var(--theme-primary);
-      stroke-width: 8;
-      stroke-linecap: round;
-      transition: stroke-dashoffset 0.2s ease;
-    }
-  `;
-  document.head.appendChild(style);
-  
-  // Return the progress circle element that needs to be updated
-  return progressCircle;
+  // Return both progress circles as an object
+  return {
+    sentProgress: innerProgressCircle,
+    receivedProgress: outerProgressCircle,
+    innerCircumference: innerCircumference,
+    outerCircumference: outerCircumference
+  };
 }
 
 // Calculate packet loss percentage
@@ -754,4 +762,4 @@ function calculateMOS(packetLoss, latency, jitter) {
 // Check WebRTC support
 if (!navigator.mediaDevices || !window.RTCPeerConnection) {
   alert('Your browser does not support WebRTC. Please use a modern browser like Chrome, Firefox, or Edge.');
-} 
+}
