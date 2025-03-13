@@ -87,7 +87,8 @@ header {
 .social-links {
   display: flex;
   gap: 15px;
-  margin-top: 5px;
+  margin-top: 15px;
+  justify-content: center;
 }
 
 .icon-link {
@@ -144,6 +145,7 @@ header {
 
 .test-circle-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   margin: 40px 0;
@@ -167,6 +169,7 @@ header {
   border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
   animation: pulse 2s infinite;
+  margin: 0 auto;
 }
 
 @keyframes pulse {
@@ -245,6 +248,7 @@ header {
   background: transparent;
   border: none;
   cursor: pointer;
+  margin: 0 auto;
 }
 
 .test-button.hidden {
@@ -271,13 +275,13 @@ header {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
-  z-index: 10;
 }
 
 .test-results.visible {
   opacity: 1;
   visibility: visible;
   transform: translate(-50%, -50%) scale(1);
+  z-index: 5;
 }
 
 /* Test duration display */
@@ -399,7 +403,7 @@ header {
 }
 
 .combined-value h4 {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
   margin-bottom: 0;
   margin-right: 5px;
@@ -407,7 +411,7 @@ header {
 }
 
 .combined-value .value {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--text-color);
 }
@@ -430,40 +434,38 @@ header {
 }
 
 .test-again-btn {
-  display: block;
-  padding: 12px 25px;
-  background: var(--theme-primary);
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 10px 20px;
+  background-color: var(--theme-primary);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 50px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  box-shadow: 0 4px 12px rgba(129, 140, 248, 0.3);
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .test-again-btn:hover {
-  background: var(--theme-primary-hover);
-  transform: translateY(-2px);
+  background-color: var(--theme-primary-hover);
 }
 
-.test-again-btn:active {
-  transform: translateY(0);
+/* Ensure the test results don't overlap with the footer */
+.test-results.visible {
+  margin-bottom: 80px;
 }
 
 footer {
-  text-align: center;
   margin-top: 40px;
   padding-top: 20px;
-  color: var(--text-secondary);
   border-top: none;
+  text-align: center;
+  color: var(--text-secondary);
   font-size: 0.9rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
+  position: relative;
+  z-index: 5;
 }
 
 footer a {
@@ -537,15 +539,12 @@ footer a:hover {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
-  z-index: 100;
+  z-index: 1000;
   pointer-events: none;
 }
 
 [data-tooltip]::before {
   content: attr(data-tooltip);
-  bottom: 125%;
-  left: 50%;
-  transform: translateX(-50%) translateY(10px);
   background-color: rgba(36, 44, 61, 0.95);
   color: var(--text-color);
   text-align: center;
@@ -561,38 +560,146 @@ footer a:hover {
 
 [data-tooltip]::after {
   content: '';
+  border-width: 6px;
+  border-style: solid;
+}
+
+/* Default tooltip (top) */
+[data-tooltip]:not(.tooltip-left):not(.tooltip-right):not(.tooltip-bottom):not(.chart-container)::before {
   bottom: 125%;
   left: 50%;
   transform: translateX(-50%) translateY(10px);
-  border-width: 6px;
-  border-style: solid;
+}
+
+[data-tooltip]:not(.tooltip-left):not(.tooltip-right):not(.tooltip-bottom):not(.chart-container)::after {
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
   border-color: rgba(36, 44, 61, 0.95) transparent transparent transparent;
 }
 
-[data-tooltip]:hover::before,
-[data-tooltip]:hover::after {
+[data-tooltip]:not(.tooltip-left):not(.tooltip-right):not(.tooltip-bottom):not(.chart-container):hover::before,
+[data-tooltip]:not(.tooltip-left):not(.tooltip-right):not(.tooltip-bottom):not(.chart-container):hover::after {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
 }
 
-/* Special handling for chart tooltip to prevent interference */
+/* Left tooltip (for Packet Loss) */
+.tooltip-left::before {
+  top: 50%;
+  right: 125%;
+  transform: translateY(-50%) translateX(10px);
+}
+
+.tooltip-left::after {
+  top: 50%;
+  right: 125%;
+  margin-right: -12px;
+  transform: translateY(-50%) translateX(10px);
+  border-color: transparent transparent transparent rgba(36, 44, 61, 0.95);
+}
+
+.tooltip-left:hover::before,
+.tooltip-left:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Bottom tooltip (for MOS Score and parameter items) */
+.tooltip-bottom::before {
+  top: 125%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  z-index: 1000;
+}
+
+.tooltip-bottom::after {
+  top: 125%;
+  left: 50%;
+  margin-top: -12px;
+  transform: translateX(-50%) translateY(-10px);
+  border-color: transparent transparent rgba(36, 44, 61, 0.95) transparent;
+  z-index: 1000;
+}
+
+.tooltip-bottom:hover::before,
+.tooltip-bottom:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Specific adjustments for parameter item tooltips */
+.parameter-item.tooltip-bottom::before {
+  width: max-content;
+  max-width: 200px;
+  font-size: 0.8rem;
+}
+
+/* Specific adjustments for MOS Score tooltip */
+.result-card.tooltip-bottom::before {
+  width: max-content;
+  max-width: 250px;
+  font-size: 0.85rem;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+}
+
+.result-card.tooltip-bottom::after {
+  top: 100%;
+  left: 50%;
+  margin-top: -6px;
+  transform: translateX(-50%) translateY(0);
+  border-color: transparent transparent rgba(36, 44, 61, 0.95) transparent;
+}
+
+/* Right tooltip (for Connection) */
+.tooltip-right::before {
+  top: 50%;
+  left: 125%;
+  transform: translateY(-50%) translateX(-10px);
+}
+
+.tooltip-right::after {
+  top: 50%;
+  left: 125%;
+  margin-left: -12px;
+  transform: translateY(-50%) translateX(-10px);
+  border-color: transparent rgba(36, 44, 61, 0.95) transparent transparent;
+}
+
+.tooltip-right:hover::before,
+.tooltip-right:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Chart tooltip (bottom, covering test again button) */
 .chart-container[data-tooltip]::before {
-  bottom: auto;
-  top: -10px;
-  transform: translateX(-50%) translateY(-100%);
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  z-index: 1001; /* Higher z-index to cover the test again button */
 }
 
 .chart-container[data-tooltip]::after {
-  bottom: auto;
-  top: -10px;
-  transform: translateX(-50%) translateY(-100%);
+  top: 100%;
+  left: 50%;
+  margin-top: -12px;
+  transform: translateX(-50%) translateY(-10px);
   border-color: transparent transparent rgba(36, 44, 61, 0.95) transparent;
+  z-index: 1001; /* Higher z-index to cover the test again button */
 }
 
 .chart-container[data-tooltip]:hover::before,
 .chart-container[data-tooltip]:hover::after {
-  transform: translateX(-50%) translateY(-100%);
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
 }
 
 /* About panel styles */
@@ -812,4 +919,260 @@ footer a:hover {
   color: var(--text-secondary);
   text-align: center;
   transition: opacity 0.3s ease;
-} 
+}
+
+/* Settings button styles */
+.settings-button {
+  position: relative;
+  margin: 15px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 50px;
+  padding: 8px 15px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  gap: 5px;
+  z-index: 10;
+  opacity: 0.8;
+}
+
+.settings-button:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  opacity: 1;
+}
+
+.settings-button .icon-settings {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.settings-button.hidden {
+  opacity: 0;
+  transform: translateX(-50%) scale(0.8);
+  pointer-events: none;
+}
+
+/* Settings panel styles */
+.settings-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.settings-panel.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.settings-content {
+  background-color: var(--card-bg);
+  border-radius: 10px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.settings-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--theme-primary);
+}
+
+.close-settings-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 24px;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.close-settings-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.settings-body {
+  padding: 20px;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.form-group input {
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  padding: 10px;
+  color: var(--text-color);
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+  border-color: var(--theme-primary);
+  outline: none;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.save-settings-btn {
+  background-color: var(--theme-primary);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.save-settings-btn:hover {
+  background-color: var(--theme-primary-hover);
+}
+
+/* Test parameters display */
+.test-parameters {
+  margin-bottom: 15px;
+  background-color: rgba(36, 44, 61, 0.85);
+  border-radius: 8px;
+  padding: 8px 12px;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px var(--shadow-color);
+  backdrop-filter: blur(10px);
+}
+
+.parameters-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between;
+  padding: 0 5px;
+}
+
+.parameter-item {
+  font-size: 13px;
+  color: var(--text-color);
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  width: calc(33.33% - 8px);
+  justify-content: center;
+}
+
+.parameter-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.parameter-label {
+  color: var(--text-secondary);
+  margin-right: 4px;
+  font-weight: 500;
+}
+
+.parameter-item span:not(.parameter-label) {
+  color: var(--theme-primary);
+  font-weight: 600;
+  margin-right: 3px;
+}
+
+.settings-form input[type="number"] {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background-color: rgba(0, 0, 0, 0.2);
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.settings-dropdown {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background-color: rgba(0, 0, 0, 0.2);
+  color: var(--text-color);
+  font-size: 14px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23adb5bd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+  padding-right: 30px;
+  cursor: pointer;
+}
+
+.settings-dropdown:focus {
+  outline: none;
+  border-color: var(--theme-primary);
+}
+
+.settings-dropdown option {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+}

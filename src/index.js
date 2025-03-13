@@ -16,6 +16,9 @@ function initApp() {
   // Initialize tooltips
   initTooltips();
   
+  // Initialize settings panel
+  initSettingsPanel();
+  
   // Initialize the WebRTC test
   initTest();
 }
@@ -98,6 +101,125 @@ function initTooltips() {
   });
 }
 
+// Initialize settings panel
+function initSettingsPanel() {
+  const settingsButton = document.getElementById('settings-button');
+  const settingsPanel = document.getElementById('settings-panel');
+  const closeSettingsBtn = document.getElementById('close-settings');
+  const saveSettingsBtn = document.getElementById('save-settings');
+  
+  // Input fields
+  const packetSizeInput = document.getElementById('packet-size');
+  const frequencyInput = document.getElementById('frequency');
+  const durationInput = document.getElementById('duration');
+  
+  // Default values
+  const defaultSettings = {
+    packetSize: 1000,
+    frequency: 20,
+    duration: 10
+  };
+  
+  // Current settings
+  let currentSettings = { ...defaultSettings };
+  
+  if (settingsButton && settingsPanel && closeSettingsBtn && saveSettingsBtn) {
+    // Open settings panel
+    settingsButton.addEventListener('click', () => {
+      // Update input fields with current settings
+      packetSizeInput.value = currentSettings.packetSize;
+      frequencyInput.value = currentSettings.frequency;
+      durationInput.value = currentSettings.duration;
+      
+      // Show settings panel
+      settingsPanel.classList.add('visible');
+    });
+    
+    // Close settings panel
+    closeSettingsBtn.addEventListener('click', () => {
+      settingsPanel.classList.remove('visible');
+    });
+    
+    // Close settings panel when clicking outside the content
+    settingsPanel.addEventListener('click', (e) => {
+      if (e.target === settingsPanel) {
+        settingsPanel.classList.remove('visible');
+      }
+    });
+    
+    // Close settings panel with Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && settingsPanel.classList.contains('visible')) {
+        settingsPanel.classList.remove('visible');
+      }
+    });
+    
+    // Save settings
+    saveSettingsBtn.addEventListener('click', () => {
+      // Validate and save settings
+      const packetSize = parseInt(packetSizeInput.value);
+      const frequency = parseInt(frequencyInput.value);
+      const duration = parseInt(durationInput.value);
+      
+      // Validate inputs
+      if (isNaN(packetSize) || packetSize < 100 || packetSize > 10000) {
+        alert('Packet size must be between 100 and 10000 bytes');
+        return;
+      }
+      
+      if (isNaN(frequency) || frequency < 1 || frequency > 50) {
+        alert('Frequency must be between 1 and 50 pings/second');
+        return;
+      }
+      
+      if (isNaN(duration) || duration < 5 || duration > 60) {
+        alert('Duration must be between 5 and 60 seconds');
+        return;
+      }
+      
+      // Save settings
+      currentSettings = {
+        packetSize: packetSize,
+        frequency: frequency,
+        duration: duration
+      };
+      
+      // Update parameter display in results
+      updateParameterDisplay();
+      
+      // Close settings panel
+      settingsPanel.classList.remove('visible');
+    });
+    
+    // Function to update parameter display in results
+    function updateParameterDisplay() {
+      const packetSizeDisplay = document.getElementById('param-packet-size');
+      const frequencyDisplay = document.getElementById('param-frequency');
+      const durationDisplay = document.getElementById('param-duration');
+      
+      if (packetSizeDisplay) {
+        packetSizeDisplay.textContent = currentSettings.packetSize;
+      }
+      
+      if (frequencyDisplay) {
+        frequencyDisplay.textContent = currentSettings.frequency;
+      }
+      
+      if (durationDisplay) {
+        durationDisplay.textContent = currentSettings.duration;
+      }
+    }
+    
+    // Initialize parameter display
+    updateParameterDisplay();
+  }
+  
+  // Return current settings for use in other functions
+  return {
+    getSettings: () => currentSettings
+  };
+}
+
 // Main function to initialize the WebRTC test
 function initTest() {
   // Move these variable declarations to the top of the function
@@ -108,6 +230,7 @@ function initTest() {
   const testResults = document.querySelector('.test-results');
   const testAgainBtn = document.querySelector('.test-again-btn');
   const testProgressCircle = document.querySelector('.test-progress-circle');
+  const settingsButton = document.getElementById('settings-button');
   const packetLossValue = document.getElementById('packet-loss-value');
   const mosGrade = document.getElementById('mos-grade');
   const mosValue = document.getElementById('mos-value');
@@ -131,6 +254,9 @@ function initTest() {
   let totalReceived = 0;
   let chartObject = null;
   let progressRing = null;
+  
+  // Get settings from the settings panel
+  const settingsManager = window.settingsManager || initSettingsPanel();
   
   // Create SVG progress ring
   progressRing = createProgressRing();
@@ -258,8 +384,11 @@ function initTest() {
     // Stop the pulsing animation
     testCircle.style.animation = 'none';
     
-    // Hide the test button
+    // Hide the test button and settings button
     testButton.classList.add('hidden');
+    if (settingsButton) {
+      settingsButton.classList.add('hidden');
+    }
     
     // Show and start the timer
     testTimer.classList.add('active');
@@ -293,8 +422,16 @@ function initTest() {
     // Reset test results
     testResults.classList.remove('visible');
     
+    // Get current settings
+    const settings = settingsManager.getSettings();
+    
     // Initialize WebRTCPacketTest
     webrtcTest = new WebRTCPacketTest();
+    
+    // Apply custom settings
+    webrtcTest.packetSize = settings.packetSize;
+    webrtcTest.packetInterval = 1000 / settings.frequency; // Convert frequency to interval in ms
+    webrtcTest.testDuration = settings.duration * 1000; // Convert duration to ms
     
     // Start the timer
     startTime = Date.now();
@@ -426,6 +563,11 @@ function initTest() {
     testButton.textContent = 'GO';
     testButton.classList.remove('hidden');
     
+    // Show settings button
+    if (settingsButton) {
+      settingsButton.classList.remove('hidden');
+    }
+    
     // Restore the pulsing animation
     testCircle.style.animation = '';
     
@@ -449,6 +591,9 @@ function initTest() {
   
   // Test again button click event
   testAgainBtn.addEventListener('click', resetTest);
+  
+  // Store settings manager in window for access from other functions
+  window.settingsManager = settingsManager;
 }
 
 // Function to create the SVG progress ring

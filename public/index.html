@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <meta name="description" content="Chrono is a network diagnostic tool that returns connection data (ping, latency, jitter, packet loss) as a graded result to the user.">
   <meta name="author" content="nskape">
+  <link rel="stylesheet" href="../src/styles.css">
   <!-- SVG icons inline for better performance -->
   <style>
     .icon-github {
@@ -17,6 +18,9 @@
     }
     .icon-info {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23e0e0e0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='12' y1='16' x2='12' y2='12'%3E%3C/line%3E%3Cline x1='12' y1='8' x2='12.01' y2='8'%3E%3C/line%3E%3C/svg%3E");
+    }
+    .icon-settings {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23e0e0e0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='3'%3E%3C/circle%3E%3Cpath d='M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z'%3E%3C/path%3E%3C/svg%3E");
     }
   </style>
 </head>
@@ -51,16 +55,30 @@
           <button class="test-button" id="test-button">GO</button>
         </div>
         
+        <!-- Settings button - moved below the circle -->
+        <button class="settings-button" id="settings-button">
+          <span class="icon-settings"></span>
+          <span>Settings</span>
+        </button>
+        
         <!-- Test results (overlay directly on the circle) -->
         <div class="test-results" id="test-results">
-          <div class="test-duration" id="test-duration">Test Duration: <span id="duration-value">0</span> seconds</div>
+          <div class="test-parameters" id="test-parameters">
+            <div class="parameters-list">
+              <div class="parameter-item tooltip-bottom" data-tooltip="Size of each packet sent during the test. Larger packets can help identify bandwidth limitations."><span class="parameter-label">Size:</span> <span id="param-packet-size">1000</span> bytes</div>
+              <div class="parameter-item tooltip-bottom" data-tooltip="Number of packets sent per second. Higher frequencies can reveal connection instability."><span class="parameter-label">Frequency:</span> <span id="param-frequency">20</span> pings/s</div>
+              <div class="parameter-item tooltip-bottom" data-tooltip="Total duration of the test in seconds. Longer tests provide more accurate results."><span class="parameter-label">Duration:</span> <span id="param-duration">10</span> s</div>
+            </div>
+            <!-- Hidden element for JavaScript compatibility -->
+            <div id="duration-value" style="display: none;">10</div>
+          </div>
           <div class="results-cards" id="results-cards">
-            <div class="result-card" data-tooltip="Percentage of packets that failed to reach their destination. Lower values indicate better connection quality.">
+            <div class="result-card tooltip-left" data-tooltip="Percentage of packets that failed to reach their destination. Lower values indicate better connection quality.">
               <h3>Packet Loss</h3>
               <div class="result-value" id="packet-loss-value">0%</div>
             </div>
             
-            <div class="result-card" data-tooltip="Mean Opinion Score rates the quality of your connection from A (excellent) to F (poor). Based on packet loss, latency, and jitter.">
+            <div class="result-card tooltip-bottom" data-tooltip="Mean Opinion Score rates the quality of your connection from A (excellent) to F (poor). Based on packet loss, latency, and jitter.">
               <h3>MOS Score</h3>
               <div class="result-value">
                 <span id="mos-grade">-</span>
@@ -68,7 +86,7 @@
               </div>
             </div>
             
-            <div class="result-card combined-card" data-tooltip="Latency is the round-trip time for packets in milliseconds. Jitter is the variation in packet round-trip times. Lower values indicate a better connection.">
+            <div class="result-card combined-card tooltip-right" data-tooltip="Latency is the round-trip time for packets in milliseconds. Jitter is the variation in packet round-trip times. Lower values indicate a better connection.">
               <h3>Connection</h3>
               <div class="combined-values">
                 <div class="combined-value">
@@ -88,6 +106,57 @@
           </div>
           
           <button class="test-again-btn" id="test-again-btn">Test Again</button>
+        </div>
+      </div>
+      
+      <!-- Settings panel -->
+      <div id="settings-panel" class="settings-panel">
+        <div class="settings-content">
+          <div class="settings-header">
+            <h2>Test Settings</h2>
+            <button id="close-settings" class="close-settings-btn" aria-label="Close">×</button>
+          </div>
+          
+          <div class="settings-body">
+            <div class="settings-form">
+              <div class="form-group">
+                <label for="packet-size">Packet Size (bytes):</label>
+                <select id="packet-size" class="settings-dropdown">
+                  <option value="500">500</option>
+                  <option value="1000" selected>1000</option>
+                  <option value="2000">2000</option>
+                  <option value="5000">5000</option>
+                  <option value="10000">10000</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="frequency">Frequency (pings/second):</label>
+                <select id="frequency" class="settings-dropdown">
+                  <option value="5">5</option>
+                  <option value="10">10</option>
+                  <option value="20" selected>20</option>
+                  <option value="30">30</option>
+                  <option value="50">50</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="duration">Duration (seconds):</label>
+                <select id="duration" class="settings-dropdown">
+                  <option value="5">5</option>
+                  <option value="10" selected>10</option>
+                  <option value="15">15</option>
+                  <option value="30">30</option>
+                  <option value="60">60</option>
+                </select>
+              </div>
+              
+              <div class="form-actions">
+                <button id="save-settings" class="save-settings-btn">Save & Close</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -138,4 +207,4 @@
     </footer>
   </div>
 </body>
-</html> 
+</html>

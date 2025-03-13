@@ -1,2 +1,23 @@
 #Remove node_modules
 node_modules/
+
+# Python virtual environment
+venv/
+
+# Tools folder
+tools/
+
+# Development configuration
+.devcontainer/
+.cursorignore
+.cursorrules
+.env
+
+# Python requirements
+requirements.txt
+
+# Scripts
+use_tools.sh
+
+#Mac OS
+.DS_Store
