@@ -304,7 +304,8 @@ header {
   gap: 15px;
   margin-bottom: 20px;
   width: 100%;
-  z-index: 9000;
+  position: relative; /* Create stacking context */
+  z-index: 1; /* Lower than parameter tooltips and other tooltips */
 }
 
 .result-card {
@@ -322,7 +323,8 @@ header {
   display: flex;
   flex-direction: column;
   height: 120px;
-  z-index: 9000;
+  z-index: 1; /* Lower than tooltips */
+  position: relative; /* Ensure proper stacking context */
 }
 
 .result-card:hover {
@@ -596,7 +598,7 @@ footer a:hover {
   top: 50%;
   right: 125%;
   transform: translateY(-50%) translateX(10px);
-  z-index: 9999; /* Ensure consistent z-index */
+  z-index: 9900; /* Lower than parameter tooltips */
 }
 
 .tooltip-left::after {
@@ -605,7 +607,7 @@ footer a:hover {
   margin-right: -12px;
   transform: translateY(-50%) translateX(10px);
   border-color: transparent transparent transparent rgba(36, 44, 61, 0.95);
-  z-index: 9999; /* Ensure consistent z-index */
+  z-index: 9900; /* Lower than parameter tooltips */
 }
 
 .tooltip-left:hover::before,
@@ -613,7 +615,7 @@ footer a:hover {
   opacity: 1;
   visibility: visible;
   transform: translateY(-50%) translateX(0);
-  z-index: 9999; /* Ensure consistent z-index */
+  z-index: 9900; /* Keep consistent z-index on hover */
 }
 
 /* Bottom tooltip (for MOS Score and parameter items) */
@@ -646,8 +648,29 @@ footer a:hover {
   width: max-content;
   max-width: 200px;
   font-size: 0.8rem;
-  z-index: 9999; /* Ensure consistent z-index */
-  position: absolute; /* Ensure proper positioning */
+  z-index: 20000; /* Much higher than result cards */
+  position: absolute;
+  top: 125%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+}
+
+.parameter-item.tooltip-bottom::after {
+  z-index: 20000; /* Much higher than result cards */
+  position: absolute;
+  top: 125%;
+  left: 50%;
+  margin-top: -12px;
+  transform: translateX(-50%) translateY(-10px);
+  border-color: transparent transparent rgba(36, 44, 61, 0.95) transparent;
+}
+
+.parameter-item.tooltip-bottom:hover::before,
+.parameter-item.tooltip-bottom:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  z-index: 20000; /* Much higher than result cards */
 }
 
 /* Specific adjustments for MOS Score tooltip */
@@ -658,7 +681,7 @@ footer a:hover {
   top: 100%;
   left: 50%;
   transform: translateX(-50%) translateY(0);
-  z-index: 9999; /* Ensure consistent z-index */
+  z-index: 9900; /* Lower than parameter tooltips */
   position: absolute; /* Ensure proper positioning */
 }
 
@@ -668,8 +691,16 @@ footer a:hover {
   margin-top: -6px;
   transform: translateX(-50%) translateY(0);
   border-color: transparent transparent rgba(36, 44, 61, 0.95) transparent;
-  z-index: 9999; /* Ensure consistent z-index */
+  z-index: 9900; /* Lower than parameter tooltips */
   position: absolute; /* Ensure proper positioning */
+}
+
+.result-card.tooltip-bottom:hover::before,
+.result-card.tooltip-bottom:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  z-index: 9900; /* Keep consistent z-index on hover */
 }
 
 /* Right tooltip (for Connection) */
@@ -677,7 +708,7 @@ footer a:hover {
   top: 50%;
   left: 125%;
   transform: translateY(-50%) translateX(-10px);
-  z-index: 9999; /* Ensure consistent z-index */
+  z-index: 9900; /* Lower than parameter tooltips */
   position: absolute; /* Ensure proper positioning */
 }
 
@@ -687,7 +718,7 @@ footer a:hover {
   margin-left: -12px;
   transform: translateY(-50%) translateX(-10px);
   border-color: transparent rgba(36, 44, 61, 0.95) transparent transparent;
-  z-index: 9999; /* Ensure consistent z-index */
+  z-index: 9900; /* Lower than parameter tooltips */
   position: absolute; /* Ensure proper positioning */
 }
 
@@ -696,7 +727,7 @@ footer a:hover {
   opacity: 1;
   visibility: visible;
   transform: translateY(-50%) translateX(0);
-  z-index: 9999; /* Ensure consistent z-index */
+  z-index: 9900; /* Keep consistent z-index on hover */
 }
 
 /* Chart tooltip (bottom, covering test again button) */
@@ -704,7 +735,7 @@ footer a:hover {
   top: 100%;
   left: 50%;
   transform: translateX(-50%) translateY(-10px);
-  z-index: 9999; /* Increased z-index to match other tooltips */
+  z-index: 9900; /* Lower than parameter tooltips */
   position: absolute; /* Ensure proper positioning */
 }
 
@@ -714,7 +745,7 @@ footer a:hover {
   margin-top: -12px;
   transform: translateX(-50%) translateY(-10px);
   border-color: transparent transparent rgba(36, 44, 61, 0.95) transparent;
-  z-index: 9999; /* Increased z-index to match other tooltips */
+  z-index: 9900; /* Lower than parameter tooltips */
   position: absolute; /* Ensure proper positioning */
 }
 
@@ -723,7 +754,7 @@ footer a:hover {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
-  z-index: 9999; /* Ensure consistent z-index */
+  z-index: 9900; /* Keep consistent z-index on hover */
 }
 
 /* About panel styles */
@@ -1126,7 +1157,7 @@ footer a:hover {
 
 /* Test parameters display */
 .test-parameters {
-  margin-bottom: 15px;
+  margin-bottom: 40px; /* Increased spacing */
   background-color: rgba(36, 44, 61, 0.85);
   border-radius: 8px;
   padding: 8px 12px;
@@ -1134,6 +1165,8 @@ footer a:hover {
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 4px 12px var(--shadow-color);
   backdrop-filter: blur(10px);
+  position: relative; /* Create stacking context */
+  z-index: 2; /* Lower than tooltips but above other elements */
 }
 
 .parameters-list {
