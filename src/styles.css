@@ -48,7 +48,7 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: var(--bg-color);
+  background-color: var(--bg-color); /* Reverted to original */
   color: var(--text-color);
   line-height: 1.6;
 }
@@ -267,6 +267,7 @@ header {
   width: 90%;
   max-width: 600px;
   display: flex;
+  z-index: 9000;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -303,6 +304,7 @@ header {
   gap: 15px;
   margin-bottom: 20px;
   width: 100%;
+  z-index: 9000;
 }
 
 .result-card {
@@ -320,6 +322,7 @@ header {
   display: flex;
   flex-direction: column;
   height: 120px;
+  z-index: 9000;
 }
 
 .result-card:hover {
@@ -539,7 +542,7 @@ footer a:hover {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
-  z-index: 9999;
+  z-index: 9999; /* Increased z-index for all tooltips */
   pointer-events: none;
 }
 
@@ -569,6 +572,7 @@ footer a:hover {
   bottom: 125%;
   left: 50%;
   transform: translateX(-50%) translateY(10px);
+  z-index: 9999; /* Ensure consistent z-index */
 }
 
 [data-tooltip]:not(.tooltip-left):not(.tooltip-right):not(.tooltip-bottom):not(.chart-container)::after {
@@ -576,6 +580,7 @@ footer a:hover {
   left: 50%;
   transform: translateX(-50%) translateY(10px);
   border-color: rgba(36, 44, 61, 0.95) transparent transparent transparent;
+  z-index: 9999; /* Ensure consistent z-index */
 }
 
 [data-tooltip]:not(.tooltip-left):not(.tooltip-right):not(.tooltip-bottom):not(.chart-container):hover::before,
@@ -583,6 +588,7 @@ footer a:hover {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
+  z-index: 9999; /* Ensure consistent z-index */
 }
 
 /* Left tooltip (for Packet Loss) */
@@ -590,6 +596,7 @@ footer a:hover {
   top: 50%;
   right: 125%;
   transform: translateY(-50%) translateX(10px);
+  z-index: 9999; /* Ensure consistent z-index */
 }
 
 .tooltip-left::after {
@@ -598,6 +605,7 @@ footer a:hover {
   margin-right: -12px;
   transform: translateY(-50%) translateX(10px);
   border-color: transparent transparent transparent rgba(36, 44, 61, 0.95);
+  z-index: 9999; /* Ensure consistent z-index */
 }
 
 .tooltip-left:hover::before,
@@ -605,6 +613,7 @@ footer a:hover {
   opacity: 1;
   visibility: visible;
   transform: translateY(-50%) translateX(0);
+  z-index: 9999; /* Ensure consistent z-index */
 }
 
 /* Bottom tooltip (for MOS Score and parameter items) */
@@ -612,7 +621,7 @@ footer a:hover {
   top: 125%;
   left: 50%;
   transform: translateX(-50%) translateY(-10px);
-  z-index: 99999; /* Increased z-index to ensure tooltips appear above all content */
+  z-index: 9999; /* Ensure consistent z-index */
 }
 
 .tooltip-bottom::after {
@@ -621,7 +630,7 @@ footer a:hover {
   margin-top: -12px;
   transform: translateX(-50%) translateY(-10px);
   border-color: transparent transparent rgba(36, 44, 61, 0.95) transparent;
-  z-index: 99999; /* Increased z-index to ensure tooltips appear above all content */
+  z-index: 9999; /* Ensure consistent z-index */
 }
 
 .tooltip-bottom:hover::before,
@@ -629,7 +638,7 @@ footer a:hover {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
-  z-index: 99999; /* Increased z-index to ensure tooltips appear above all content */
+  z-index: 9999; /* Ensure consistent z-index */
 }
 
 /* Specific adjustments for parameter item tooltips */
@@ -637,7 +646,8 @@ footer a:hover {
   width: max-content;
   max-width: 200px;
   font-size: 0.8rem;
-  z-index: 99999; /* Increased z-index to ensure tooltips appear above all content */
+  z-index: 9999; /* Ensure consistent z-index */
+  position: absolute; /* Ensure proper positioning */
 }
 
 /* Specific adjustments for MOS Score tooltip */
@@ -648,7 +658,8 @@ footer a:hover {
   top: 100%;
   left: 50%;
   transform: translateX(-50%) translateY(0);
-  z-index: 99999; /* Increased z-index to ensure tooltips appear above all content */
+  z-index: 9999; /* Ensure consistent z-index */
+  position: absolute; /* Ensure proper positioning */
 }
 
 .result-card.tooltip-bottom::after {
@@ -657,7 +668,8 @@ footer a:hover {
   margin-top: -6px;
   transform: translateX(-50%) translateY(0);
   border-color: transparent transparent rgba(36, 44, 61, 0.95) transparent;
-  z-index: 99999; /* Increased z-index to ensure tooltips appear above all content */
+  z-index: 9999; /* Ensure consistent z-index */
+  position: absolute; /* Ensure proper positioning */
 }
 
 /* Right tooltip (for Connection) */
@@ -665,7 +677,8 @@ footer a:hover {
   top: 50%;
   left: 125%;
   transform: translateY(-50%) translateX(-10px);
-  z-index: 99999; /* Increased z-index to ensure tooltips appear above all content */
+  z-index: 9999; /* Ensure consistent z-index */
+  position: absolute; /* Ensure proper positioning */
 }
 
 .tooltip-right::after {
@@ -674,7 +687,8 @@ footer a:hover {
   margin-left: -12px;
   transform: translateY(-50%) translateX(-10px);
   border-color: transparent rgba(36, 44, 61, 0.95) transparent transparent;
-  z-index: 99999; /* Increased z-index to ensure tooltips appear above all content */
+  z-index: 9999; /* Ensure consistent z-index */
+  position: absolute; /* Ensure proper positioning */
 }
 
 .tooltip-right:hover::before,
@@ -682,7 +696,7 @@ footer a:hover {
   opacity: 1;
   visibility: visible;
   transform: translateY(-50%) translateX(0);
-  z-index: 99999; /* Increased z-index to ensure tooltips appear above all content */
+  z-index: 9999; /* Ensure consistent z-index */
 }
 
 /* Chart tooltip (bottom, covering test again button) */
@@ -690,7 +704,8 @@ footer a:hover {
   top: 100%;
   left: 50%;
   transform: translateX(-50%) translateY(-10px);
-  z-index: 9999; /* Higher z-index to cover the test again button */
+  z-index: 9999; /* Increased z-index to match other tooltips */
+  position: absolute; /* Ensure proper positioning */
 }
 
 .chart-container[data-tooltip]::after {
@@ -699,7 +714,8 @@ footer a:hover {
   margin-top: -12px;
   transform: translateX(-50%) translateY(-10px);
   border-color: transparent transparent rgba(36, 44, 61, 0.95) transparent;
-  z-index: 9999; /* Higher z-index to cover the test again button */
+  z-index: 9999; /* Increased z-index to match other tooltips */
+  position: absolute; /* Ensure proper positioning */
 }
 
 .chart-container[data-tooltip]:hover::before,
@@ -707,6 +723,7 @@ footer a:hover {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
+  z-index: 9999; /* Ensure consistent z-index */
 }
 
 /* About panel styles */
