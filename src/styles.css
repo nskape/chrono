@@ -1157,7 +1157,7 @@ footer a:hover {
 
 /* Test parameters display */
 .test-parameters {
-  margin-bottom: 40px; /* Increased spacing */
+  margin-bottom: 25px; /* Reduced spacing while maintaining enough room for tooltips */
   background-color: rgba(36, 44, 61, 0.85);
   border-radius: 8px;
   padding: 8px 12px;
