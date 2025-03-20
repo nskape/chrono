@@ -1,6 +1,10 @@
 # Chrono
 
-A sleek web application that tests a user's packet loss using WebRTC with an Ookla-style interface. The test shows a progress circle that fills up as the test runs, and displays results including packet loss, MOS score, and a chart of packet latency.
+A network quality testing tool that measures your connection's performance through WebRTC.
+
+## Important Note
+
+Running this tool locally on your computer will not provide meaningful network testing results. The tool needs to be hosted on a remote server to properly measure network metrics between your device and the server.
 
 ## Features
 
@@ -15,10 +19,11 @@ A sleek web application that tests a user's packet loss using WebRTC with an Ook
 
 ## Prerequisites
 
-- Node.js (v14 or higher)
-- npm (v6 or higher)
+- Node.js (v14.0.0 or higher)
+- npm (v6.0.0 or higher)
+- A server or hosting platform (e.g., DigitalOcean, AWS, Heroku)
 
-## Installation
+### Installation
 
 1. Clone this repository or download the source code
 2. Navigate to the project directory
@@ -28,44 +33,41 @@ A sleek web application that tests a user's packet loss using WebRTC with an Ook
 npm install
 ```
 
-## Running the Application
-
-To start the development server:
-
-```bash
-npm start
-```
-
-This will start the application on http://localhost:9000
-
-## Building for Production
-
-To build the application for production:
-
+3. Build for production:
 ```bash
 npm run build
 ```
 
-The built files will be in the `dist` directory.
+4. Deploy the built files from the `dist` directory to your hosting platform of choice. The specific deployment steps will vary depending on your hosting provider.
 
-## How It Works
+### Development
 
-1. The application creates a local WebRTC connection between two peer connections in the same browser
-2. It sends packets of data between these connections at regular intervals
-3. It measures the round-trip time (RTT) of each packet
-4. It calculates packet loss by comparing sent vs. received packets
-5. It calculates a Mean Opinion Score (MOS) based on packet loss, latency, and jitter
-6. Results are displayed in a user-friendly interface with charts
+If you want to make changes to the code, you can run the development server:
 
-## Browser Compatibility
+```bash
+npm run dev
+```
 
-This application requires WebRTC support. It works best in:
+Then open your browser to `http://localhost:3000`. Remember that while you can develop and test the UI locally, the network testing functionality will not provide meaningful results until deployed to a remote server.
 
-- Google Chrome (latest)
-- Mozilla Firefox (latest)
-- Microsoft Edge (latest)
-- Safari (latest)
+## Technical Details
+
+### Network Metrics
+
+- **Latency**: Measures round-trip time (RTT) between client and server
+- **Packet Loss**: Monitors successful packet delivery rate
+- **Connection Quality**: Basic evaluation of overall connection stability
+
+### Architecture
+
+- Built with JavaScript
+- Uses WebRTC for network measurements
+- Simple, lightweight design
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
 ## License
 
-MIT 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
