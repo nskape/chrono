@@ -48,7 +48,7 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: var(--bg-color);
+  background-color: var(--bg-color); /* Reverted to original */
   color: var(--text-color);
   line-height: 1.6;
 }
@@ -267,6 +267,7 @@ header {
   width: 90%;
   max-width: 600px;
   display: flex;
+  z-index: 9000;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -303,6 +304,8 @@ header {
   gap: 15px;
   margin-bottom: 20px;
   width: 100%;
+  position: relative; /* Create stacking context */
+  z-index: 1; /* Lower than parameter tooltips and other tooltips */
 }
 
 .result-card {
@@ -320,6 +323,8 @@ header {
   display: flex;
   flex-direction: column;
   height: 120px;
+  z-index: 1; /* Lower than tooltips */
+  position: relative; /* Ensure proper stacking context */
 }
 
 .result-card:hover {
@@ -539,7 +544,7 @@ footer a:hover {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
-  z-index: 1000;
+  z-index: 9999; /* Increased z-index for all tooltips */
   pointer-events: none;
 }
 
@@ -569,6 +574,7 @@ footer a:hover {
   bottom: 125%;
   left: 50%;
   transform: translateX(-50%) translateY(10px);
+  z-index: 9999; /* Ensure consistent z-index */
 }
 
 [data-tooltip]:not(.tooltip-left):not(.tooltip-right):not(.tooltip-bottom):not(.chart-container)::after {
@@ -576,6 +582,7 @@ footer a:hover {
   left: 50%;
   transform: translateX(-50%) translateY(10px);
   border-color: rgba(36, 44, 61, 0.95) transparent transparent transparent;
+  z-index: 9999; /* Ensure consistent z-index */
 }
 
 [data-tooltip]:not(.tooltip-left):not(.tooltip-right):not(.tooltip-bottom):not(.chart-container):hover::before,
@@ -583,6 +590,7 @@ footer a:hover {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
+  z-index: 9999; /* Ensure consistent z-index */
 }
 
 /* Left tooltip (for Packet Loss) */
@@ -590,6 +598,7 @@ footer a:hover {
   top: 50%;
   right: 125%;
   transform: translateY(-50%) translateX(10px);
+  z-index: 9900; /* Lower than parameter tooltips */
 }
 
 .tooltip-left::after {
@@ -598,6 +607,7 @@ footer a:hover {
   margin-right: -12px;
   transform: translateY(-50%) translateX(10px);
   border-color: transparent transparent transparent rgba(36, 44, 61, 0.95);
+  z-index: 9900; /* Lower than parameter tooltips */
 }
 
 .tooltip-left:hover::before,
@@ -605,6 +615,7 @@ footer a:hover {
   opacity: 1;
   visibility: visible;
   transform: translateY(-50%) translateX(0);
+  z-index: 9900; /* Keep consistent z-index on hover */
 }
 
 /* Bottom tooltip (for MOS Score and parameter items) */
@@ -612,7 +623,7 @@ footer a:hover {
   top: 125%;
   left: 50%;
   transform: translateX(-50%) translateY(-10px);
-  z-index: 1000;
+  z-index: 9999; /* Ensure consistent z-index */
 }
 
 .tooltip-bottom::after {
@@ -621,7 +632,7 @@ footer a:hover {
   margin-top: -12px;
   transform: translateX(-50%) translateY(-10px);
   border-color: transparent transparent rgba(36, 44, 61, 0.95) transparent;
-  z-index: 1000;
+  z-index: 9999; /* Ensure consistent z-index */
 }
 
 .tooltip-bottom:hover::before,
@@ -629,6 +640,7 @@ footer a:hover {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
+  z-index: 9999; /* Ensure consistent z-index */
 }
 
 /* Specific adjustments for parameter item tooltips */
@@ -636,6 +648,29 @@ footer a:hover {
   width: max-content;
   max-width: 200px;
   font-size: 0.8rem;
+  z-index: 20000; /* Much higher than result cards */
+  position: absolute;
+  top: 125%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+}
+
+.parameter-item.tooltip-bottom::after {
+  z-index: 20000; /* Much higher than result cards */
+  position: absolute;
+  top: 125%;
+  left: 50%;
+  margin-top: -12px;
+  transform: translateX(-50%) translateY(-10px);
+  border-color: transparent transparent rgba(36, 44, 61, 0.95) transparent;
+}
+
+.parameter-item.tooltip-bottom:hover::before,
+.parameter-item.tooltip-bottom:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  z-index: 20000; /* Much higher than result cards */
 }
 
 /* Specific adjustments for MOS Score tooltip */
@@ -646,6 +681,8 @@ footer a:hover {
   top: 100%;
   left: 50%;
   transform: translateX(-50%) translateY(0);
+  z-index: 9900; /* Lower than parameter tooltips */
+  position: absolute; /* Ensure proper positioning */
 }
 
 .result-card.tooltip-bottom::after {
@@ -654,6 +691,16 @@ footer a:hover {
   margin-top: -6px;
   transform: translateX(-50%) translateY(0);
   border-color: transparent transparent rgba(36, 44, 61, 0.95) transparent;
+  z-index: 9900; /* Lower than parameter tooltips */
+  position: absolute; /* Ensure proper positioning */
+}
+
+.result-card.tooltip-bottom:hover::before,
+.result-card.tooltip-bottom:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  z-index: 9900; /* Keep consistent z-index on hover */
 }
 
 /* Right tooltip (for Connection) */
@@ -661,6 +708,8 @@ footer a:hover {
   top: 50%;
   left: 125%;
   transform: translateY(-50%) translateX(-10px);
+  z-index: 9900; /* Lower than parameter tooltips */
+  position: absolute; /* Ensure proper positioning */
 }
 
 .tooltip-right::after {
@@ -669,6 +718,8 @@ footer a:hover {
   margin-left: -12px;
   transform: translateY(-50%) translateX(-10px);
   border-color: transparent rgba(36, 44, 61, 0.95) transparent transparent;
+  z-index: 9900; /* Lower than parameter tooltips */
+  position: absolute; /* Ensure proper positioning */
 }
 
 .tooltip-right:hover::before,
@@ -676,6 +727,7 @@ footer a:hover {
   opacity: 1;
   visibility: visible;
   transform: translateY(-50%) translateX(0);
+  z-index: 9900; /* Keep consistent z-index on hover */
 }
 
 /* Chart tooltip (bottom, covering test again button) */
@@ -683,7 +735,8 @@ footer a:hover {
   top: 100%;
   left: 50%;
   transform: translateX(-50%) translateY(-10px);
-  z-index: 1001; /* Higher z-index to cover the test again button */
+  z-index: 9900; /* Lower than parameter tooltips */
+  position: absolute; /* Ensure proper positioning */
 }
 
 .chart-container[data-tooltip]::after {
@@ -692,7 +745,8 @@ footer a:hover {
   margin-top: -12px;
   transform: translateX(-50%) translateY(-10px);
   border-color: transparent transparent rgba(36, 44, 61, 0.95) transparent;
-  z-index: 1001; /* Higher z-index to cover the test again button */
+  z-index: 9900; /* Lower than parameter tooltips */
+  position: absolute; /* Ensure proper positioning */
 }
 
 .chart-container[data-tooltip]:hover::before,
@@ -700,6 +754,7 @@ footer a:hover {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
+  z-index: 9900; /* Keep consistent z-index on hover */
 }
 
 /* About panel styles */
@@ -890,13 +945,24 @@ footer a:hover {
   stroke-width: 8;
 }
 
-.progress-ring__circle-progress {
+/* Inner progress ring (packets sent) */
+.progress-ring__circle-progress-sent {
   fill: transparent;
   stroke: var(--theme-primary);
   stroke-width: 8;
   stroke-linecap: round;
   transition: stroke-dashoffset 0.3s ease;
   filter: drop-shadow(0 0 4px rgba(129, 140, 248, 0.5));
+}
+
+/* Outer progress ring (packets received) */
+.progress-ring__circle-progress-received {
+  fill: transparent;
+  stroke: var(--grade-a-color); /* Using the green color from the grade colors */
+  stroke-width: 12;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
+  filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.5)); /* Green glow */
 }
 
 /* Packet info container styles */
@@ -1091,7 +1157,7 @@ footer a:hover {
 
 /* Test parameters display */
 .test-parameters {
-  margin-bottom: 15px;
+  margin-bottom: 25px; /* Reduced spacing while maintaining enough room for tooltips */
   background-color: rgba(36, 44, 61, 0.85);
   border-radius: 8px;
   padding: 8px 12px;
@@ -1099,6 +1165,8 @@ footer a:hover {
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 4px 12px var(--shadow-color);
   backdrop-filter: blur(10px);
+  position: relative; /* Create stacking context */
+  z-index: 2; /* Lower than tooltips but above other elements */
 }
 
 .parameters-list {
